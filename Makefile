@@ -22,3 +22,12 @@ db:
 
 clean:
 	docker compose down -v
+
+dev:
+	docker compose --env-file $(ENV_FILE) -f docker-compose.yaml up -d
+
+prod:
+	docker compose --env-file $(ENV_FILE) -f docker-compose.prod.yaml up -d
+
+build-prod:
+	docker compose --env-file $(ENV_FILE) -f docker-compose.prod.yaml up --build -d
