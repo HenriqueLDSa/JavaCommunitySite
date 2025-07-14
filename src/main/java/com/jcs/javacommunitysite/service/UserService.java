@@ -1,7 +1,7 @@
 package com.jcs.javacommunitysite.service;
 
 import com.jcs.javacommunitysite.dto.user.CreateUserRequest;
-import com.jcs.javacommunitysite.dto.user.UserDto;
+import com.jcs.javacommunitysite.dto.user.UserDTO;
 import com.jcs.javacommunitysite.model.User;
 import com.jcs.javacommunitysite.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +17,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto createUser(CreateUserRequest request) {
+    public UserDTO createUser(CreateUserRequest request) {
         if(userRepo.existsByEmailAndUsername(request.getEmail(), request.getUsername())){
             throw new IllegalArgumentException("Email or Username already in use");
         }
@@ -34,7 +34,7 @@ public class UserService {
 
         User saved = userRepo.save(user);
 
-        return UserDto.builder()
+        return UserDTO.builder()
                 .id(saved.getId())
                 .firstName(saved.getFirstName())
                 .lastName(saved.getLastName())

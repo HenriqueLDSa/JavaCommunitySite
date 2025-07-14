@@ -1,7 +1,7 @@
 package com.jcs.javacommunitysite.controller;
 
 import com.jcs.javacommunitysite.dto.user.CreateUserRequest;
-import com.jcs.javacommunitysite.dto.user.UserDto;
+import com.jcs.javacommunitysite.dto.user.UserDTO;
 import com.jcs.javacommunitysite.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,10 +28,10 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "User created successfully"),
             @ApiResponse(responseCode = "409", description = "Email or Username already in use")
     })
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
         try {
-            UserDto created = userService.createUser(request);
+            UserDTO created = userService.createUser(request);
             return ResponseEntity.status(201).body(created);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(e.getMessage());
