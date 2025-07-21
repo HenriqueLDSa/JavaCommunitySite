@@ -26,8 +26,8 @@ public class PostController {
     public ResponseEntity<?> createPost(@PathVariable String communityId, @RequestBody CreatePostRequest request) {
         try {
             request.setCommunityId(communityId);
-            PostDTO created = postService.createPost(request);
-            return ResponseEntity.status(201).body(created);
+            PostDTO createdPost = postService.createPost(request);
+            return ResponseEntity.status(201).body(createdPost);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         }
@@ -36,8 +36,8 @@ public class PostController {
     @PutMapping("/posts/{postId}")
     public ResponseEntity<?> updatePost(@PathVariable UUID postId, @RequestBody UpdatePostRequest request) {
         try {
-            PostDTO created = postService.updatePost(request, postId);
-            return ResponseEntity.status(201).body(created);
+            PostDTO updatedPost = postService.updatePost(request, postId);
+            return ResponseEntity.status(201).body(updatedPost);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         }
@@ -57,7 +57,7 @@ public class PostController {
     public ResponseEntity<?> getPostDetailsById(@PathVariable UUID postId){
         try {
             PostDTO postReturned = postService.getPostDetailsById(postId);
-            return ResponseEntity.status(201).body("Post deleted successfully");
+            return ResponseEntity.status(201).body(postReturned);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         }

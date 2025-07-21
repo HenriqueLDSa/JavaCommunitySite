@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateCommentRequest {
+public class UpdateCommentRequest {
     private String content;
 }
