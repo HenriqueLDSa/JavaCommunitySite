@@ -37,15 +37,6 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user")
-    private List<Post> posts = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<Vote> votes = new ArrayList<>();
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = this.updatedAt = LocalDateTime.now();

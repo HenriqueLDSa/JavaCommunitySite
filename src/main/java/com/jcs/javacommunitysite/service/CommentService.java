@@ -2,7 +2,6 @@ package com.jcs.javacommunitysite.service;
 
 import com.jcs.javacommunitysite.dto.comment.CommentDTO;
 import com.jcs.javacommunitysite.dto.comment.CreateCommentRequest;
-import com.jcs.javacommunitysite.dto.user.UserDTO;
 import com.jcs.javacommunitysite.model.Comment;
 import com.jcs.javacommunitysite.model.Post;
 import com.jcs.javacommunitysite.model.User;

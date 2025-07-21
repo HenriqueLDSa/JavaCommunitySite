@@ -32,9 +32,6 @@ public class Community {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "community")
-    private List<Post> posts = new ArrayList<>();
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = this.updatedAt = LocalDateTime.now();

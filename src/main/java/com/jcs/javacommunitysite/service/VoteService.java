@@ -1,13 +1,9 @@
 package com.jcs.javacommunitysite.service;
 
-import com.jcs.javacommunitysite.dto.post.CreatePostRequest;
-import com.jcs.javacommunitysite.dto.post.PostDTO;
 import com.jcs.javacommunitysite.dto.vote.VoteOnPostRequest;
-import com.jcs.javacommunitysite.model.Community;
 import com.jcs.javacommunitysite.model.Post;
 import com.jcs.javacommunitysite.model.User;
 import com.jcs.javacommunitysite.model.Vote;
-import com.jcs.javacommunitysite.repository.CommunityRepository;
 import com.jcs.javacommunitysite.repository.PostRepository;
 import com.jcs.javacommunitysite.repository.UserRepository;
 import com.jcs.javacommunitysite.repository.VoteRepository;

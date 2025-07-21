@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface CommunityRepository extends JpaRepository<Community, Long> {
     boolean existsByName(String name);
 
+    boolean existsById(UUID id);
+
     Optional<Community> findByName(String name);
 
     Optional<Community> findById(UUID id);

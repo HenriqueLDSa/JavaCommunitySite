@@ -22,7 +22,4 @@ public class Category {
 
     @Column(unique = true, nullable = false)
     private String name;
-
-    @ManyToMany(mappedBy = "categories")
-    private Set<Post> posts = new HashSet<>();
 }
