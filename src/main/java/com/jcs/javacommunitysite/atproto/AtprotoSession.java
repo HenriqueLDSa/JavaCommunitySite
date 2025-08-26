@@ -1,13 +1,19 @@
 package com.jcs.javacommunitysite.atproto;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidRecord;
 import com.jcs.javacommunitysite.atproto.exceptions.AtprotoUnauthorized;
 import com.jcs.javacommunitysite.atproto.records.AtprotoRecord;
+import com.jcs.javacommunitysite.atproto.typeadapters.AtprotoColorAdapter;
+import com.jcs.javacommunitysite.atproto.typeadapters.AtprotoDatetimeAdapter;
 import lombok.Getter;
 
+import java.awt.*;
 import java.io.*;
 import java.net.URL;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,12 +56,16 @@ public class AtprotoSession {
     }
 
     public JsonObject createRecord(AtprotoRecord record) throws AtprotoInvalidRecord, AtprotoUnauthorized, IOException {
-        JsonObject recordJson = record.getAsJson();
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(Instant.class, new AtprotoDatetimeAdapter())
+                .registerTypeAdapter(Color.class, new AtprotoColorAdapter())
+                .create();
         JsonObject payload = new JsonObject();
-        payload.add("record", recordJson);
+        payload.add("record", gson.toJsonTree(record));
         payload.addProperty("repo", handle);
         payload.addProperty("collection", record.getRecordCollection());
-        System.out.println(payload.toString());
+        System.out.println(payload);
 
         URL url = new URL(new URL(pdsHost), "/xrpc/com.atproto.repo.createRecord");
 
@@ -64,6 +74,11 @@ public class AtprotoSession {
         headers.put("Content-Type", "application/json");
 
         JsonObject response = HttpUtil.post(url, payload, headers);
+
+        // Get AtUri and provide it to the record
+        String atUri = response.get("uri").getAsString();
+        record.setAtUri(atUri);
+
         return response;
     }
 }

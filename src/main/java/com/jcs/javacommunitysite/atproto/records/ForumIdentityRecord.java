@@ -1,6 +1,7 @@
 package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
 import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidRecord;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,10 +9,10 @@ import lombok.Setter;
 import java.awt.*;
 
 public class ForumIdentityRecord extends AtprotoRecord {
-    @Getter @Setter private String name;
-    @Getter @Setter private String description;
-    @Getter @Setter private String logo = null;
-    @Getter @Setter private Color accent = null;
+    @Expose private String name;
+    @Expose private String description;
+    // @Expose private String logo = null;
+    @Expose private Color accent = null;
 
     public ForumIdentityRecord(JsonObject json) {
         super(json);
@@ -22,10 +23,10 @@ public class ForumIdentityRecord extends AtprotoRecord {
         this.description = description;
     }
 
-    public ForumIdentityRecord(String name, String description, String logo, Color accent) {
+    public ForumIdentityRecord(String name, String description, Color accent) {
         this.name = name;
         this.description = description;
-        this.logo = logo;
+        // this.logo = logo;
         this.accent = accent;
     }
 
@@ -37,17 +38,7 @@ public class ForumIdentityRecord extends AtprotoRecord {
     }
 
     @Override
-    public JsonObject getAsJson() throws AtprotoInvalidRecord {
-        JsonObject json = new JsonObject();
-        json.addProperty("name", name);
-        json.addProperty("description", description);
-        json.addProperty("logo", logo);
-        json.addProperty("accent", accent.getRGB());
-        return json;
-    }
-
-    @Override
     public String getRecordCollection() {
-        return "dev.jcs.forum.identity";
+        return "dev.fudgeu.experimental.atforumv1.forum.identity";
     }
 }

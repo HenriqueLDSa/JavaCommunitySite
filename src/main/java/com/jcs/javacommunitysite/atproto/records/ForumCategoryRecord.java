@@ -1,10 +1,9 @@
 package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidRecord;
-import lombok.Getter;
-import lombok.Setter;
+import com.jcs.javacommunitysite.atproto.AtUri;
 
 public class ForumCategoryRecord extends AtprotoRecord {
     public enum ForumCategoryType {
@@ -14,22 +13,22 @@ public class ForumCategoryRecord extends AtprotoRecord {
         QUESTION,
     }
 
-    @Getter @Setter private String name;
-    @Getter @Setter private String group;
-    @Getter @Setter private String description = null;
-    @Getter @Setter private ForumCategoryType categoryType;
+    @Expose private String name;
+    @Expose private AtUri<ForumGroupRecord> group;
+    @Expose private String description = null;
+    @Expose private ForumCategoryType categoryType;
 
     public ForumCategoryRecord(JsonObject json) {
         super(json);
     }
 
-    public ForumCategoryRecord(String name, String group, ForumCategoryType category) {
+    public ForumCategoryRecord(String name, AtUri<ForumGroupRecord> group, ForumCategoryType category) {
         this.name = name;
         this.group = group;
         this.categoryType = category;
     }
 
-    public ForumCategoryRecord(String name, String group, String description, ForumCategoryType category) {
+    public ForumCategoryRecord(String name, AtUri<ForumGroupRecord> group, String description, ForumCategoryType category) {
         this.name = name;
         this.group = group;
         this.description = description;
@@ -45,19 +44,7 @@ public class ForumCategoryRecord extends AtprotoRecord {
     }
 
     @Override
-    public JsonObject getAsJson() throws AtprotoInvalidRecord {
-        if (!isValid()) throw new AtprotoInvalidRecord();
-
-        JsonObject json = new JsonObject();
-        json.addProperty("name", name);
-        json.addProperty("group", group);
-        json.addProperty("description", description);
-        json.addProperty("categoryType", categoryType);
-        return json;
-    }
-
-    @Override
     public String getRecordCollection() {
-        return "dev.jcs.forum.category";
+        return "dev.fudgeu.experimental.atforumv1.forum.category";
     }
 }
