@@ -3,6 +3,14 @@ FROM maven:3.9.9 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
+
+# Run Flyway migrations first
+RUN mvn flyway:migrate
+
+# Generate jOOQ classes
+RUN mvn generate-sources
+
+# Package application
 RUN mvn clean package -DskipTests
 
 # ---- Runtime Stage ----

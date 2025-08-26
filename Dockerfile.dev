@@ -1,12 +1,15 @@
 FROM maven:3.9.9
 WORKDIR /app
 
-# Copy only pom.xml and download dependencies for caching
+# Copy only pom.xml first for dependency caching
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
 # Copy source code
 COPY . .
 
+# Expose port
 EXPOSE 8080
+
+# Run app with environment variables from docker-compose
 CMD ["mvn", "spring-boot:run"]
