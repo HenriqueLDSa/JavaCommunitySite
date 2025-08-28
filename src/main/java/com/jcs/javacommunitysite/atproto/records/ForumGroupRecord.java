@@ -2,9 +2,6 @@ package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
-import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidRecord;
-import lombok.Getter;
-import lombok.Setter;
 
 public class ForumGroupRecord extends AtprotoRecord {
     @Expose private String name;

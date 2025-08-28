@@ -1,12 +1,12 @@
 {
   "$type": "com.atproto.lexicon.schema",
   "lexicon": 1,
-  "id": "dev.fudgeu.experimental.atforumv1.forum.identity",
+  "id": "dev.fudgeu.experimental.atforumv1.forum.group",
   "defs": {
     "main": {
       "type": "record",
-      "key": "literal:self",
-      "description": "Defines what the forum is - name, description, etc.",
+      "key": "any",
+      "description": "Defines a group of categories",
       "record": {
         "type": "object",
         "required": ["name"],
@@ -19,11 +19,6 @@
           "description": {
             "type": "string",
             "maxLength": 300
-          },
-          "accent": {
-            "type": "string",
-            "minLength": 7,
-            "maxLength": 7
           }
         }
       }

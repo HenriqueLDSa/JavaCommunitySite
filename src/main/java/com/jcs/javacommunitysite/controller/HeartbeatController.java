@@ -20,12 +20,12 @@ public class HeartbeatController {
     public ResponseEntity<?> heartbeat() {
         try {
             AtprotoSession session = AtprotoSession.fromCredentials("https://bsky.social/", "jcstest2.bsky.social", "PASS");
-            // PostRecord post = new PostRecord("Hello! TESTING 2");
+             PostRecord post = new PostRecord("Hello! TESTING 2");
             // JsonObject resp = session.createRecord(post);
 
             // ForumGroupRecord testGroup = new ForumGroupRecord("Test Group 1", "This is a test group");
             ForumIdentityRecord testForum = new ForumIdentityRecord("Test Forum 1", "This is a test forum", Color.ORANGE);
-            JsonObject resp = session.createRecord(testForum);
+            JsonObject resp = session.createRecord(post);
 
             System.out.println(resp);
 

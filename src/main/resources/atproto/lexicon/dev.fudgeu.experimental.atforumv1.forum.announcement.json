@@ -1,0 +1,36 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "dev.fudgeu.experimental.atforumv1.forum.announcement",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "any",
+      "description": "A forum-wide announcement",
+      "record": {
+        "type": "object",
+        "required": ["title", "body", "createdAt", "expiresAt"],
+        "properties": {
+          "title": {
+            "type": "title",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}
