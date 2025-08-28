@@ -1,7 +1,7 @@
 {
   "$type": "com.atproto.lexicon.schema",
   "lexicon": 1,
-  "id": "dev.fudgeu.experimental.atforumv1.feed.reply",
+  "id": "dev.fudgeu.experimental.atforumv1.feed.vote",
   "defs": {
     "main": {
       "type": "record",
@@ -9,19 +9,19 @@
       "description": "An initial post that starts a discussion",
       "record": {
         "type": "object",
-        "required": ["text", "createdAt", "root"],
+        "required": ["root", "createdAt", "value"],
         "properties": {
-          "text": {
+          "root": {
             "type": "string",
-            "maxLength": 10000
+            "format": "at-uri"
           },
           "createdAt": {
             "type": "string",
             "format": "datetime"
           },
-          "root": {
-            "type": "string",
-            "format": "at-uri"
+          "value": {
+            "type": "integer",
+            "enum": [-1, 1]
           }
         }
       }

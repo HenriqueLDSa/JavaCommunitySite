@@ -16,6 +16,12 @@ public class ForumIdentityRecord extends AtprotoRecord {
 
     public ForumIdentityRecord(JsonObject json) {
         super(json);
+        this.name = json.get("name").getAsString();
+        this.description = json.has("description") ? json.get("description").getAsString() : null;
+        if (json.has("accent")) {
+            String accentHex = json.get("accent").getAsString();
+            this.accent = Color.decode(accentHex);
+        }
     }
 
     public ForumIdentityRecord(String name, String description) {

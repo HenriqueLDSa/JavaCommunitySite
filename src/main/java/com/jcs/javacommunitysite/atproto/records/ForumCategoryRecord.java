@@ -15,11 +15,15 @@ public class ForumCategoryRecord extends AtprotoRecord {
 
     @Expose private String name;
     @Expose private AtUri<ForumGroupRecord> group;
-    @Expose private String description = null;
+    @Expose private String description;
     @Expose private ForumCategoryType categoryType;
 
     public ForumCategoryRecord(JsonObject json) {
         super(json);
+        this.name = json.get("name").getAsString();
+        this.group = new AtUri<>(json.get("group").getAsString());
+        this.description = json.has("description") ? json.get("description").getAsString() : null;
+        this.categoryType = ForumCategoryType.valueOf(json.get("categoryType").getAsString().toUpperCase());
     }
 
     public ForumCategoryRecord(String name, AtUri<ForumGroupRecord> group, ForumCategoryType category) {

@@ -5,10 +5,12 @@ import com.google.gson.annotations.Expose;
 
 public class ForumGroupRecord extends AtprotoRecord {
     @Expose private String name;
-    @Expose private String description = null;
+    @Expose private String description;
 
     public ForumGroupRecord(JsonObject json) {
         super(json);
+        this.name = json.get("name").getAsString();
+        this.description = json.has("description") ? json.get("description").getAsString() : null;
     }
 
     public ForumGroupRecord(String name) {

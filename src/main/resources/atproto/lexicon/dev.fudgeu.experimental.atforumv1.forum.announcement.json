@@ -12,7 +12,7 @@
         "required": ["title", "body", "createdAt", "expiresAt"],
         "properties": {
           "title": {
-            "type": "title",
+            "type": "string",
             "maxLength": 100,
             "minLength": 1
           },
