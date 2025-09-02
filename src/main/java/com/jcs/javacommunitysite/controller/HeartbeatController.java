@@ -2,9 +2,7 @@ package com.jcs.javacommunitysite.controller;
 
 import com.google.gson.JsonObject;
 import com.jcs.javacommunitysite.atproto.AtprotoSession;
-import com.jcs.javacommunitysite.atproto.records.ForumGroupRecord;
 import com.jcs.javacommunitysite.atproto.records.ForumIdentityRecord;
-import com.jcs.javacommunitysite.atproto.records.PostRecord;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,16 +18,17 @@ public class HeartbeatController {
     public ResponseEntity<?> heartbeat() {
         try {
             AtprotoSession session = AtprotoSession.fromCredentials("https://bsky.social/", "jcstest2.bsky.social", "PASS");
-             PostRecord post = new PostRecord("Hello! TESTING 2");
+            // PostRecord post = new PostRecord("Hello! TESTING 2");
             // JsonObject resp = session.createRecord(post);
 
             // ForumGroupRecord testGroup = new ForumGroupRecord("Test Group 1", "This is a test group");
-            ForumIdentityRecord testForum = new ForumIdentityRecord("Test Forum 1", "This is a test forum", Color.ORANGE);
-            JsonObject resp = session.createRecord(post);
+            ForumIdentityRecord testForum = new ForumIdentityRecord("Test Forum 1", "This is a test forum UPDATED", Color.MAGENTA);
+            testForum.setRecordKey("3lxbqbq63b72s"); // TODO differentiate between aturi and rkey
+            JsonObject resp = session.updateRecord(testForum);
 
             System.out.println(resp);
 
-            return ResponseEntity.status(200).body("OK - " + testForum.getAtUri().orElse("No AtUri"));
+            return ResponseEntity.status(200).body("OK - " + testForum.getAtUri().orElseThrow());
         } catch (Exception e) {
             System.out.println(e);
             return ResponseEntity.status(500).body("BAD");

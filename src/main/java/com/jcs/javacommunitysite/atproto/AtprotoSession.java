@@ -65,7 +65,6 @@ public class AtprotoSession {
         payload.add("record", gson.toJsonTree(record));
         payload.addProperty("repo", handle);
         payload.addProperty("collection", record.getRecordCollection());
-        System.out.println(payload);
 
         URL url = new URL(new URL(pdsHost), "/xrpc/com.atproto.repo.createRecord");
 
@@ -77,8 +76,50 @@ public class AtprotoSession {
 
         // Get AtUri and provide it to the record
         String atUri = response.get("uri").getAsString();
-        record.setAtUri(atUri);
+        AtUri<AtprotoRecord> atUriObj = new AtUri<>(atUri);
+        record.setOwnerDid(atUriObj.getDid());
+        record.setRecordKey(atUriObj.getRecordKey());
 
+        return response;
+    }
+
+    public JsonObject updateRecord(AtprotoRecord record) throws AtprotoInvalidRecord, AtprotoUnauthorized, IOException {
+        if (record.getOwnerDid().isPresent() && !record.getOwnerDid().equals(handle)) throw new AtprotoUnauthorized();
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(Instant.class, new AtprotoDatetimeAdapter())
+                .registerTypeAdapter(Color.class, new AtprotoColorAdapter())
+                .create();
+        JsonObject payload = new JsonObject();
+        payload.add("record", gson.toJsonTree(record));
+        payload.addProperty("repo", handle);
+        payload.addProperty("collection", record.getRecordCollection());
+        payload.addProperty("rkey", record.getRecordKey().orElseThrow());
+
+        URL url = new URL(new URL(pdsHost), "/xrpc/com.atproto.repo.putRecord");
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + jwt);
+        headers.put("Content-Type", "application/json");
+
+        JsonObject response = HttpUtil.post(url, payload, headers);
+        return response;
+    }
+
+    public JsonObject deleteRecord(AtprotoRecord record) throws AtprotoInvalidRecord, AtprotoUnauthorized, IOException {
+        if (record.getOwnerDid().isPresent() && !record.getOwnerDid().equals(handle)) throw new AtprotoUnauthorized();
+        JsonObject payload = new JsonObject();
+        payload.addProperty("repo", handle);
+        payload.addProperty("collection", record.getRecordCollection());
+        payload.addProperty("rkey", record.getRecordKey().orElseThrow());
+
+        URL url = new URL(new URL(pdsHost), "/xrpc/com.atproto.repo.deleteRecord");
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + jwt);
+        headers.put("Content-Type", "application/json");
+
+        JsonObject response = HttpUtil.post(url, payload, headers);
         return response;
     }
 }
