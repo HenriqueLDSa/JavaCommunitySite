@@ -6,7 +6,6 @@ import com.jcs.javacommunitysite.atproto.AtUri;
 import java.util.Optional;
 
 public abstract class AtprotoRecord {
-
     private String ownerDid = null;
     private String recordKey = null;
 
