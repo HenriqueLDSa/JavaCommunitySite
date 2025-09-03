@@ -11,8 +11,8 @@ public class ReplyRecord extends AtprotoRecord {
     @Expose private Instant createdAt;
     @Expose private AtUri<PostRecord> root;
 
-    public ReplyRecord(JsonObject json) {
-        super(json);
+    public ReplyRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        super(atUri, json);
         this.text = json.get("text").getAsString();
         this.createdAt = Instant.parse(json.get("createdAt").getAsString());
         this.root = new AtUri<>(json.get("root").getAsString());

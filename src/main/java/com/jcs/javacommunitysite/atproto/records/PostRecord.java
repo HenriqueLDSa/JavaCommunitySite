@@ -17,8 +17,8 @@ public class PostRecord extends AtprotoRecord {
     @Expose private List<String> tags;
     @Expose private AtUri<ReplyRecord> solution;
 
-    public PostRecord(JsonObject json) {
-        super(json);
+    public PostRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        super(atUri, json);
         this.text = json.get("text").getAsString();
         this.createdAt = Instant.parse(json.get("createdAt").getAsString());
         this.category = new AtUri<>(json.get("category").getAsString());

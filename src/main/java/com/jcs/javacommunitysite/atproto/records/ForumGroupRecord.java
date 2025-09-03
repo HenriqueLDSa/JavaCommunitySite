@@ -2,13 +2,14 @@ package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
+import com.jcs.javacommunitysite.atproto.AtUri;
 
 public class ForumGroupRecord extends AtprotoRecord {
     @Expose private String name;
     @Expose private String description;
 
-    public ForumGroupRecord(JsonObject json) {
-        super(json);
+    public ForumGroupRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        super(atUri, json);
         this.name = json.get("name").getAsString();
         this.description = json.has("description") ? json.get("description").getAsString() : null;
     }

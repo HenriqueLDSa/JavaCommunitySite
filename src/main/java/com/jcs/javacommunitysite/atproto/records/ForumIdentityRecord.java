@@ -2,6 +2,7 @@ package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
+import com.jcs.javacommunitysite.atproto.AtUri;
 
 import java.awt.*;
 
@@ -11,8 +12,8 @@ public class ForumIdentityRecord extends AtprotoRecord {
     // @Expose private String logo = null;
     @Expose private Color accent = null;
 
-    public ForumIdentityRecord(JsonObject json) {
-        super(json);
+    public ForumIdentityRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        super(atUri, json);
         this.name = json.get("name").getAsString();
         this.description = json.has("description") ? json.get("description").getAsString() : null;
         if (json.has("accent")) {

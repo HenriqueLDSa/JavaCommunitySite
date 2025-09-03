@@ -2,6 +2,7 @@ package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
+import com.jcs.javacommunitysite.atproto.AtUri;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -12,8 +13,8 @@ public class ForumAnnouncementRecord extends AtprotoRecord {
     @Expose private Instant createdAt;
     @Expose private Instant expiresAt;
 
-    public ForumAnnouncementRecord(JsonObject json) {
-        super(json);
+    public ForumAnnouncementRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        super(atUri, json);
         this.title = json.get("title").getAsString();
         this.body = json.get("body").getAsString();
         this.createdAt = Instant.parse(json.get("createdAt").getAsString());

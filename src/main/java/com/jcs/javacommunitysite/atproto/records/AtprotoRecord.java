@@ -2,6 +2,7 @@ package com.jcs.javacommunitysite.atproto.records;
 
 import com.google.gson.JsonObject;
 import com.jcs.javacommunitysite.atproto.AtUri;
+import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidUri;
 
 import java.util.Optional;
 
@@ -9,7 +10,10 @@ public abstract class AtprotoRecord {
     private String ownerDid = null;
     private String recordKey = null;
 
-    public AtprotoRecord(JsonObject json) { }
+    public AtprotoRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        this.setAtUri(atUri);
+    }
+
     public AtprotoRecord() { }
 
     public Optional<String> getRecordKey() {
@@ -33,6 +37,13 @@ public abstract class AtprotoRecord {
         return Optional.of(
                 new AtUri<>(ownerDid, getRecordCollection(), recordKey)
         );
+    }
+
+    public void setAtUri(AtUri<AtprotoRecord> atUri) {
+        this.ownerDid = atUri.getDid();
+        if (!this.getRecordCollection().equals(atUri.getCollection()))
+            throw new AtprotoInvalidUri("Collection type does not match record's own collection type");
+        this.recordKey = atUri.getRecordKey();
     }
 
     public abstract boolean isValid();  // are the contents of this record valid?

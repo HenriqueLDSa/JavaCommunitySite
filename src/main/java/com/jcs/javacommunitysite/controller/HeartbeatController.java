@@ -23,8 +23,7 @@ public class HeartbeatController {
 //             JsonObject resp = session.createRecord(post);
 
             // ForumGroupRecord testGroup = new ForumGroupRecord("Test Group 1", "This is a test group");
-            ForumIdentityRecord testForum = new ForumIdentityRecord("Test Forum 500", "This is a test forum 500", Color.MAGENTA);
-//            testForum.setRecordKey("3lxbqbq63b72s"); // TODO differentiate between aturi and rkey
+            ForumIdentityRecord testForum = new ForumIdentityRecord("Test Forum 503", "This is a test forum", Color.RED);
             JsonObject resp = session.createRecord(testForum);
 
             System.out.println(resp);

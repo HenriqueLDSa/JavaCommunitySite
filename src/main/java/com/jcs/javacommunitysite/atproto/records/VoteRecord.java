@@ -11,8 +11,8 @@ public class VoteRecord extends AtprotoRecord {
     @Expose private Instant createdAt;
     @Expose private int value;
 
-    public VoteRecord(JsonObject json) {
-        super(json);
+    public VoteRecord(AtUri<AtprotoRecord> atUri, JsonObject json) {
+        super(atUri, json);
         this.root = new AtUri<>(json.get("root").getAsString());
         this.createdAt = Instant.parse(json.get("createdAt").getAsString());
         this.value = json.get("value").getAsInt();
