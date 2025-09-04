@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE "user" (
+CREATE TABLE "users" (
                         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                         username TEXT UNIQUE NOT NULL,
                         first_name TEXT NOT NULL,    -- removed UNIQUE
@@ -24,7 +24,7 @@ CREATE TABLE category (
                           name TEXT UNIQUE NOT NULL
 );
 
-CREATE TABLE post (
+CREATE TABLE posts (
                       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                       user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                       community_id UUID REFERENCES community(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -40,7 +40,7 @@ CREATE TABLE post_category (
                                PRIMARY KEY (post_id, category_id)
 );
 
-CREATE TABLE comment (
+CREATE TABLE comments (
                          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                          user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                          post_id UUID REFERENCES post(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
