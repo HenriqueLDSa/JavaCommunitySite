@@ -56,3 +56,22 @@ CREATE TABLE vote (
                       vote_type SMALLINT CHECK (vote_type IN (-1, 1)),
                       UNIQUE (user_id, post_id)
 );
+
+-- Create a new ENUM type to manage different kinds of notifications
+CREATE TYPE notification_type AS ENUM ('NEW_COMMENT', 'NEW_VOTE', 'USER_MENTION');
+
+-- Create the notification_history table
+CREATE TABLE notification_history (
+    -- A unique ID for each notification event
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    recipient_user_id UUID NOT NULL REFERENCES "users"(id) ON DELETE CASCADE,
+    triggering_user_id UUID NOT NULL REFERENCES "users"(id) ON DELETE CASCADE,
+    post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    comment_id UUID REFERENCES comments(id) ON DELETE CASCADE,
+    type notification_type NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (recipient_user_id, triggering_user_id, post_id, comment_id)
+);
+-- Create an index for quickly fetching all notifications for a specific user
+CREATE INDEX idx_notification_history_recipient_user_id ON notification_history(recipient_user_id);
