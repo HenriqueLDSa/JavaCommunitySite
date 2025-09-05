@@ -26,7 +26,7 @@ CREATE TABLE category (
 
 CREATE TABLE posts (
                       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                      user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                      user_id UUID REFERENCES "users"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                       community_id UUID REFERENCES community(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                       title TEXT NOT NULL,
                       content TEXT NOT NULL,
@@ -35,15 +35,15 @@ CREATE TABLE posts (
 );
 
 CREATE TABLE post_category (
-                               post_id UUID REFERENCES post(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                               post_id UUID REFERENCES posts(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                                category_id UUID REFERENCES category(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                                PRIMARY KEY (post_id, category_id)
 );
 
 CREATE TABLE comments (
                          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                         user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
-                         post_id UUID REFERENCES post(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                         user_id UUID REFERENCES "users"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                         post_id UUID REFERENCES posts(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                          content TEXT NOT NULL,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -51,8 +51,8 @@ CREATE TABLE comments (
 
 CREATE TABLE vote (
                       id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                      user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
-                      post_id UUID REFERENCES post(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                      user_id UUID REFERENCES "users"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+                      post_id UUID REFERENCES posts(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
                       vote_type SMALLINT CHECK (vote_type IN (-1, 1)),
                       UNIQUE (user_id, post_id)
 );
@@ -70,7 +70,7 @@ CREATE TABLE notification_history (
     comment_id UUID REFERENCES comments(id) ON DELETE CASCADE,
     type notification_type NOT NULL,
     is_read BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (recipient_user_id, triggering_user_id, post_id, comment_id)
 );
 -- Create an index for quickly fetching all notifications for a specific user
