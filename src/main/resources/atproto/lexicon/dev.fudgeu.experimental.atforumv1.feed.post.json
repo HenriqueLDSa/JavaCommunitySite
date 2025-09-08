@@ -1,0 +1,49 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "dev.fudgeu.experimental.atforumv1.feed.post",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "description": "An initial post that starts a discussion",
+      "record": {
+        "type": "object",
+        "required": ["text", "createdAt", "category", "forum", "tags"],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "category": {
+            "type": "string",
+            "format": "at-uri"
+          },
+          "forum": {
+            "type": "string",
+            "format": "at-identifier"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 25,
+              "minLength": 1
+            },
+            "maxLength": 20,
+            "default": []
+          },
+          "solution": {
+            "type": "string",
+            "format": "at-uri"
+          }
+        }
+      }
+    }
+  }
+}

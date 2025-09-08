@@ -1,0 +1,32 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "dev.fudgeu.experimental.atforumv1.forum.identity",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "literal:self",
+      "description": "Defines what the forum is - name, description, etc.",
+      "record": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "accent": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 7
+          }
+        }
+      }
+    }
+  }
+}
