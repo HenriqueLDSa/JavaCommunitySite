@@ -4,11 +4,15 @@ import com.jcs.javacommunitysite.atproto.jetstream.JetstreamWebsocketClient;
 import com.jcs.javacommunitysite.atproto.jetstream.handlers.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 @SpringBootApplication
+@RestController
 public class JavaCommunitySiteApplication {
 
     public static void main(String[] args) {
@@ -33,5 +37,10 @@ public class JavaCommunitySiteApplication {
 
     public static String addLexiconPrefix(String postfix) {
         return "dev.fudgeu.experimental.atforumv1." + postfix;
+    }
+
+    @GetMapping("/api/heartbeat")
+    public ResponseEntity<String> heartbeat() {
+        return ResponseEntity.ok("OK");
     }
 }
