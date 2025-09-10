@@ -7,16 +7,16 @@ CREATE TABLE "user" (
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE community (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT UNIQUE NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    description TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE category (
@@ -31,8 +31,16 @@ CREATE TABLE "post" (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     tags JSONB NOT NULL DEFAULT '[]'::jsonb,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_post_tags ON "post" USING GIN (tags);
+
+CREATE TABLE post_category (
+    post_id UUID REFERENCES "post"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    category_id UUID REFERENCES category(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
+    PRIMARY KEY (post_id, category_id)
 );
 
 CREATE TABLE "comment" (
@@ -40,14 +48,8 @@ CREATE TABLE "comment" (
     user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
     post_id UUID REFERENCES "post"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
     content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE post_category (
-    post_id UUID REFERENCES "post"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    category_id UUID REFERENCES category(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
-    PRIMARY KEY (post_id, category_id)
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE vote (
@@ -58,12 +60,9 @@ CREATE TABLE vote (
     UNIQUE (user_id, post_id)
 );
 
--- Create a new ENUM type to manage different kinds of notifications
 CREATE TYPE notification_type AS ENUM ('NEW_COMMENT', 'NEW_VOTE', 'USER_MENTION');
 
--- Create the notification_history table
 CREATE TABLE notification_history (
-    -- A unique ID for each notification event
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     recipient_user_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
     triggering_user_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
@@ -71,11 +70,8 @@ CREATE TABLE notification_history (
     comment_id UUID REFERENCES "comment"(id) ON DELETE CASCADE,
     type notification_type NOT NULL,
     read_at TIMESTAMPTZ,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (recipient_user_id, triggering_user_id, post_id, comment_id)
 );
 
--- Create an index for quickly fetching all notifications for a specific user
 CREATE INDEX idx_notification_history_recipient_user_id ON notification_history(recipient_user_id);
-
-CREATE INDEX idx_post_tags ON "post" USING GIN (tags);
