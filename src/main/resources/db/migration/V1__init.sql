@@ -7,16 +7,16 @@ CREATE TABLE "user" (
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE community (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL DEFAULT '',
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE category (
@@ -31,8 +31,8 @@ CREATE TABLE "post" (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     tags JSONB NOT NULL DEFAULT '[]'::jsonb,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE INDEX idx_post_tags ON "post" USING GIN (tags);
@@ -48,8 +48,8 @@ CREATE TABLE "comment" (
     user_id UUID REFERENCES "user"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
     post_id UUID REFERENCES "post"(id) ON UPDATE RESTRICT ON DELETE RESTRICT,
     content TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE vote (
@@ -70,7 +70,7 @@ CREATE TABLE notification_history (
     comment_id UUID REFERENCES "comment"(id) ON DELETE CASCADE,
     type notification_type NOT NULL,
     read_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT now(),
     UNIQUE (recipient_user_id, triggering_user_id, post_id, comment_id)
 );
 
