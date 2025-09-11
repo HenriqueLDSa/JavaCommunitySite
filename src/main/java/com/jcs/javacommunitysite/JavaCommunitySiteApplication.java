@@ -44,7 +44,14 @@ class JetstreamStartupComponent {
             if (jetstreamClient != null) {
                 jetstreamClient.close();
             }
-            jetstreamClient = new JetstreamWebsocketClient(new URI("wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=dev.fudgeu.experimental.atforumv1.forum.identity"));
+            jetstreamClient = new JetstreamWebsocketClient(new URI("wss://jetstream2.us-east.bsky.network/subscribe"
+                    + "?wantedCollections=dev.fudgeu.experimental.atforumv1.forum.identity"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.forum.group"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.forum.category"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.post"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.vote"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.reply"
+            ));
 
             jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.identity"), new JetstreamForumIdentityHandler());
             jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.group"), new JetstreamForumGroupHandler());

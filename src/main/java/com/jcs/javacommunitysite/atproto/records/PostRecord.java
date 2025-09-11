@@ -12,17 +12,22 @@ import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.addLexiconP
 
 public class PostRecord extends AtprotoRecord {
 
-    @Expose private String text;
+    @Expose private String title;
+    @Expose private String content;
     @Expose private Instant createdAt;
+    @Expose private Instant updatedAt = null;
     @Expose private AtUri category;
     @Expose private String forum;  // should be a DID
     @Expose private List<String> tags;
-    @Expose private AtUri solution;
+    @Expose private AtUri solution = null;
 
     public PostRecord(AtUri atUri, JsonObject json) {
         super(atUri, json);
-        this.text = json.get("text").getAsString();
+        this.title = json.get("title").getAsString();
+        this.content = json.get("content").getAsString();
         this.createdAt = Instant.parse(json.get("createdAt").getAsString());
+        if (json.has("updatedAt"))
+            this.updatedAt = Instant.parse(json.get("updatedAt").getAsString());
         this.category = new AtUri(json.get("category").getAsString());
         this.forum = json.get("forum").getAsString();
         this.tags = new ArrayList<>();
@@ -30,16 +35,18 @@ public class PostRecord extends AtprotoRecord {
         this.solution = json.has("solution") ? new AtUri(json.get("solution").getAsString()) : null;
     }
 
-    public PostRecord(String text, AtUri category, String forum) {
-        this.text = text;
+    public PostRecord(String title, String content, AtUri category, String forum) {
+        this.title = title;
+        this.content = content;
         this.createdAt = Instant.now();
         this.category = category;
         this.forum = forum;
         this.tags = new ArrayList<>();
     }
 
-    public PostRecord(String text, AtUri category, String forum, List<String> tags) {
-        this.text = text;
+    public PostRecord(String title, String content, AtUri category, String forum, List<String> tags) {
+        this.title = title;
+        this.content = content;
         this.createdAt = Instant.now();
         this.category = category;
         this.forum = forum;
@@ -48,7 +55,8 @@ public class PostRecord extends AtprotoRecord {
 
     @Override
     public boolean isValid() {
-        if (text == null || text.isEmpty() || text.length() > 10000) return false;
+        if (title == null || title.isEmpty() || title.length() > 100) return false;
+        if (content == null || content.isEmpty() || content.length() > 10000) return false;
         if (createdAt == null) return false;
         if (category == null) return false;
         if (forum == null) return false;
@@ -61,12 +69,20 @@ public class PostRecord extends AtprotoRecord {
         return addLexiconPrefix("feed.post");
     }
 
-    public String getText() {
-        return text;
+    public String getTitle() {
+        return title;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Instant getCreatedAt() {
@@ -79,6 +95,14 @@ public class PostRecord extends AtprotoRecord {
 
     public AtUri getCategory() {
         return category;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public void setCategory(AtUri category) {
