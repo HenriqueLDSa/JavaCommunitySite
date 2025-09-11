@@ -20,12 +20,12 @@ check-env:
 # Development with local PostgreSQL (Docker)
 dev-local: check-env
 	@echo "🐘 Starting with local PostgreSQL database..."
-	source .env && SPRING_PROFILES_ACTIVE=local docker compose up --build
+	source .env && SPRING_PROFILES_ACTIVE=local docker compose up --build -d
 
 # Development with remote AWS RDS
 dev-remote: check-env
 	@echo "☁️  Starting with remote PostgreSQL database..."
-	source .env && SPRING_PROFILES_ACTIVE=remote docker compose up --build
+	source .env && SPRING_PROFILES_ACTIVE=remote docker compose up --build -d
 
 # === Standard Docker Commands ===
 
