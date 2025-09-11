@@ -9,26 +9,27 @@ import java.time.Instant;
 import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.addLexiconPrefix;
 
 public class ReplyRecord extends AtprotoRecord {
-    @Expose private String text;
+    @Expose private String content;
     @Expose private Instant createdAt;
+    @Expose private Instant updatedAt = null;
     @Expose private AtUri root;
 
     public ReplyRecord(AtUri atUri, JsonObject json) {
         super(atUri, json);
-        this.text = json.get("text").getAsString();
+        this.content = json.get("content").getAsString();
         this.createdAt = Instant.parse(json.get("createdAt").getAsString());
         this.root = new AtUri(json.get("root").getAsString());
     }
 
-    public ReplyRecord(String text, AtUri root) {
-        this.text = text;
+    public ReplyRecord(String content, AtUri root) {
+        this.content = content;
         this.createdAt = Instant.now();
         this.root = root;
     }
 
     @Override
     public boolean isValid() {
-        if (text == null || text.isEmpty() || text.length() > 10000) return false;
+        if (content == null || content.isEmpty() || content.length() > 10000) return false;
         if (createdAt == null) return false;
         if (root == null) return false;
         return true;
@@ -39,12 +40,12 @@ public class ReplyRecord extends AtprotoRecord {
         return addLexiconPrefix("feed.reply");
     }
 
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Instant getCreatedAt() {

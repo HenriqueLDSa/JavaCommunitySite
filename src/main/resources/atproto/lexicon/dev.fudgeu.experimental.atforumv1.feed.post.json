@@ -9,14 +9,23 @@
       "description": "An initial post that starts a discussion",
       "record": {
         "type": "object",
-        "required": ["text", "createdAt", "category", "forum", "tags"],
+        "required": ["title", "content", "createdAt", "category", "forum", "tags"],
         "properties": {
-          "text": {
+          "title": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          "content": {
             "type": "string",
             "maxLength": 10000,
             "minLength": 1
           },
           "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "datetime"
           },

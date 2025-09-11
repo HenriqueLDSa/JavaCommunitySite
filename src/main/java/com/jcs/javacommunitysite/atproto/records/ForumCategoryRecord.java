@@ -17,10 +17,9 @@ public class ForumCategoryRecord extends AtprotoRecord {
 
     @Expose private String name;
     @Expose private AtUri group;
-
     @Expose private String description;
-
     @Expose private ForumCategoryType categoryType;
+
     public ForumCategoryRecord(AtUri atUri, JsonObject json) {
         super(atUri, json);
         this.name = json.get("name").getAsString();

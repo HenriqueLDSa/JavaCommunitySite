@@ -9,13 +9,17 @@
       "description": "An initial post that starts a discussion",
       "record": {
         "type": "object",
-        "required": ["text", "createdAt", "root"],
+        "required": ["content", "createdAt", "root"],
         "properties": {
-          "text": {
+          "content": {
             "type": "string",
             "maxLength": 10000
           },
           "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "datetime"
           },
