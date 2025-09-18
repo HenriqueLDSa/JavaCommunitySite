@@ -9,6 +9,13 @@ public class JetstreamPostHandler implements JetstreamHandler {
     @Override
     public void handleCreated(AtUri atUri, JsonObject recordJson) {
         PostRecord record = new PostRecord(atUri, recordJson);
+        System.out.println("Post record received from AtProto!");
+        System.out.println(" - Title: " + record.getTitle());
+        System.out.println(" - Content: " + record.getContent());
+        System.out.println(" - Category: " + record.getCategory());
+        System.out.println(" - Forum: " + record.getForum());
+        System.out.println(" - Created At: " + record.getCreatedAt());
+        System.out.println(" - Updated At: " + record.getUpdatedAt());
     }
 
     @Override

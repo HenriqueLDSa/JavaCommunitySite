@@ -7,6 +7,7 @@ import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidRecord;
 import com.jcs.javacommunitysite.atproto.exceptions.AtprotoUnauthorized;
 import com.jcs.javacommunitysite.atproto.records.AtprotoRecord;
 import com.jcs.javacommunitysite.atproto.session.AtprotoAuthSession;
+import com.jcs.javacommunitysite.atproto.typeadapters.AtprotoAtUriAdapter;
 import com.jcs.javacommunitysite.atproto.typeadapters.AtprotoColorAdapter;
 import com.jcs.javacommunitysite.atproto.typeadapters.AtprotoDatetimeAdapter;
 
@@ -23,6 +24,7 @@ public class AtprotoClient {
             .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapter(Instant.class, new AtprotoDatetimeAdapter())
             .registerTypeAdapter(Color.class, new AtprotoColorAdapter())
+            .registerTypeAdapter(AtUri.class, new AtprotoAtUriAdapter())
             .create();
 
     public AtprotoClient(AtprotoAuthSession session) {

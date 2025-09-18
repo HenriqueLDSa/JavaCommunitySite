@@ -7,7 +7,7 @@ import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidUri;
 
 import java.lang.reflect.Type;
 
-public class AtUri implements JsonSerializer<AtUri> {
+public class AtUri {
 
     private String did;
     private String collection;
@@ -31,11 +31,6 @@ public class AtUri implements JsonSerializer<AtUri> {
         this.did = did;
         this.collection = collection;
         this.recordKey = record;
-    }
-
-    @Override
-    public JsonElement serialize(AtUri tAtUri, Type type, JsonSerializationContext jsonSerializationContext) {
-        return jsonSerializationContext.serialize(this.toString());
     }
 
     public String toString() {
