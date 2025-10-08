@@ -206,6 +206,17 @@ p {
             font-weight: bold;
             font-size: var(--large-text-1);
         }
+
+        & .category-select-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+
+            & select {
+                display: flex;
+                flex: 1;
+            }
+        }
     }
 }
 
