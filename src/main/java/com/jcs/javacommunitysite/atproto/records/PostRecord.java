@@ -54,6 +54,20 @@ public class PostRecord extends AtprotoRecord {
         this.solution = optionalNullableField(json, "solution", AtUri::fromJson, null);
     }
 
+    public PostRecord(Json json) {
+        super();
+        this.title = field(json, "title", string());
+        this.content = field(json, "content", string());
+        this.createdAt = Instant.parse(field(json, "createdAt", string()));
+        this.updatedAt = optionalNullableField(json, "updatedAt", string())
+                .map(Instant::parse)
+                .orElse(null);
+        this.category = field(json, "category", AtUri::fromJson);
+        this.forum = field(json, "forum", string());
+        this.tags = field(json, "tags", array(string()));
+        this.solution = optionalNullableField(json, "solution", AtUri::fromJson, null);
+    }
+
     public PostRecord(String title, String content, AtUri category, String forum) {
         this.title = title;
         this.content = content;
