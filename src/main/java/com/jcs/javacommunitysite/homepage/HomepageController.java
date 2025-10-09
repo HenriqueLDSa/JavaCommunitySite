@@ -5,94 +5,79 @@ import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.atproto.records.PostRecord;
 import com.jcs.javacommunitysite.atproto.AtUri;
 import dev.mccue.json.Json;
+import org.jooq.DSLContext;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/api")
-public class HomepageController {
-    
-    private final AtprotoSessionService sessionService;
+import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
+import static dev.mccue.json.JsonDecoder.field;
+import static dev.mccue.json.JsonDecoder.string;
 
-    public HomepageController(AtprotoSessionService sessionService) {
+@RestController
+@RequestMapping("/homepage")
+public class HomepageController {
+
+    private final AtprotoSessionService sessionService;
+    private final DSLContext dsl;
+
+    public HomepageController(AtprotoSessionService sessionService, DSLContext dsl) {
         this.sessionService = sessionService;
+        this.dsl = dsl;
     }
 
     @PostMapping("/posts")
-    public ResponseEntity<?> createPost(@RequestBody Map<String, Object> postData) {
+    public String createPost(Model model) {
         try {
             Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
+
             if (clientOpt.isEmpty()) {
-                return ResponseEntity.status(401).body(Map.of(
-                    "success", false,
-                    "message", "Not authenticated"
-                ));
+                return "error not authenticated";
             }
-            
+
             AtprotoClient client = clientOpt.get();
-            
-            // Extract post data
-            String text = (String) postData.get("text");
-            String categoryUri = (String) postData.get("category");
-            String forum = (String) postData.get("forum");
-            
-            // Create post record
-            PostRecord post = new PostRecord(new AtUri(categoryUri), Json.emptyObject());
-            
-            // Create the record via ATProtocol
+
+            /*
+                logic to fetch data from form into Json variable
+            */
+
+            Json postDataJson = Json.objectBuilder()
+                    .put("", "")
+                    .put("", "")
+                    .put("", "")
+                    .toJson();
+
+            PostRecord post = new PostRecord(postDataJson);
             client.createRecord(post);
-            
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Post created successfully",
-                "atUri", Objects.requireNonNull(post.getAtUri().map(AtUri::toString).orElse(null))
-            ));
-            
+
+            return "success new post";
+
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of(
-                "success", false,
-                "message", "Error creating post: " + e.getMessage()
-            ));
+            return "error";
         }
     }
-    
+
     @GetMapping("/posts")
-    public ResponseEntity<?> getPosts() {
-        // Implementation for fetching posts
-        return ResponseEntity.ok(Map.of("posts", "[]"));
-    }
+    public String getGroupsCategories(Model model) {
 
-    @DeleteMapping("/posts")
-    public ResponseEntity<?> deletePost(@RequestBody Map<String, Object> postData) {
-        try {
-            Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
-            if (clientOpt.isEmpty()) {
-                return ResponseEntity.status(401).body(Map.of(
-                        "success", false,
-                        "message", "Not authenticated"
-                ));
-            }
+        var posts = dsl.select(
+                        POST.ID,
+                        POST.TITLE,
+                        POST.CONTENT,
+                        POST.CREATED_AT,
+                        POST.UPDATED_AT,
+                        POST.USER_ID,
+                        POST.COMMUNITY_ID,
+                        POST.CATEGORY_ID,
+                        POST.ATURI,
+                        POST.TAGS.cast(String.class).as("tags")
+                ).from(POST)
+                .orderBy(POST.CREATED_AT.desc())
+                .fetch();
 
-            AtprotoClient client = clientOpt.get();
-
-            String postUri = postData.get("uri").toString();
-            PostRecord post = new PostRecord(new AtUri(postUri));
-
-            client.deleteRecord(post);
-
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Post deleted successfully"
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of(
-                    "success", false,
-                    "message", "Error deleting post: " + e.getMessage()
-            ));
-        }
+        return "this will be the form that has the groups and categories";
     }
 }
