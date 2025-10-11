@@ -2,6 +2,7 @@ package com.jcs.javacommunitysite.pages;
 
 import com.jcs.javacommunitysite.atproto.AtUri;
 import com.jcs.javacommunitysite.atproto.AtprotoClient;
+import com.jcs.javacommunitysite.atproto.exceptions.AtprotoInvalidUri;
 import com.jcs.javacommunitysite.atproto.records.PostRecord;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.forms.NewPostForm;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,22 +43,7 @@ public class NewPostController {
             return "redirect:/login?next=/newPost&msg=To create a post, please log in.";
         }
 
-        var groups = dsl.select(
-                    CATEGORY_GROUP.NAME.as("group_name"),
-                    CATEGORY_GROUP.ID.as("group_id")
-            ).from(CATEGORY_GROUP)
-            .orderBy(CATEGORY_GROUP.NAME.asc())
-            .fetch();
-
-
-        var categoryGroups = groups.stream()
-                .map(record -> Map.of(
-                        "name", record.get("group_name"),
-                        "id", record.get("group_id").toString()
-                ))
-                .toList();
-
-        model.addAttribute("groups", categoryGroups);
+        model.addAttribute("groups", getGroups());
         model.addAttribute("postForm", new NewPostForm());
         return "newpost";
     }
@@ -70,12 +57,24 @@ public class NewPostController {
                 return "redirect:/login?next=/newPost";
             }
 
+            // Attempt to make aturi from category
+            AtUri category = null;
+            try {
+                category = new AtUri(newPostForm.getCategory());
+            } catch (AtprotoInvalidUri e) {
+                System.out.println(e);
+                model.addAttribute("error", "Invalid category - please select another one"); // TODO implement errors
+                model.addAttribute("groups", getGroups());
+                model.addAttribute("postForm", newPostForm);
+                return "newpost";
+            }
+
             AtprotoClient client = clientOpt.get();
 
             PostRecord post = new PostRecord(
                 newPostForm.getTitle(),
                 newPostForm.getContent(),
-                new AtUri("at://did:plc:bwh2fxasbh3ieuxjyym7bmeh/dev.fudgeu.experimental.atforumv1.forum.category/3lyyxv7wodj2o"),
+                category,
                 JCS_FORUM_DID
             );
             client.createRecord(post);
@@ -105,5 +104,24 @@ public class NewPostController {
 
         model.addAttribute("categories", categoryData);
         return "newpost_categoryoptions";
+    }
+
+    private List<Map<String, String>> getGroups() {
+        var groups = dsl.select(
+                        CATEGORY_GROUP.NAME.as("group_name"),
+                        CATEGORY_GROUP.ID.as("group_id")
+                ).from(CATEGORY_GROUP)
+                .orderBy(CATEGORY_GROUP.NAME.asc())
+                .fetch();
+
+
+        var categoryGroups = groups.stream()
+                .map(record -> Map.of(
+                        "name", record.get("group_name").toString(),
+                        "id", record.get("group_id").toString()
+                ))
+                .toList();
+
+        return categoryGroups;
     }
 }
