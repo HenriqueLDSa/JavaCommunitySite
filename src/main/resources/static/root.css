@@ -200,7 +200,13 @@ p {
     & form {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 20px;
+
+        & .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
         & label {
             font-weight: bold;
@@ -212,10 +218,19 @@ p {
             gap: 10px;
             align-items: center;
 
-            & select {
+            & .select-group-container {
                 display: flex;
+                flex-direction: column;
                 flex: 1;
+
+                & label {
+                    font-size: var(--regular-text);
+                }
             }
+        }
+
+        & .post-textarea {
+            height: 400px;
         }
     }
 }
@@ -242,6 +257,13 @@ p {
 
 .textbox {
     all: unset;
+    border: solid 1px var(--border-color);
+    border-radius: var(--border-radius-1);
+    padding: 10px;
+    flex-grow: 1;
+}
+
+.selectbox {
     border: solid 1px var(--border-color);
     border-radius: var(--border-radius-1);
     padding: 10px;

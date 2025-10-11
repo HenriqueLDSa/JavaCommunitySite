@@ -15,6 +15,7 @@
     @for(String stylesheet : stylesheets)
         <link rel="stylesheet" href="${stylesheet}" />
     @endfor
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
 </head>
 <body class="flex flex-row bg-white">
 <div class="w-60 flex-initial p-4 flex-col border-r-solid border-r-1 border-r-black min-h-svh">
