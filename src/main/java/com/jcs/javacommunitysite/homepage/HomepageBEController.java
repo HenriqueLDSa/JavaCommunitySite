@@ -3,9 +3,13 @@ package com.jcs.javacommunitysite.homepage;
 import com.jcs.javacommunitysite.atproto.AtprotoClient;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.atproto.records.PostRecord;
+import com.jcs.javacommunitysite.atproto.AtUri;
 import dev.mccue.json.Json;
 import org.jooq.DSLContext;
-import org.springframework.ui.Model;
+
+import static com.jcs.javacommunitysite.jooq.tables.Category.CATEGORY;
+import static com.jcs.javacommunitysite.jooq.tables.CategoryGroup.CATEGORY_GROUP;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
@@ -15,60 +19,59 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.jcs.javacommunitysite.jooq.tables.CategoryGroup.CATEGORY_GROUP;
-import static com.jcs.javacommunitysite.jooq.tables.Category.CATEGORY;
-
 @RestController
-@RequestMapping("/homepage")
-public class HomepageController {
+@RequestMapping("/homepagebe")
+public class HomepageBEController {
 
     private final AtprotoSessionService sessionService;
     private final DSLContext dsl;
 
-    public HomepageController(AtprotoSessionService sessionService, DSLContext dsl) {
+    public HomepageBEController(AtprotoSessionService sessionService, DSLContext dsl) {
         this.sessionService = sessionService;
         this.dsl = dsl;
     }
 
     @PostMapping("/posts")
-    public String createPost(Model model) {
+    public ResponseEntity<?> createPost(@RequestBody Json postData) {
         try {
             Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
-
             if (clientOpt.isEmpty()) {
-                return "error not authenticated";
+                return ResponseEntity.status(401).body(Map.of(
+                        "success", false,
+                        "message", "Not authenticated"
+                ));
             }
 
             AtprotoClient client = clientOpt.get();
 
-            /*
-                logic to fetch data from form into Json variable
-            */
+            PostRecord post = new PostRecord(postData);
 
-            Json postDataJson = Json.objectBuilder()
-                    .put("", "")
-                    .put("", "")
-                    .put("", "")
-                    .toJson();
-
-            PostRecord post = new PostRecord(postDataJson);
             client.createRecord(post);
 
-            return "success new post";
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "Post created successfully",
+                    "atUri", Objects.requireNonNull(post.getAtUri().map(AtUri::toString).orElse(null))
+            ));
 
         } catch (Exception e) {
-            return "error";
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Error creating post: " + e.getMessage()
+            ));
         }
     }
 
     @GetMapping("/posts")
-    public String getGroupsCategories(Model model) {
+    public ResponseEntity<?> getGroupsCategories() {
 
         try {
             Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
-
             if (clientOpt.isEmpty()) {
-                return "error not authenticated";
+                return ResponseEntity.status(401).body(Map.of(
+                        "success", false,
+                        "message", "Not authenticated"
+                ));
             }
 
             // Fetch all category groups with their categories
@@ -134,10 +137,15 @@ public class HomepageController {
                     })
                     .toList();
 
-            return "group/category template";
+            return ResponseEntity.status(200).body(Map.of(
+                    "success", true,
+                    "data", result));
 
         } catch (Exception e){
-            return "error";
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Error fetching data: " + e.getMessage()
+            ));
         }
     }
 }
