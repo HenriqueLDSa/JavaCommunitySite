@@ -49,33 +49,4 @@ public class HttpUtil {
         Json responseElement = Json.read(response.toString());
         return object(responseElement);
     }
-
-    public static JsonObject get(URL url, Map<String, String> headers) throws IOException, AtprotoUnauthorized {
-        // Set up connection
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            connection.setRequestProperty(header.getKey(), header.getValue());
-        }
-
-        // Response sent - check status
-        int statusCode = connection.getResponseCode();
-        if (statusCode == 401) {
-            throw new AtprotoUnauthorized();
-        }
-
-        // Get response
-        InputStream is = connection.getInputStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            response.append(line);
-            response.append('\n');
-        }
-        br.close();
-
-        JsonElement responseElement = JsonParser.parseString(response.toString());
-        return responseElement.getAsJsonObject();
-    }
 }
