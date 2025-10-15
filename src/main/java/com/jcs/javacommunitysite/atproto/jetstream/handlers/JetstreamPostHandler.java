@@ -6,9 +6,9 @@ import com.jcs.javacommunitysite.atproto.AtUri;
 import com.jcs.javacommunitysite.atproto.jetstream.JetstreamHandler;
 import com.jcs.javacommunitysite.atproto.records.PostRecord;
 import dev.mccue.json.Json;
-import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.JCS_FORUM_ATURI;
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static dev.mccue.json.JsonDecoder.field;
+import static dev.mccue.json.JsonDecoder.optionalNullableField;
 import static dev.mccue.json.JsonDecoder.string;
 import java.time.ZoneOffset;
 
@@ -48,7 +48,7 @@ public class JetstreamPostHandler implements JetstreamHandler {
             .set(POST.CATEGORY_ATURI, field(postJson, "category", string()))
             .set(POST.FORUM, field(postJson, "forum", string()))
             .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
-            .set(POST.SOLUTION, field(postJson, "solution", string()))
+            .set(POST.SOLUTION, optionalNullableField(postJson, "solution", string(), null))
             .set(POST.ATURI, atUri.toString())
             .execute();
         } catch(Exception e){
@@ -78,14 +78,14 @@ public class JetstreamPostHandler implements JetstreamHandler {
             Json postJson = record.toJson();
 
             dsl.update(POST) 
-            .set(POST.TITLE, field(postJson, "title", string()))
-            .set(POST.CONTENT, field(postJson, "content", string()))
-            .set(POST.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
-            .set(POST.CATEGORY_ATURI, field(postJson, "category", string()))
-            .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
-            .set(POST.SOLUTION, field(postJson, "solution", string()))
-            .where(POST.ATURI.eq(atUri.toString()))
-            .execute();
+                .set(POST.TITLE, field(postJson, "title", string()))
+                .set(POST.CONTENT, field(postJson, "content", string()))
+                .set(POST.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
+                .set(POST.CATEGORY_ATURI, field(postJson, "category", AtUri::fromJson).toString()) // Convert AtUri to string
+                .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
+                .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null).toString()) 
+                .where(POST.ATURI.eq(atUri.toString()))
+                .execute();
         } catch(Exception e){
             System.out.println("Error inserting post record: " + e.getMessage());
             e.printStackTrace();

@@ -14,11 +14,15 @@ public class ReplyRecord extends AtprotoRecord {
     private Instant updatedAt = null;
     private AtUri root;
 
+    public ReplyRecord(AtUri atUri) {
+        super(atUri);
+    }
+
     public ReplyRecord(AtUri atUri, Json json) {
         super(atUri, json);
 
         this.content = field(json, "content", string());
-        this.createdAt = Instant.parse(field(json, "content", string()));
+        this.createdAt = Instant.parse(field(json, "createdAt", string()));
         this.updatedAt = optionalNullableField(json, "updatedAt", string())
                 .map(Instant::parse)
                 .orElse(null);
@@ -29,6 +33,16 @@ public class ReplyRecord extends AtprotoRecord {
         this.content = content;
         this.createdAt = Instant.now();
         this.root = root;
+    }
+
+    public ReplyRecord(Json json) {
+        super();
+        this.content = field(json, "content", string());
+        this.createdAt = Instant.parse(field(json, "createdAt", string()));
+        this.updatedAt = optionalNullableField(json, "updatedAt", string())
+                .map(Instant::parse)
+                .orElse(null);
+        this.root = field(json, "root", AtUri::fromJson);
     }
 
     @Override
@@ -58,6 +72,14 @@ public class ReplyRecord extends AtprotoRecord {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public AtUri getRoot() {
