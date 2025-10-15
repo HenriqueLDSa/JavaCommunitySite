@@ -92,6 +92,10 @@ p {
     flex-direction: column;
     flex-grow: 1;
 
+    h2 {
+        margin-bottom: 10px;
+    }
+
     & .mid-reply-runner {
         margin-left: 35px;
         width: 1px;
@@ -195,6 +199,9 @@ p {
         }
 
         & .body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             margin-left: calc(var(--pfp-post-size) / 2 + 36px);
         }
     }

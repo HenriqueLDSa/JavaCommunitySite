@@ -1,4 +1,7 @@
-@param String post
+@param String username
+@param String handle
+@param String content
+@param String timestamp
 
 <div class="post op-post">
     <div class="content">
@@ -7,15 +10,15 @@
                 <img src="/img/user.svg">
             </div>
             <div class="poster-info">
-                <p class="username">Test User</p>
-                <p class="handle">@test.com</p>
+                <p class="username">${username}</p>
+                <p class="handle">${handle}</p>
             </div>
             <div class="time-info">
-                Posted 2 hours ago
+                ${timestamp}
             </div>
         </div>
         <div class="body">
-            $unsafe{post}
+            $unsafe{content}
         </div>
     </div>
 </div>
