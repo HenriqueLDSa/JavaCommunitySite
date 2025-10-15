@@ -83,11 +83,12 @@ public class JetstreamPostHandler implements JetstreamHandler {
                 .set(POST.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
                 .set(POST.CATEGORY_ATURI, field(postJson, "category", AtUri::fromJson).toString()) // Convert AtUri to string
                 .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
-                .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null).toString()) 
+                .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null) != null ? 
+                     optionalNullableField(postJson, "solution", AtUri::fromJson, null).toString() : null)
                 .where(POST.ATURI.eq(atUri.toString()))
                 .execute();
         } catch(Exception e){
-            System.out.println("Error inserting post record: " + e.getMessage());
+            System.out.println("Error updating post record: " + e.getMessage());
             e.printStackTrace();
         }
     }

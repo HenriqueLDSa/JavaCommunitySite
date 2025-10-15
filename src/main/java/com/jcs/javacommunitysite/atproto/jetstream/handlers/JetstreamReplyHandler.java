@@ -65,16 +65,16 @@ public class JetstreamReplyHandler implements JetstreamHandler {
         System.out.println(" - Post root: " + record.getRoot());
 
         try{
-            Json postJson = record.toJson();
+            Json replyJson = record.toJson();
 
             dsl.update(REPLY) 
-            .set(REPLY.CONTENT, field(postJson, "content", string()))
+            .set(REPLY.CONTENT, field(replyJson, "content", string()))
             .set(REPLY.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
-            .set(REPLY.ROOT, field(postJson, "root", AtUri::fromJson).toString())
+            .set(REPLY.ROOT, field(replyJson, "root", AtUri::fromJson).toString())
             .where(REPLY.ATURI.eq(atUri.toString()))
             .execute();
         } catch(Exception e){
-            System.out.println("Error inserting post record: " + e.getMessage());
+            System.out.println("Error updating reply record: " + e.getMessage());
             e.printStackTrace();
         }
     }
