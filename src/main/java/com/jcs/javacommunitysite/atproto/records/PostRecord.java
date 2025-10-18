@@ -14,6 +14,8 @@ import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 
 public class PostRecord extends AtprotoRecord {
 
+    public static final String recordCollection = addLexiconPrefix("feed.post");
+
     private String title;
     private String content;
     private Instant createdAt;
@@ -135,7 +137,7 @@ public class PostRecord extends AtprotoRecord {
 
     @Override
     public String getRecordCollection() {
-        return addLexiconPrefix("feed.post");
+        return recordCollection;
     }
 
     public String getTitle() {
