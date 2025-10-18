@@ -28,7 +28,7 @@ public class ReplyRecord extends AtprotoRecord {
     public ReplyRecord(String content, AtUri root) {
         this.content = content;
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now(); // TODO remove
+        this.updatedAt = Instant.now();
         this.root = root;
     }
 
