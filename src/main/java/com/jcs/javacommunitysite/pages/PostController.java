@@ -1,10 +1,11 @@
 package com.jcs.javacommunitysite.pages;
 
 import com.jcs.javacommunitysite.atproto.AtUri;
+import com.jcs.javacommunitysite.atproto.exceptions.AtprotoUnauthorized;
 import com.jcs.javacommunitysite.atproto.records.PostRecord;
+import com.jcs.javacommunitysite.atproto.records.ReplyRecord;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
-import com.jcs.javacommunitysite.util.TimeUtil;
-import dev.mccue.json.Json;
+import com.jcs.javacommunitysite.forms.NewReplyForm;
 import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.Node;
 import org.commonmark.node.Heading;
@@ -13,11 +14,10 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,12 +93,36 @@ public class PostController {
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         String contentHtml = renderer.render(document);
 
+        model.addAttribute("did", user);
+        model.addAttribute("rkey", rkey);
         model.addAttribute("title", post.get("title"));
         model.addAttribute("postContent", contentHtml);
         model.addAttribute("postTimestamp", ((OffsetDateTime) post.get("created_at")).toString());
+        model.addAttribute("newReplyForm", new NewReplyForm());
 
         model.addAttribute("postReplies", postReplies);
 
         return "post";
+    }
+
+    @PostMapping("/post/{user}/{rkey}/htmx/reply")
+    public String makeReply(@ModelAttribute NewReplyForm newReplyForm, Model model, @PathVariable("user") String user, @PathVariable("rkey") String rkey, @RequestParam String content) throws AtprotoUnauthorized, IOException {
+        AtUri aturi = new AtUri(user, PostRecord.recordCollection, rkey);
+
+        var atprotoSessionOpt = sessionService.getCurrentClient();
+        if (atprotoSessionOpt.isEmpty() || !sessionService.isAuthenticated()) {
+            // TODO
+            return "redirect:/login?next=/post/" + user + "/" + rkey + "/&msg=To reply to a post, please log in.";
+        }
+        var atprotoSession = atprotoSessionOpt.get();
+
+
+        ReplyRecord reply = new ReplyRecord(
+            newReplyForm.getContent(),
+            aturi
+        );
+
+        atprotoSession.createRecord(reply);
+        return "redirect:/browse";
     }
 }

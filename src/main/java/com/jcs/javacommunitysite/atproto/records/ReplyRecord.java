@@ -18,7 +18,7 @@ public class ReplyRecord extends AtprotoRecord {
         super(atUri, json);
 
         this.content = field(json, "content", string());
-        this.createdAt = Instant.parse(field(json, "content", string()));
+        this.createdAt = Instant.parse(field(json, "createdAt", string()));
         this.updatedAt = optionalNullableField(json, "updatedAt", string())
                 .map(Instant::parse)
                 .orElse(null);
@@ -28,6 +28,7 @@ public class ReplyRecord extends AtprotoRecord {
     public ReplyRecord(String content, AtUri root) {
         this.content = content;
         this.createdAt = Instant.now();
+        this.updatedAt = Instant.now(); // TODO remove
         this.root = root;
     }
 

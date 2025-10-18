@@ -1,12 +1,18 @@
+@import com.jcs.javacommunitysite.forms.NewReplyForm
 @import java.util.ArrayList
 @import java.util.List
 @import java.util.Map
+
+@param String did
+@param String rkey
 
 @param String title
 @param String postContent
 @param String postTimestamp
 
 @param List<Map<String, Object>> postReplies
+
+@param NewReplyForm newReplyForm
 
 @template.layout.main(
     title = "Post",
@@ -28,17 +34,17 @@
 <%--        @template.components.reply()--%>
 <%--        <div class="mid-reply-runner"></div>--%>
 
-        <div class="reply-container">
+        <form class="reply-container" hx-post="/post/${did}/${rkey}/htmx/reply" hx-swap="none">
             <p>Make a Reply</p>
             <div class="reply-bottom">
                 <img src="/img/user.svg">
-                <textarea class="post-textarea"></textarea>
+                <textarea class="post-textarea" name="content" value="${newReplyForm.getContent()}"></textarea>
             </div>
-            <div class="reply-buttons">
+            <div class="reply-buttons" type="submit">
                 <button class="button">Reply</button>
             </div>
             <div class="runner"></div>
-        </div>
+        </form>
     </div>
     `
 )
