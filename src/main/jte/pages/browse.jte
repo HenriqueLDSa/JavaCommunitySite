@@ -16,29 +16,29 @@
         </div>
         <div class="flex-col border-1 border-black rounded-sm mt-8">
             <div class="border-b-1 border-b-black m-2 pb-1">
-                <a href="" class="text-gray-500 hover:underline">Questions</a>
+                <a href="/topics/questions" class="text-gray-500 hover:underline">Questions</a>
             </div>
             <ul class="m-3">
                 <li class="text-sm">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/questions/getting_started">
                         <p>Getting Started</p>
                         <p class="text-xs text-gray-400">If you're brand new, start here!</p>
                     </a>
                 </li>
                 <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/questions/springboot">
                         <p>Springboot Questions</p>
                         <p class="text-xs text-gray-400">Questions about Springboot</p>
                     </a>
                 </li>
                 <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/questions/minecraft_modding_questions">
                         <p>Minecraft Modding Questions</p>
                         <p class="text-xs text-gray-400">Questions about writing mods for Minecraft</p>
                     </a>
                 </li>
                 <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/questions/kotlin_questions">
                         <p>Kotlin Questions</p>
                         <p class="text-xs text-gray-400">Questions about Kotlin</p>
                     </a>
@@ -47,23 +47,23 @@
         </div>
         <div class="flex-col border-1 border-black rounded-sm mt-8">
             <div class="border-b-1 border-b-black m-2 pb-1">
-                <a href="" class="text-gray-500 hover:underline">Showcase</a>
+                <a href="/topics/showcase" class="text-gray-500 hover:underline">Showcase</a>
             </div>
             <ul class="m-3">
                 <li class="text-sm">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/showcase/applications">
                         <p>Applications</p>
                         <p class="text-xs text-gray-400">Show off your cool applications</p>
                     </a>
                 </li>
                 <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/showcase/libraries">
                         <p>Libraries</p>
                         <p class="text-xs text-gray-400">Show off your cool libraries</p>
                     </a>
                 </li>
                 <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
+                    <a class="hover:underline" href="/topics/showcase/minecraft_mods">
                         <p>Minecraft Mods</p>
                         <p class="text-xs text-gray-400">Show off your cool Minecraft mods</p>
                     </a>
