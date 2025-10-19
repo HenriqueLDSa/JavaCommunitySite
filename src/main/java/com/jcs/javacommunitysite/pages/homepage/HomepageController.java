@@ -1,14 +1,11 @@
-package com.jcs.javacommunitysite.homepage;
+package com.jcs.javacommunitysite.pages.homepage;
 
 import com.jcs.javacommunitysite.atproto.AtprotoClient;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
-import com.jcs.javacommunitysite.atproto.records.PostRecord;
-import dev.mccue.json.Json;
 import org.jooq.DSLContext;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,10 +13,8 @@ import java.util.stream.Collectors;
 
 import static com.jcs.javacommunitysite.jooq.tables.Category.CATEGORY;
 import static com.jcs.javacommunitysite.jooq.tables.Group.GROUP;
-import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.JCS_FORUM_ATURI;
 
 @RestController
-@RequestMapping("/homepage")
 public class HomepageController {
 
     private final AtprotoSessionService sessionService;
@@ -30,46 +25,7 @@ public class HomepageController {
         this.dsl = dsl;
     }
 
-    @PostMapping("/posts")
-    public String createPost(Model model) {
-        try {
-            Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
-
-            if (clientOpt.isEmpty()) {
-                return "error not authenticated";
-            }
-
-            AtprotoClient client = clientOpt.get();
-
-            /*
-                logic to fetch data from form into Json variable
-            */
-
-            Instant createdAt = Instant.now();
-            Instant updatedAt = createdAt;
-
-            Json postDataJson = Json.objectBuilder()
-                    .put("title", "")
-                    .put("content", "")
-                    .put("createdAt", createdAt.toString())
-                    .put("updatedAt", updatedAt.toString())
-                    .put("category", "")
-                    .put("forum", JCS_FORUM_ATURI)
-                    .put("tags", "")
-                    .put("solution", "")
-                    .toJson();
-
-            PostRecord post = new PostRecord(postDataJson);
-            client.createRecord(post);
-
-            return "success new post";
-
-        } catch (Exception e) {
-            return "error";
-        }
-    }
-
-    @GetMapping("/posts")
+    @GetMapping("/groups/categories")
     public String getGroupsCategories(Model model) {
 
         try {

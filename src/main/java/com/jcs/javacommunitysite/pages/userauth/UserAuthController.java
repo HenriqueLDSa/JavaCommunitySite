@@ -1,14 +1,15 @@
-package com.jcs.javacommunitysite.userauth;
+package com.jcs.javacommunitysite.pages.userauth;
 
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.atproto.exceptions.AtprotoUnauthorized;
-import com.jcs.javacommunitysite.atproto.session.AtprotoJwtSession;
 import com.jcs.javacommunitysite.forms.LoginForm;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+
+import static com.jcs.javacommunitysite.atproto.AtprotoUtil.getPdsHostFromHandle;
 
 @Controller
 public class UserAuthController {
@@ -46,9 +47,9 @@ public class UserAuthController {
         }
 
         try {
-            String pdsHost = "https://bsky.social"; // TODO auto get pds host from handle
             String handle = loginForm.getHandle();
             String password = loginForm.getPassword();
+            String pdsHost = getPdsHostFromHandle(handle);
 
             sessionService.createSession(pdsHost, handle, password);
 

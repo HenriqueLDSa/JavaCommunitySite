@@ -16,7 +16,7 @@ public class ReplyRecord extends AtprotoRecord {
     private Instant updatedAt = null;
     private AtUri root;
 
-    private DSLContext dsl;
+    public static final String recordCollection = addLexiconPrefix("feed.reply");
 
     public ReplyRecord(AtUri atUri) {
         super(atUri);
@@ -24,11 +24,10 @@ public class ReplyRecord extends AtprotoRecord {
 
     public ReplyRecord(AtUri atUri, DSLContext dsl) {
         super(atUri);
-        this.dsl = dsl;
-        fetchFromDB(atUri);
+        fetchFromDB(atUri, dsl);
     }
 
-    private void fetchFromDB(AtUri atUri) {
+    private void fetchFromDB(AtUri atUri, DSLContext dsl) {
         var record = dsl.select()
                 .from(REPLY)
                 .where(REPLY.ATURI.eq(atUri.toString()))

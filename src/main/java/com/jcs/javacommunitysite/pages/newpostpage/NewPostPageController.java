@@ -1,4 +1,4 @@
-package com.jcs.javacommunitysite.pages;
+package com.jcs.javacommunitysite.pages.newpostpage;
 
 import com.jcs.javacommunitysite.atproto.AtUri;
 import com.jcs.javacommunitysite.atproto.AtprotoClient;
@@ -16,28 +16,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 
 import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.JCS_FORUM_DID;
 import static com.jcs.javacommunitysite.jooq.tables.Category.CATEGORY;
 import static com.jcs.javacommunitysite.jooq.tables.Group.GROUP;
 
 @Controller
-public class NewPostController {
+public class NewPostPageController {
 
     private final AtprotoSessionService sessionService;
     private final DSLContext dsl;
 
-    public NewPostController(AtprotoSessionService sessionService, DSLContext dsl) {
+    public NewPostPageController(AtprotoSessionService sessionService, DSLContext dsl) {
         this.sessionService = sessionService;
         this.dsl = dsl;
     }
 
-
     @GetMapping("/newPost")
-    public String newPost(Model model) {
-        // Kick to login screen if not logged in
-        if (!sessionService.isAuthenticated()) {
+    public String createPost(Model model) {
+        var clientOpt = sessionService.getCurrentClient();
+        if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
             return "redirect:/login?next=/newPost&msg=To create a post, please log in.";
         }
 
@@ -47,38 +46,35 @@ public class NewPostController {
     }
 
     @PostMapping("/newPost")
-    public String newPost(@ModelAttribute NewPostForm newPostForm, Model model) {
+    public String createPost(@ModelAttribute NewPostForm newPostForm, Model model) {
         try {
-            Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
-
+            var clientOpt = sessionService.getCurrentClient();
             if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
                 return "redirect:/login?next=/newPost";
             }
 
-            // Attempt to make aturi from category
-            AtUri category = null;
-            try {
-                category = new AtUri(newPostForm.getCategory());
-            } catch (AtprotoInvalidUri e) {
-                System.out.println(e);
-                model.addAttribute("error", "Invalid category - please select another one"); // TODO implement errors
-                model.addAttribute("groups", getGroups());
-                model.addAttribute("postForm", newPostForm);
-                return "newpost";
-            }
-
             AtprotoClient client = clientOpt.get();
+
+            // Attempt to make aturi from category
+            AtUri categoryAtUri = new AtUri(newPostForm.getCategory());
 
             PostRecord post = new PostRecord(
                 newPostForm.getTitle(),
                 newPostForm.getContent(),
-                category,
+                categoryAtUri,
                 JCS_FORUM_DID
             );
+
             client.createRecord(post);
 
             return "redirect:/browse";
 
+        } catch (AtprotoInvalidUri e) {
+            System.out.println(e);
+            model.addAttribute("error", "Invalid category - please select another one"); // TODO implement errors
+            model.addAttribute("groups", getGroups());
+            model.addAttribute("postForm", newPostForm);
+            return "newpost";
         } catch (Exception e) {
             return "error";
         }
@@ -95,8 +91,8 @@ public class NewPostController {
 
         var categoryData = categories.stream()
             .map(record -> Map.of(
-                    "name", record.get("category_name"),
-                    "aturi", record.get("category_aturi")
+                    "name", Objects.requireNonNull(record.get("category_name")),
+                    "aturi", Objects.requireNonNull(record.get("category_aturi"))
             ))
             .toList();
 
@@ -113,13 +109,11 @@ public class NewPostController {
                 .fetch();
 
 
-        var categoryGroups = groups.stream()
+        return groups.stream()
                 .map(record -> Map.of(
-                        "name", record.get("group_name").toString(),
-                        "id", record.get("group_aturi").toString()
+                        "name", Objects.requireNonNull(record.get("group_name")).toString(),
+                        "id", Objects.requireNonNull(record.get("group_aturi")).toString()
                 ))
                 .toList();
-
-        return categoryGroups;
     }
 }

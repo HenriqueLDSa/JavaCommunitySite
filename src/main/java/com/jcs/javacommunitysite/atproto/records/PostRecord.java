@@ -25,8 +25,6 @@ public class PostRecord extends AtprotoRecord {
     private List<String> tags;
     private AtUri solution = null;
 
-    private DSLContext dsl;
-
     @Override
     public Json toJson() {
         return Json.objectBuilder()
@@ -47,11 +45,10 @@ public class PostRecord extends AtprotoRecord {
 
     public PostRecord(AtUri atUri, DSLContext dsl) {
         super(atUri);
-        this.dsl = dsl;
-        fetchFromDB(atUri);
+        fetchFromDB(atUri, dsl);
     }
 
-    private void fetchFromDB(AtUri atUri){
+    private void fetchFromDB(AtUri atUri, DSLContext dsl){
 
         var record = dsl.select()
                 .from(POST)
