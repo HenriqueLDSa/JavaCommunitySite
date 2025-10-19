@@ -26,7 +26,7 @@
           },
           "categoryType": {
             "type": "string",
-            "enum": ["discussion", "question"]
+            "maxLength": 30
           }
         }
       }
