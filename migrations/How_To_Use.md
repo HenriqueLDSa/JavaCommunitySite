@@ -2,7 +2,7 @@
 
 **ENSURE THAT YOU HAVE RAN setup-env.ps1 (if windows) OR setup.env.sh (if macOS/Linux) BEFORE RUNNING SCRIPTS**
 
-1.  Follow the MyBatis migration naming format (create .sql file):
+1.  Follow the MyBatis migration naming format (create .sql file). Add .sql file under ../scripts:
     ```
     <version_number>_<description>.sql
     ```
