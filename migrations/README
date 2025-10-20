@@ -1,38 +1,33 @@
-Welcome!
+# JavaCommunitySite - Database Migrations
 
-This is an MyBatis Migration repository.  You can specify the repository
-directory when running migrations using the --path=<repos-directory>
-option.  The default path is the current working directory ("./").
+This repository contains **MyBatis Migration scripts** for the JavaCommunitySite project.
 
-The repository base directory contains three subdirectories as follows:
+---
 
-./drivers
+## 1. Setup
 
-Place your JDBC driver .jar or .zip files in this directory.  Upon running a
-migration, the drivers will be dynamically loaded.
+**Please start with your OS-specific setup guide**:
 
-./environments
+- **macOS / Linux:**  
+  `macOS-Linux-Setup-Guide.md`
 
-In the environments folder you will find .properties files that represent
-your database instances.  By default a development.properties file is
-created for you to configure your development time database properties.
-You can also create test.properties and production.properties files.
-The environment can be specified when running a migration by using
-the --env=<environment> option (without the path or ".properties" part).
+- **Windows:**  
+  `Windows-Setup-Guide.md`
 
-The default environment is "development".
+> Follow the guide that matches your operating system first to ensure your environment variables and database connections are configured.
 
-./scripts
+---
 
-This directory contains your migration SQL files.  These are the files
-that contain your DDL to both upgrade and downgrade your database
-structure.  By default, the directory will contain the script to
-create the changelog table, plus one empty "first" migration script.
-To create a new migration script, use the "new" command.  To run
-all pending migrations, use the "up" command.  To undo the last
-migration applied, use the "down" command etc.
+## 2. Usage Instructions
 
-For more information about commands and options, run the MyBatis
-Migration script with the --help option.
+Once your environment is set up, refer to:
 
-Enjoy.
+- **How to use migrations:**  
+  `How_To_Use.md`
+
+This contains instructions for running migrations, checking status, creating new migrations, and rolling back changes.
+
+---
+## 3. Support
+
+If you encounter any issues with the documentation, setup, or migrations, please contact a developer on the project team for assistance.
