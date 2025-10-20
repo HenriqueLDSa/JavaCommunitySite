@@ -1,0 +1,6 @@
+ALTER TABLE public.post
+ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;
+
+-- //@UNDO
+ALTER TABLE public.post
+DROP COLUMN IF EXISTS is_deleted;
