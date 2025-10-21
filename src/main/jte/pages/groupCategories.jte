@@ -1,10 +1,10 @@
-@param String category
+@param String groupName
 
-@template.layout.main(title = category, content = @`
+@template.layout.main(title = groupName, content = @`
     <div class="ml-4 mr-4 flex-1 p-6 min-h-svh">
         <div class="flex flex-row justify-between">
             <div class="flex flex-col w-90">
-                <h1 class="flex text-3xl mt-2">${category}</h1>
+                <h1 class="flex text-3xl mt-2">${groupName}</h1>
                 <p class="text-sm text-gray-500 mt-1">Lorem Ipsum.</p>
             </div>
             <div class="flex flex-row justify-between w-35 items-start">

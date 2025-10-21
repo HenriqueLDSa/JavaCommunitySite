@@ -17,7 +17,7 @@ public class PageController {
     @GetMapping("/browse")
     public String home(Model model) {
 
-        model.addAttribute("group", hpc.getGroupsCategories());
+        model.addAttribute("groupsWithCategories", hpc.getGroupsCategories());
         return "pages/browse";
     }
 
@@ -36,26 +36,12 @@ public class PageController {
         return "pages/newReplies";
     }
 
-    public String[] cats = {"a", "b", "c"};
-
-    @GetMapping("/topics/{category}")
-    public String categoryPage(@PathVariable String category, Model model) {
-        category = category.replaceAll("_", " ");
-        category = toTitleCase(category);
-        model.addAttribute("category", category);
-        return "pages/categories";
-    }
-
-    @GetMapping("/topics/{category}/{topic}")
-    public String topicPage(@PathVariable String category, @PathVariable String topic, Model model) {
-        // all the actual data from the db
-        category = category.replaceAll("_", " ");
-        category = toTitleCase(category);
-        model.addAttribute("category", category);
-        topic = topic.replaceAll("_", " ");
-        topic = toTitleCase(topic);
-        model.addAttribute("topic", topic);
-        return "pages/topics";
+    @GetMapping("/groups/{groupName}")
+    public String groupPage(@PathVariable String groupName, Model model) {
+        groupName = groupName.replaceAll("_", " ");
+        groupName = toTitleCase(groupName);
+        model.addAttribute("groupName", groupName);
+        return "pages/groupCategories";
     }
 
     public static String toTitleCase(String input) {

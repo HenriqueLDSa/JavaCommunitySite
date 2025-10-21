@@ -1,4 +1,4 @@
-@param java.util.List<java.util.Map<String, Object>> group
+@param java.util.List<java.util.Map<String, Object>> groupsWithCategories
 @template.layout.main(title = "Browse", content = @`
     <div class="ml-4 mr-4 flex-1 p-6 min-h-svh">
         <div class="flex flex-row justify-between">
@@ -15,18 +15,18 @@
                 </a>
             </div>
         </div>
-        @if(group.isEmpty())
+        @if(groupsWithCategories.isEmpty())
             <br/>
             <p>Make sure to log in.</p>
         @endif
-        @for(java.util.Map<String, Object> a : group)
+        @for(java.util.Map<String, Object> a : groupsWithCategories)
             !{Object b = a.get("group");}
             !{java.util.Map<?, ?> c = (java.util.Map<?, ?>) b;}
-            !{String topic = c.get("name").toString();}
+            !{String group = c.get("name").toString();}
             <div class="flex-col border-1 border-black rounded-sm mt-8">
                 <div class="border-b-1 border-b-black m-2 pb-1">
-                    <a href="/topics/${topic.toLowerCase()}" class="text-gray-500 hover:underline">
-                        ${topic}
+                    <a href="/topics/${group.toLowerCase()}" class="text-gray-500 hover:underline">
+                        ${group}
                     </a>
                 </div>
                 <ul class="m-3">
@@ -36,8 +36,10 @@
                         !{java.util.Map<?,?> e = (java.util.Map<?, ?>) cat;}
                         !{String cat_name = e.get("name").toString();}
                         !{String cat_desc = e.get("description").toString();}
+                        !{String cat_atUri = e.get("aturi").toString();}
+                        !{String recordKey = cat_atUri.substring(cat_atUri.lastIndexOf("/") + 1);}
                         <li class="text-sm">
-                            <a class="hover:underline" href="/topics/${topic}/${cat_name}">
+                            <a class="hover:underline" href="/${group}/${recordKey}">
 <%--                                ${cat.toString()}--%>
                                 <p>${cat_name}</p>
                                 <p class="text-xs text-gray-400">${cat_desc}</p>

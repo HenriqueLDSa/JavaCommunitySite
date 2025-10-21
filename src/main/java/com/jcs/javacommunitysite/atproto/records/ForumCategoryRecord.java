@@ -10,6 +10,7 @@ import static dev.mccue.json.JsonDecoder.*;
 
 public class ForumCategoryRecord extends AtprotoRecord {
 
+    public static final String recordCollection = addLexiconPrefix("forum.category");
 
     public enum ForumCategoryType implements JsonEncodable {
         DISCUSSION,
@@ -74,7 +75,7 @@ public class ForumCategoryRecord extends AtprotoRecord {
 
     @Override
     public String getRecordCollection() {
-        return addLexiconPrefix("forum.category");
+        return addLexiconPrefix(recordCollection);
     }
 
     public String getName() {
