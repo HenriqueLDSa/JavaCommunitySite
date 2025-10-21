@@ -31,7 +31,7 @@ public class JetstreamPostHandler implements JetstreamHandler {
         System.out.println(" - Category: " + record.getCategory());
         System.out.println(" - Forum: " + record.getForum());
         System.out.println(" - Created At: " + record.getCreatedAt());
-        System.out.println(" - Updated At: " + record.getUpdatedAt()); 
+        System.out.println(" - Updated At: " + record.getUpdatedAt());
 
         if(dsl.fetchExists(POST, POST.ATURI.eq(record.getAtUri().toString()))){
             System.out.println("Post record already exists in database, skipping insert.");
@@ -41,7 +41,7 @@ public class JetstreamPostHandler implements JetstreamHandler {
         try{
             Json postJson = record.toJson();
 
-            dsl.insertInto(POST) 
+            dsl.insertInto(POST)
             .set(POST.TITLE, field(postJson, "title", string()))
             .set(POST.CONTENT, field(postJson, "content", string()))
             .set(POST.CREATED_AT, record.getCreatedAt().atOffset(ZoneOffset.UTC))
@@ -51,6 +51,7 @@ public class JetstreamPostHandler implements JetstreamHandler {
             .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
             .set(POST.SOLUTION, optionalNullableField(postJson, "solution", string(), null))
             .set(POST.ATURI, atUri.toString())
+            .set(POST.IS_DELETED, false)
             .execute();
         } catch(Exception e){
             System.out.println("Error inserting post record: " + e.getMessage());
@@ -66,7 +67,7 @@ public class JetstreamPostHandler implements JetstreamHandler {
             System.out.println("Post record does not exist in database, skipping update.");
             return;
         }
-        
+
         System.out.println("Post record received from AtProto!");
         System.out.println(" - AtUri: " + record.getAtUri());
         System.out.println(" - Title: " + record.getTitle());
@@ -79,13 +80,13 @@ public class JetstreamPostHandler implements JetstreamHandler {
         try{
             Json postJson = record.toJson();
 
-            dsl.update(POST) 
+            dsl.update(POST)
                 .set(POST.TITLE, field(postJson, "title", string()))
                 .set(POST.CONTENT, field(postJson, "content", string()))
                 .set(POST.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
                 .set(POST.CATEGORY_ATURI, field(postJson, "category", AtUri::fromJson).toString()) // Convert AtUri to string
                 .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
-                .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null) != null ? 
+                .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null) != null ?
                      optionalNullableField(postJson, "solution", AtUri::fromJson, null).toString() : null)
                 .where(POST.ATURI.eq(atUri.toString()))
                 .execute();
@@ -105,9 +106,10 @@ public class JetstreamPostHandler implements JetstreamHandler {
         }
 
         try{
-            dsl.deleteFrom(POST)
-            .where(POST.ATURI.eq(atUri.toString()))
-            .execute();
+            dsl.update(POST)
+                .set(POST.IS_DELETED, true)
+                .where(POST.ATURI.eq(atUri.toString()))
+                .execute();
         } catch(Exception e){
             System.out.println("Error deleting post record: " + e.getMessage());
             e.printStackTrace();
