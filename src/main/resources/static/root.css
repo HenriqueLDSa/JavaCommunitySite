@@ -1,5 +1,6 @@
 * {
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
 
     --border-radius-1: 15px;
@@ -66,6 +67,10 @@ p {
     font-size: var(--regular-text);
 }
 
+.root {
+    display: flex;
+}
+
 .errorText {
     color: var(--error-color);
     font-size: 14px;
@@ -78,7 +83,7 @@ p {
     overflow-y: auto;
     flex-direction: column;
     align-items: center;
-    padding: 40px 40px;
+    padding: 25px 40px;
 }
 
 .page {
@@ -481,4 +486,186 @@ pre {
     100% {
         transform: translateX(-50%) translateY(calc(10px + 100%));
     }
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 275px;
+    padding: 25px 15px;
+    border-right: solid 1px var(--border-color);
+    font-size: var(--large-text-5);
+
+    --button-side-padding: 15px;
+
+    & h1 {
+        font-size: var(--large-text-1);
+        font-weight: bold;
+        padding-left: var(--button-side-padding);
+    }
+
+    & .nav-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+        list-style-type: none;
+
+        & li {
+            display: flex;
+        }
+
+        & a {
+            padding: 10px var(--button-side-padding);
+            width: 100%;
+            color: black;
+            text-decoration: none;
+            user-select: none;
+            border-radius: var(--border-radius-2);
+            font-weight: bold;
+            border: solid 1px transparent;
+            transition: background-color 80ms, color 80ms, border-color 80ms;
+
+            &:hover:not(.active) {
+                border-color: var(--border-color);
+            }
+
+            &.active {
+                background-color: var(--accent);
+                color: var(--accent-text-color);
+            }
+        }
+    }
+
+    & .navbar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /*padding-left: var(--button-side-padding);*/
+
+        & h2 {
+            font-size: var(--large-text-6);
+            /*color: var(--subtext-color);*/
+        }
+
+        & ul {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        & a {
+            text-decoration: none;
+            color: black;
+
+            &:hover {
+                text-decoration: underline;
+            }
+
+            & p {
+                text-wrap: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    & .notifications {
+        & .notification-content {
+            color: var(--subtext-color);
+        }
+    }
+
+    & .recent-browsing {
+        & .new-content-notif {
+            padding-left: 15px;
+            color: var(--subtext-color);
+        }
+    }
+}
+
+.browse-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+
+    & .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+
+        & p {
+            color: var(--subtext-color);
+        }
+
+        & .top-right-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+    }
+
+    & .group-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        border-radius: var(--border-radius-1);
+        border: solid 1px var(--border-color);
+        padding: 15px;
+
+        & h3 {
+            font-size: var(--large-text-4);
+            color: var(--subtext-color);
+        }
+
+        & ul {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            list-style-type: none;
+            padding-left: 0;
+
+            & li {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                justify-content: space-between;
+                overflow-x: hidden;
+
+                & a {
+                    text-decoration: none;
+                    color: black;
+                    text-wrap: nowrap;
+                    overflow-x: hidden;
+                    text-overflow: ellipsis;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+
+                & .cat-name {
+                    font-size: var(--large-text-6);
+                }
+
+                & .cat-desc {
+                    color: var(--subtext-color);
+                    text-wrap: nowrap;
+                    overflow-x: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+        }
+    }
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--border-color);
+    width: 100%;
 }
