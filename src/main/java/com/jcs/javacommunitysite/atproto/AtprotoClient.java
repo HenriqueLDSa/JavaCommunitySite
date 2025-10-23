@@ -30,6 +30,8 @@ public class AtprotoClient {
     public void setAuthenticatedSession(AtprotoAuthSession session) {
         this.session = session;
     }
+    
+    
 
     public Json createRecord(AtprotoRecord record) throws AtprotoInvalidRecord, AtprotoUnauthorized, IOException {
         JsonObject.Builder payload = JsonObject.builder();

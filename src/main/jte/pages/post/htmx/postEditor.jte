@@ -28,9 +28,7 @@
                 class="post-textarea"
                 name="content"
                 required
-            >
-                ${form.getContent()}
-            </textarea>
+            >${form.getContent()}</textarea>
             <div class="buttons">
                 <button
                         class="button transparent"

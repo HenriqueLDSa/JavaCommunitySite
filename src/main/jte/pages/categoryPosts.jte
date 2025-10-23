@@ -1,37 +1,45 @@
+@import com.jcs.javacommunitysite.atproto.AtUri
+@import org.jooq.Record
+
 @param String groupName
 @param String categoryName
-@param java.util.List<com.jcs.javacommunitysite.jooq.tables.records.PostRecord> allPostsInCategory
+@param java.util.List<Record> allPostsInCategory
 
-@template.layout.main(title =categoryName, content = @`
-    <div class="ml-4 mr-4 flex-1 p-6 min-h-svh">
-        <div class="flex flex-row justify-between">
-            <div class="flex flex-col w-200">
-                <p class="text-sm text-gray-500 mt-1">${groupName} /</p>
-                <h1 class="flex text-3xl mt-2">${categoryName}</h1>
-            </div>
-            <div class="flex flex-row justify-between w-35 items-start">
-                <a href="" class="rounded-md pl-2 pr-2 pt-1 pb-1 text-sm bg-sky-500 hover:bg-sky-600 text-white">
-                    + New Post
-                </a>
-                <a href="" class="rounded-4xl bg-gray-500 p-1">
-                    pfp
-                </a>
-            </div>
-        </div>
-        <div class="flex-col border-1 border-black rounded-sm mt-8">
-            <div class="border-b-1 border-b-black m-2 pb-1">
-                <a href="" class="text-gray-500 hover:underline">Posts</a>
-            </div>
-            <ul class="m-3">
-                @for(int i = 0; i < allPostsInCategory.size(); i++)
-                    <li class="text-sm m-2">
-                        <a class="hover:underline" href="">
-                            <p>${allPostsInCategory.get(i).getTitle()}</p>
-<%--                            <p class="text-xs text-gray-400">Lorem Ipsum</p>--%>
-                        </a>
-                    </li>
-                @endfor
-            </ul>
-        </div>
+@template.layout.main(title = categoryName, content = @`
+    <div class="page-content">
+
+        <%-- Header --%>
+        @template.components.pageHeader(
+            content = @`
+                <p>${groupName} /</p>
+                <h2>${categoryName}</h2>
+            `,
+            backHref = "/browse"
+        )
+
+        <%-- Posts --%>
+        @template.components.labelledSection(
+            title = "Posts",
+            content = @`
+
+            @for(var post : allPostsInCategory)
+                !{AtUri aturi = new AtUri(post.get("aturi").toString());}
+                <li class="post-item">
+                    <a href="/post/${aturi.getDid()}/${aturi.getRecordKey()}">
+                        <h4 class="post-name">${post.get("title").toString()}</h4>
+                        <p class="post-preview">${post.get("content").toString()}</p>
+                    </a>
+
+                    <div style="min-width: 150px; text-align: right">${post.get("countReplies").toString()} replies</div>
+                </li>
+            @endfor
+
+            @if(allPostsInCategory.isEmpty())
+                <p>No posts found.</p>
+            @endif
+            `
+        )
+
+
     </div>
 `)

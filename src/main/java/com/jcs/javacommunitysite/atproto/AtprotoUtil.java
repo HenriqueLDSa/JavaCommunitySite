@@ -174,4 +174,11 @@ public class AtprotoUtil {
             connection.disconnect();
         }
     }
+
+    /**
+     * Gets an Atproto user's Bluesky profile
+     */
+    public static JsonObject getBskyProfile(String handleOrDid) throws IOException {
+        return makeGetRequest("https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=" + handleOrDid);
+    }
 }

@@ -29,7 +29,7 @@
                 @if(self != null)
                     <div id="reply-popup-button-container-${self.getRecordKey()}" class="popup-menu-container">
                         <button
-                                class="popup-menu-button"
+                                class="button icon"
                                 hx-get="/post/${root.getDid()}/${root.getRecordKey()}/htmx/replyMenu?reply=${reply.getAturi()}"
                                 hx-target="#reply-popup-button-container-${self.getRecordKey()}"
                                 hx-swap="beforeend"

@@ -5,11 +5,15 @@ import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import org.jooq.DSLContext;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.jcs.javacommunitysite.jooq.tables.Category.CATEGORY;
 import static com.jcs.javacommunitysite.jooq.tables.Group.GROUP;
+import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
+import static org.jooq.impl.DSL.currentTimestamp;
 
 @RestController
 public class HomepageController {
@@ -26,6 +30,8 @@ public class HomepageController {
     public List<Map<String, Object>> getGroupsCategories() {
 
         try {
+            OffsetDateTime twentyFourHoursAgo = OffsetDateTime.now().minusHours(24);
+
             // Fetch all groups with their categories
             var groupsWithCategories = dsl.select(
                             GROUP.NAME.as("group_name"),
@@ -34,7 +40,12 @@ public class HomepageController {
                             CATEGORY.NAME.as("category_name"),
                             CATEGORY.ATURI.as("category_aturi"),
                             CATEGORY.CATEGORY_TYPE.as("category_type"),
-                            CATEGORY.DESCRIPTION.as("category_description")
+                            CATEGORY.DESCRIPTION.as("category_description"),
+                            dsl.selectCount()
+                                    .from(POST)
+                                    .where(POST.CATEGORY_ATURI.eq(CATEGORY.ATURI))
+                                    .and(POST.CREATED_AT.greaterThan(twentyFourHoursAgo))
+                                    .asField("posts_24hr")
                     ).from(GROUP)
                     .leftJoin(CATEGORY).on(CATEGORY.GROUP.eq(GROUP.ATURI))
                     .orderBy(GROUP.NAME.asc(), CATEGORY.NAME.asc())
@@ -56,7 +67,8 @@ public class HomepageController {
                                                     "name", Objects.requireNonNull(record.get("category_name")),
                                                     "aturi", Objects.requireNonNull(record.get("category_aturi")),
                                                     "category_type", record.get("category_type") != null ? record.get("category_type") : "",
-                                                    "description", record.get("category_description") != null ? record.get("category_description") : ""
+                                                    "description", record.get("category_description") != null ? record.get("category_description") : "",
+                                                    "posts_24hr", Objects.requireNonNull(record.get("posts_24hr"))
                                             );
                                         }
                                         return null;

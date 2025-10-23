@@ -5,6 +5,7 @@ import com.jcs.javacommunitysite.atproto.records.ForumCategoryRecord;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.jooq.tables.records.PostRecord;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 import java.util.Objects;
 
+import static com.jcs.javacommunitysite.jooq.tables.Group.GROUP;
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.Category.CATEGORY;
 import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.JCS_FORUM_DID;
+import static com.jcs.javacommunitysite.jooq.tables.Reply.REPLY;
 
 @Controller
 public class CategoryPageController {
@@ -29,30 +32,34 @@ public class CategoryPageController {
         this.dsl = dsl;
     }
 
-    @GetMapping ("/{group}/{categoryRKey}")
-    public String getCategoryPosts(@PathVariable String group, @PathVariable String categoryRKey, Model model) {
+    @GetMapping ("/category/{categoryRKey}")
+    public String getCategoryPosts(@PathVariable String categoryRKey, Model model) {
 
         try {
-            var clientOpt = sessionService.getCurrentClient();
-
-            if (!sessionService.isAuthenticated() || clientOpt.isEmpty()) {
-                return "redirect:/";
-            }
-
             AtUri categoryAtUri = new AtUri(JCS_FORUM_DID, ForumCategoryRecord.recordCollection, categoryRKey);
 
-            String categoryName = dsl.select(CATEGORY.NAME)
+            var result = dsl.select(CATEGORY.NAME, GROUP.NAME)
                     .from(CATEGORY)
+                    .leftJoin(GROUP).on(CATEGORY.GROUP.eq(GROUP.ATURI))
                     .where(CATEGORY.ATURI.eq(categoryAtUri.toString()))
-                    .fetchOne(CATEGORY.NAME);
+                    .fetchOne();
 
-            List<PostRecord> allPostsInCategory = dsl.selectFrom(POST).where(POST.CATEGORY_ATURI.eq(categoryAtUri.toString())).fetch();
+            String categoryName = result.get(CATEGORY.NAME);
+            String groupName = result.get(GROUP.NAME);
+            model.addAttribute("groupName", groupName);
+
+            List<Record> allPostsInCategory = dsl.select(
+                        POST.asterisk(),
+                        dsl.selectCount()
+                                .from(REPLY)
+                                .where(REPLY.ROOT.eq(POST.ATURI))
+                                .asField("countReplies")
+                    )
+                    .from(POST)
+                    .where(POST.CATEGORY_ATURI.eq(categoryAtUri.toString()))
+                    .fetch();
 
             model.addAttribute("allPostsInCategory", allPostsInCategory);
-
-            group = group.replaceAll("_", " ");
-            group = toTitleCase(group);
-            model.addAttribute("groupName", group);
 
             categoryName = Objects.requireNonNull(categoryName).replaceAll("_", " ");
             categoryName = toTitleCase(categoryName);
