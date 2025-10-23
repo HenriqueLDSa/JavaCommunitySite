@@ -26,11 +26,6 @@ public class HomepageController {
     public List<Map<String, Object>> getGroupsCategories() {
 
         try {
-            Optional<AtprotoClient> clientOpt = sessionService.getCurrentClient();
-            if (clientOpt.isEmpty()) {
-                return Collections.emptyList();
-            }
-
             // Fetch all groups with their categories
             var groupsWithCategories = dsl.select(
                             GROUP.NAME.as("group_name"),

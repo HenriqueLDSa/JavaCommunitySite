@@ -1,34 +1,39 @@
 @param java.util.List<java.util.Map<String, Object>> groupsWithCategories
 @template.layout.main(title = "Browse", content = @`
-    <div class="ml-4 mr-4 flex-1 p-6 min-h-svh">
-        <div class="flex flex-row justify-between">
-            <div class="flex flex-col w-90">
-                <h1 class="flex text-3xl mt-2">Browse Categories.</h1>
-                <p class="text-sm text-gray-500 mt-1">Find and create posts in their appropriate categories.</p>
+    <div class="browse-page">
+
+        <%-- Header --%>
+        <div class="header">
+            <div>
+                <h2>Browse Categories.</h2>
+                <p>Find and create posts in their appropriate categories.</p>
             </div>
-            <div class="flex flex-row justify-between w-35 items-start">
-                <a href="" class="rounded-md pl-2 pr-2 pt-1 pb-1 text-sm bg-sky-500 hover:bg-sky-600 text-white">
+            <div class="top-right-buttons">
+                <a href="/newPost" class="button">
                     + New Post
                 </a>
-                <a href="" class="rounded-4xl bg-gray-500 p-1">
+                <a href="" class="">
                     pfp
                 </a>
             </div>
         </div>
+
         @if(groupsWithCategories.isEmpty())
             <br/>
-            <p>Make sure to log in.</p>
+            <p>No categories!</p>
         @endif
+
         @for(java.util.Map<String, Object> a : groupsWithCategories)
             !{Object b = a.get("group");}
             !{java.util.Map<?, ?> c = (java.util.Map<?, ?>) b;}
             !{String group = c.get("name").toString();}
-            <div class="flex-col border-1 border-black rounded-sm mt-8">
-                <div class="border-b-1 border-b-black m-2 pb-1">
-                    <a href="/topics/${group.toLowerCase()}" class="text-gray-500 hover:underline">
-                        ${group}
-                    </a>
-                </div>
+            <div class="group-container">
+                <h3 href="/topics/${group.toLowerCase()}">
+                    ${group}
+                </h3>
+
+                <div class="divider"></div>
+
                 <ul class="m-3">
                     !{Object d = a.get("categories");}
                     !{java.util.List<?> cats = (java.util.List<?>) d;}
@@ -38,12 +43,14 @@
                         !{String cat_desc = e.get("description").toString();}
                         !{String cat_atUri = e.get("aturi").toString();}
                         !{String recordKey = cat_atUri.substring(cat_atUri.lastIndexOf("/") + 1);}
-                        <li class="text-sm">
-                            <a class="hover:underline" href="/${group}/${recordKey}">
-<%--                                ${cat.toString()}--%>
-                                <p>${cat_name}</p>
-                                <p class="text-xs text-gray-400">${cat_desc}</p>
+                        <li>
+                            <a href="/${group}/${recordKey}">
+                                <h4 class="cat-name">${cat_name}</h4>
+                                <p class="cat-desc">${cat_desc}</p>
                             </a>
+                            <div style="min-width: 200px; text-align: right;">
+                                <p>2 recent posts</p>
+                            </div>
                         </li>
                     @endfor
                 </ul>

@@ -9,85 +9,95 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>${title} | JCS</title>
-    <link rel="stylesheet" href="/main.css" />
     <link rel="stylesheet" href="/root.css" />
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/htmx-ext-response-targets@2.0.2"></script>
 </head>
-<body class="flex flex-row bg-white" hx-ext="response-targets">
-<div class="w-60 flex-initial p-4 flex-col border-r-solid border-r-1 border-r-black min-h-svh">
-    <h1 class="flex text-5xl mt-2 mb-10 pl-2">jcs.</h1>
-    <ul class="m-4 text-base">
+<body class="root" hx-ext="response-targets">
+<div class="sidebar">
+
+    <h1>jcs.</h1>
+
+    <%-- Nav buttons --%>
+    <ul class="nav-buttons">
         <li>
-            <a class="block mt-1 p-2 rounded-md hover:bg-sky-500 hover:text-white" href="/browse">
+            <a id="browse-button" href="/browse">
                 Browse
             </a>
         </li>
         <li>
-            <a class="block mt-1 p-2 rounded-md hover:bg-sky-500 hover:text-white" href="/hotPosts">
+            <a id="hot-posts-button" href="/hotPosts">
                 Hot Posts
             </a>
         </li>
         <li>
-            <a class="block mt-1 p-2 rounded-md hover:bg-sky-500 hover:text-white" href="/newPosts">
+            <a id="new-posts-button" href="/newPosts">
                 New Posts
             </a>
         </li>
         <li>
-            <a class="block mt-1 p-2 rounded-md hover:bg-sky-500 hover:text-white" href="/newReplies">
+            <a id="new-replies-button" href="/newReplies">
                 New Replies
             </a>
         </li>
     </ul>
-    <div class="m-3 text-base mt-5">
-        <p class="text-gray-500">Notifications</p>
-        <ul class="m-2">
-            <li class="text-sm">
-                <a class="hover:underline" href="">
-                    <p>New reply to your post</p>
-                    <p class="text-xs text-gray-400">Lorem Ipsum filler text</p>
+
+    <%-- Notifications --%>
+    <div class="navbar-section notifications">
+        <h2>Notifications</h2>
+        <ul>
+            <li>
+                <a href="">
+                    <p class="notification-title">New reply to your post</p>
+                    <p class="notification-content">Lorem Ipsum filler text</p>
                 </a>
             </li>
-            <li class="text-sm mt-3">
-                <a class="hover:underline" href="">
-                    <p>New reaction to your post</p>
-                    <p class="text-xs text-gray-400">Lorem Ipsum filler text</p>
+            <li>
+                <a href="">
+                    <p class="notification-title">New reaction to your post</p>
+                    <p class="notification-content">Lorem Ipsum filler text</p>
                 </a>
             </li>
-            <li class="text-sm mt-3">
-                <a class="hover:underline" href="">
-                    <p>New mention on post</p>
-                    <p class="text-xs text-gray-400">Lorem Ipsum filler text</p>
+            <li>
+                <a href="">
+                    <p class="notification-title">New mention on post</p>
+                    <p class="notification-content">Lorem Ipsum filler text</p>
                 </a>
             </li>
         </ul>
     </div>
-    <div class="m-3 text-base mt-6">
-        <p class="text-gray-500">Recent Browsing</p>
-        <ul class="m-2">
-            <li class="text-sm mt-3">
-                <a class="hover:underline" href="">
-                    How to set up Springb...
+
+    <%-- Recent Browsing --%>
+    <div class="navbar-section recent-browsing">
+        <h2>Recent Browsing</h2>
+        <ul>
+            <li>
+                <a href="">
+                    <p>How to set up Springboot super quickly?</p>
                 </a>
             </li>
-            <li class="text-sm mt-3">
-                <a class="hover:underline" href="">
-                    Check out my new too...
+            <li>
+                <a href="">
+                    <p>Check out my new tool that I made yesterday</p>
+                    <p class="new-content-notif">
+                        &#x21AA; 2 new replies
+                    </p>
                 </a>
             </li>
-            <li class="text-sm mt-3">
-                <a class="hover:underline" href="">
-                    How to make a calculator
+            <li>
+                <a href="">
+                    <p>How to make a calculator to calculate 2 + 2</p>
                 </a>
             </li>
-            <li class="text-sm mt-3">
-                <a class="hover:underline" href="">
-                    When did everyone sta...
+            <li>
+                <a href="">
+                    <p>When did everyone start using Java?</p>
                 </a>
             </li>
         </ul>
     </div>
 </div>
+
 <%-- The Content for the right side of the page --%>
 <div class="page-container">
     <div class="page">
@@ -99,5 +109,19 @@
     document.addEventListener("click", () => {
         document.getElementById("popup-menu")?.remove()
     })
+
+    // Nav button highlighting
+    const path = window.location.pathname.split('/')[1];
+    const buttons = {
+        'browse': 'browse-button',
+        'hotPosts': 'hot-posts-button',
+        'newPosts': 'new-posts-button',
+        'newReplies': 'new-replies-button'
+    };
+
+    if (path in buttons) {
+        document.getElementById(buttons[path])?.classList.add('active');
+    }
+
 </script>
 </html>
