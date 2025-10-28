@@ -60,8 +60,8 @@ public class PostRecord extends AtprotoRecord {
             this.content = record.get(POST.CONTENT);
             this.createdAt = record.get(POST.CREATED_AT).toInstant();
             this.updatedAt = record.get(POST.UPDATED_AT) == null ? null : record.get(POST.UPDATED_AT).toInstant();
-            this.category = new AtUri(record.get(POST.CATEGORY_ATURI));
-            this.forum = record.get(POST.FORUM);
+            // this.category = new AtUri(record.get(POST.CATEGORY_ATURI));
+            // this.forum = record.get(POST.FORUM);
             
             var tagsJsonb = record.get(POST.TAGS);
             if (tagsJsonb != null) {
@@ -71,7 +71,7 @@ public class PostRecord extends AtprotoRecord {
                 this.tags = new ArrayList<>();
             }
             
-            this.solution = record.get(POST.SOLUTION) == null ? null : new AtUri(record.get(POST.SOLUTION));
+            // this.solution = record.get(POST.SOLUTION) == null ? null : new AtUri(record.get(POST.SOLUTION));
         }
     }
 

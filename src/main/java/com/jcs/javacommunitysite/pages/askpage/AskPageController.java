@@ -4,8 +4,9 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
-import com.jcs.javacommunitysite.forms.NewPostForm;
 
 @Controller
 public class AskPageController {
@@ -25,5 +26,11 @@ public class AskPageController {
         model.addAttribute("postForm", new NewPostForm());
         return "pages/ask";
     }
-    
+
+    @PostMapping("/ask")
+    public String createPost(@ModelAttribute NewPostForm postForm, Model model) {
+        
+
+        return "";
+    }
 }

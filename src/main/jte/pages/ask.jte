@@ -1,4 +1,4 @@
-@param com.jcs.javacommunitysite.forms.NewPostForm postForm
+@param com.jcs.javacommunitysite.pages.askpage.NewPostForm postForm
 
 @template.layout.main(
     title = "Ask",

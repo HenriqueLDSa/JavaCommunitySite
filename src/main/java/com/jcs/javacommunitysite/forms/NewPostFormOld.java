@@ -1,6 +1,6 @@
 package com.jcs.javacommunitysite.forms;
 
-public class NewPostForm {
+public class NewPostFormOld {
     private String title;
     private String content;
     private String group;
