@@ -22,78 +22,78 @@ public class JetstreamPostHandler implements JetstreamHandler {
 
     @Override
     public void handleCreated(AtUri atUri, Json recordJson) {
-        PostRecord record = new PostRecord(atUri, recordJson);
+        // PostRecord record = new PostRecord(atUri, recordJson);
 
-        System.out.println("Post record received from AtProto!");
-        System.out.println(" - AtUri: " + record.getAtUri());
-        System.out.println(" - Title: " + record.getTitle());
-        System.out.println(" - Content: " + record.getContent());
-        System.out.println(" - Category: " + record.getCategory());
-        System.out.println(" - Forum: " + record.getForum());
-        System.out.println(" - Created At: " + record.getCreatedAt());
-        System.out.println(" - Updated At: " + record.getUpdatedAt());
+        // System.out.println("Post record received from AtProto!");
+        // System.out.println(" - AtUri: " + record.getAtUri());
+        // System.out.println(" - Title: " + record.getTitle());
+        // System.out.println(" - Content: " + record.getContent());
+        // System.out.println(" - Category: " + record.getCategory());
+        // System.out.println(" - Forum: " + record.getForum());
+        // System.out.println(" - Created At: " + record.getCreatedAt());
+        // System.out.println(" - Updated At: " + record.getUpdatedAt());
 
-        if(dsl.fetchExists(POST, POST.ATURI.eq(record.getAtUri().toString()))){
-            System.out.println("Post record already exists in database, skipping insert.");
-            return;
-        }
+        // if(dsl.fetchExists(POST, POST.ATURI.eq(record.getAtUri().toString()))){
+        //     System.out.println("Post record already exists in database, skipping insert.");
+        //     return;
+        // }
 
-        try{
-            Json postJson = record.toJson();
+        // try{
+        //     Json postJson = record.toJson();
 
-            dsl.insertInto(POST)
-            .set(POST.TITLE, field(postJson, "title", string()))
-            .set(POST.CONTENT, field(postJson, "content", string()))
-            .set(POST.CREATED_AT, record.getCreatedAt().atOffset(ZoneOffset.UTC))
-            .set(POST.UPDATED_AT, record.getUpdatedAt() != null ? record.getUpdatedAt().atOffset(ZoneOffset.UTC) : null)
-            .set(POST.CATEGORY_ATURI, field(postJson, "category", string()))
-            .set(POST.FORUM, field(postJson, "forum", string()))
-            .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
-            .set(POST.SOLUTION, optionalNullableField(postJson, "solution", string(), null))
-            .set(POST.ATURI, atUri.toString())
-            .set(POST.IS_DELETED, false)
-            .execute();
-        } catch(Exception e){
-            System.out.println("Error inserting post record: " + e.getMessage());
-            e.printStackTrace();
-        }
+        //     dsl.insertInto(POST)
+        //     .set(POST.TITLE, field(postJson, "title", string()))
+        //     .set(POST.CONTENT, field(postJson, "content", string()))
+        //     .set(POST.CREATED_AT, record.getCreatedAt().atOffset(ZoneOffset.UTC))
+        //     .set(POST.UPDATED_AT, record.getUpdatedAt() != null ? record.getUpdatedAt().atOffset(ZoneOffset.UTC) : null)
+        //     .set(POST.CATEGORY_ATURI, field(postJson, "category", string()))
+        //     .set(POST.FORUM, field(postJson, "forum", string()))
+        //     .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
+        //     .set(POST.SOLUTION, optionalNullableField(postJson, "solution", string(), null))
+        //     .set(POST.ATURI, atUri.toString())
+        //     .set(POST.IS_DELETED, false)
+        //     .execute();
+        // } catch(Exception e){
+        //     System.out.println("Error inserting post record: " + e.getMessage());
+        //     e.printStackTrace();
+        // }
     }
 
     @Override
     public void handleUpdated(AtUri atUri, Json recordJson) {
-        PostRecord record = new PostRecord(atUri, recordJson);
+        // PostRecord record = new PostRecord(atUri, recordJson);
 
-        if(!dsl.fetchExists(POST, POST.ATURI.eq(record.getAtUri().toString()))){
-            System.out.println("Post record does not exist in database, skipping update.");
-            return;
-        }
+        // if(!dsl.fetchExists(POST, POST.ATURI.eq(record.getAtUri().toString()))){
+        //     System.out.println("Post record does not exist in database, skipping update.");
+        //     return;
+        // }
 
-        System.out.println("Post record received from AtProto!");
-        System.out.println(" - AtUri: " + record.getAtUri());
-        System.out.println(" - Title: " + record.getTitle());
-        System.out.println(" - Content: " + record.getContent());
-        System.out.println(" - Category: " + record.getCategory());
-        System.out.println(" - Forum: " + record.getForum());
-        System.out.println(" - Created At: " + record.getCreatedAt());
-        System.out.println(" - Updated At: " + record.getUpdatedAt());
+        // System.out.println("Post record received from AtProto!");
+        // System.out.println(" - AtUri: " + record.getAtUri());
+        // System.out.println(" - Title: " + record.getTitle());
+        // System.out.println(" - Content: " + record.getContent());
+        // System.out.println(" - Category: " + record.getCategory());
+        // System.out.println(" - Forum: " + record.getForum());
+        // System.out.println(" - Created At: " + record.getCreatedAt());
+        // System.out.println(" - Updated At: " + record.getUpdatedAt());
 
-        try{
-            Json postJson = record.toJson();
+        // try{
+        //     Json postJson = record.toJson();
 
-            dsl.update(POST)
-                .set(POST.TITLE, field(postJson, "title", string()))
-                .set(POST.CONTENT, field(postJson, "content", string()))
-                .set(POST.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
-                .set(POST.CATEGORY_ATURI, field(postJson, "category", AtUri::fromJson).toString()) // Convert AtUri to string
-                .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
-                .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null) != null ?
-                     optionalNullableField(postJson, "solution", AtUri::fromJson, null).toString() : null)
-                .where(POST.ATURI.eq(atUri.toString()))
-                .execute();
-        } catch(Exception e){
-            System.out.println("Error updating post record: " + e.getMessage());
-            e.printStackTrace();
-        }
+        //     dsl.update(POST)
+        //         .set(POST.TITLE, field(postJson, "title", string()))
+        //         .set(POST.CONTENT, field(postJson, "content", string()))
+        //         .set(POST.UPDATED_AT, record.getUpdatedAt().atOffset(ZoneOffset.UTC))
+        //         .set(POST.CATEGORY_ATURI, field(postJson, "category", AtUri::fromJson).toString()) // Convert AtUri to string
+        //         .set(POST.TAGS, JSONB.valueOf(field(postJson, "tags", Json::of).toString()))
+        //         .set(POST.SOLUTION, optionalNullableField(postJson, "solution", AtUri::fromJson, null) != null ?
+        //              optionalNullableField(postJson, "solution", AtUri::fromJson, null).toString() : null)
+        //         .where(POST.ATURI.eq(atUri.toString()))
+        //         .execute();
+        // } catch(Exception e){
+        //     System.out.println("Error updating post record: " + e.getMessage());
+        //     e.printStackTrace();
+        // }
     }
 
     @Override
