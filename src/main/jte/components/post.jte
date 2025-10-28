@@ -1,7 +1,11 @@
+@import java.util.List
+
 @param com.jcs.javacommunitysite.atproto.AtUri aturi
 @param String title
 @param String content
 @param int amtReplies
+@param String timeText = null
+@param List<String> tags = null
 
 <li class="post-item">
     <a href="/post/${aturi.getDid()}/${aturi.getRecordKey()}">
@@ -10,14 +14,20 @@
         </div>
         <p class="post-preview">${content}</p>
         <div class="tags">
-            <div class="tag">Springboot</div>
-            <div class="tag">Java 21</div>
-            <div class="tag">Thymeleaf</div>
+            @if(tags != null && !tags.isEmpty())
+                @for(var tag : tags)
+                    <div class="tag">${tag}</div>
+                @endfor
+            @endif
         </div>
     </a>
 
     <div style="min-width: 150px; text-align: right">
-        <p>2 days ago</p>
-        <p style="color: var(--subtext-color)">${amtReplies} replies</p>
+        @if(timeText != null)
+            <p>${timeText}</p>
+        @else
+            <p>2 days ago</p>
+        @endif
+        <p style="color: var(--subtext-color)">${amtReplies} ${amtReplies == 1 ? "reply" : "replies"}</p>
     </div>
 </li>
