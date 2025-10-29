@@ -143,19 +143,6 @@ public class AskPageController {
             
             // Prepare tags list
             var tags = postForm.getTags() != null ? postForm.getTags() : new ArrayList<String>();
-            
-            // Insert post into database table
-//            dsl.insertInto(POST)
-//                .set(POST.ATURI, postAtUri.toString())
-//                .set(POST.TITLE, postForm.getTitle())
-//                .set(POST.CONTENT, postForm.getContent())
-//                .set(POST.TAGS, JSON.valueOf(Json.of(tags, Json::of).toString()))
-//                .set(POST.STATUS, "new")
-//                .set(POST.OWNER_DID, userDid)
-//                .set(POST.CREATED_AT, OffsetDateTime.now())
-//                .set(POST.IS_OPEN, true)
-//                .set(POST.IS_DELETED, false)
-//                .execute();
 
             // Create ATproto Question record
             var questionRecord = new QuestionRecord(

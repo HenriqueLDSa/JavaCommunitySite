@@ -8,7 +8,7 @@
     <div class="tag-selector">
         <label class="tag-selector-item">
             <input type="checkbox" name="tags" value="springboot" class="tag-button">
-            <span>Springboot</span>
+            <span>Spring Boot</span>
         </label>
         <label class="tag-selector-item">
             <input type="checkbox" name="tags" value="minecraft" class="tag-button">
