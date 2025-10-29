@@ -14,6 +14,12 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.Set;
+import org.jooq.SelectLimitStep;
+import org.jooq.SelectConditionStep;
 
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.Reply.REPLY;
@@ -76,7 +82,7 @@ public class SearchPageController {
         try {
             final int LIMIT = 50;
             List<SearchResult> accumulated = new ArrayList<>();
-            java.util.Set<String> seenAturis = new java.util.HashSet<>();
+            Set<String> seenAturis = new HashSet<>();
 
             Condition statusCondition = POST.IS_DELETED.eq(false);
             if (status != null && !status.equals("all")) {
@@ -215,7 +221,7 @@ public class SearchPageController {
         }
     }
 
-    private org.jooq.SelectLimitStep<?> applySorting(org.jooq.SelectConditionStep<?> query, String sortBy, String sortDir, String originalQuery) {
+    private SelectLimitStep<?> applySorting(SelectConditionStep<?> query, String sortBy, String sortDir, String originalQuery) {
         List<Field> sortFields = new ArrayList<>();
 
         switch (sortBy != null ? sortBy.toLowerCase() : "relevance") {
@@ -277,10 +283,10 @@ public class SearchPageController {
 
     private String calculateTimeText(OffsetDateTime createdAt) {
         var now = OffsetDateTime.now();
-        var yearsBetween = java.time.temporal.ChronoUnit.YEARS.between(createdAt, now);
-        var daysBetween = java.time.temporal.ChronoUnit.DAYS.between(createdAt, now);
-        var hoursBetween = java.time.temporal.ChronoUnit.HOURS.between(createdAt, now);
-        var minutesBetween = java.time.temporal.ChronoUnit.MINUTES.between(createdAt, now);
+        var yearsBetween = ChronoUnit.YEARS.between(createdAt, now);
+        var daysBetween = ChronoUnit.DAYS.between(createdAt, now);
+        var hoursBetween = ChronoUnit.HOURS.between(createdAt, now);
+        var minutesBetween = ChronoUnit.MINUTES.between(createdAt, now);
 
         if (yearsBetween > 0) {
             return yearsBetween == 1 ? "1 year ago" : yearsBetween + " years ago";
@@ -295,14 +301,14 @@ public class SearchPageController {
         }
     }
 
-    private java.util.Optional<String> getCurrentUserAvatarUrl() {
+    private Optional<String> getCurrentUserAvatarUrl() {
         if (!sessionService.isAuthenticated()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         var clientOpt = sessionService.getCurrentClient();
         if (clientOpt.isEmpty()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
 
         try {
@@ -317,14 +323,14 @@ public class SearchPageController {
                     .fetchOne();
 
             if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return java.util.Optional.of(userRecord.getAvatarBloburl());
+                return Optional.of(userRecord.getAvatarBloburl());
             }
 
-            return java.util.Optional.empty();
+            return Optional.empty();
 
         } catch (Exception e) {
             System.err.println("Error getting current user avatar: " + e.getMessage());
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 }

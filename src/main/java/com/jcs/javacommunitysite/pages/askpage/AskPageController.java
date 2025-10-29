@@ -16,6 +16,10 @@ import dev.mccue.json.Json;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Optional;
+import java.time.temporal.ChronoUnit;
 
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.User.USER;
@@ -64,10 +68,10 @@ public class AskPageController {
                             .fetch();
                     
                     // Create a map of post ATURI to reply count
-                    var replyCountsMap = new java.util.HashMap<String, Integer>();
-                    var timeTextsMap = new java.util.HashMap<String, String>();
-                    var tagsMap = new java.util.HashMap<String, java.util.List<String>>();
-                    
+                    var replyCountsMap = new HashMap<String, Integer>();
+                    var timeTextsMap = new HashMap<String, String>();
+                    var tagsMap = new HashMap<String, List<String>>();
+
                     for (var post : userPosts) {
                         // Calculate reply count
                         int replyCount = dsl.selectCount()
@@ -79,10 +83,10 @@ public class AskPageController {
                         // Calculate time text
                         var now = OffsetDateTime.now();
                         var createdAt = post.getCreatedAt();
-                        var yearsBetween = java.time.temporal.ChronoUnit.YEARS.between(createdAt, now);
-                        var daysBetween = java.time.temporal.ChronoUnit.DAYS.between(createdAt, now);
-                        var hoursBetween = java.time.temporal.ChronoUnit.HOURS.between(createdAt, now);
-                        var minutesBetween = java.time.temporal.ChronoUnit.MINUTES.between(createdAt, now);
+                        var yearsBetween = ChronoUnit.YEARS.between(createdAt, now);
+                        var daysBetween = ChronoUnit.DAYS.between(createdAt, now);
+                        var hoursBetween = ChronoUnit.HOURS.between(createdAt, now);
+                        var minutesBetween = ChronoUnit.MINUTES.between(createdAt, now);
                         
                         String timeText;
                         if (yearsBetween > 0) {
@@ -186,14 +190,14 @@ public class AskPageController {
     /**
      * Helper method to get the current authenticated user's avatar URL
      */
-    private java.util.Optional<String> getCurrentUserAvatarUrl() {
+    private Optional<String> getCurrentUserAvatarUrl() {
         if (!sessionService.isAuthenticated()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         
         var clientOpt = sessionService.getCurrentClient();
         if (clientOpt.isEmpty()) {
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
         
         try {
@@ -210,14 +214,14 @@ public class AskPageController {
                     .fetchOne();
             
             if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return java.util.Optional.of(userRecord.getAvatarBloburl());
+                return Optional.of(userRecord.getAvatarBloburl());
             }
-            
-            return java.util.Optional.empty();
-            
+
+            return Optional.empty();
+
         } catch (IOException e) {
             System.err.println("Error getting current user avatar: " + e.getMessage());
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 }
