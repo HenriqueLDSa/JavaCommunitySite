@@ -6,7 +6,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import dev.mccue.json.Json;
 
@@ -63,7 +62,7 @@ public class SearchPageController {
         var sortBy = searchForm.getSortBy();
         var sortDir = searchForm.getSortDir();
 
-        List<SearchResult> searchResults = new ArrayList();
+        List<SearchResult> searchResults = new ArrayList<>();
         if (!query.isEmpty() && !status.isEmpty() && !sortBy.isEmpty() && !sortDir.isEmpty()) {
             System.out.println("PERFORMING SEARCH");
             searchResults = performSearch(
@@ -222,7 +221,7 @@ public class SearchPageController {
     }
 
     private SelectLimitStep<?> applySorting(SelectConditionStep<?> query, String sortBy, String sortDir, String originalQuery) {
-        List<Field> sortFields = new ArrayList<>();
+        List<Field<?>> sortFields = new ArrayList<>();
 
         switch (sortBy != null ? sortBy.toLowerCase() : "relevance") {
             case "time-posted" -> sortFields = Arrays.asList(POST.CREATED_AT);
@@ -240,8 +239,8 @@ public class SearchPageController {
             default -> sortFields = Arrays.asList(POST.CREATED_AT);
         }
 
-        List<SortField> sortedFields = new ArrayList<>();
-        for (Field f : sortFields) {
+        List<SortField<?>> sortedFields = new ArrayList<>();
+        for (Field<?> f : sortFields) {
             if (sortDir.equals("desc")) {
                 sortedFields.add(f.desc());
             } else if (sortDir.equals("asc")) {
@@ -249,7 +248,7 @@ public class SearchPageController {
             }
         }
 
-        return query.orderBy(sortedFields.toArray(new SortField[0]));
+        return query.orderBy(sortedFields.toArray(new SortField<?>[0]));
     }
 
     private SearchResult mapRecordToSearchResult(org.jooq.Record record) {
