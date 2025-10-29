@@ -13,20 +13,20 @@
             <h4 class="post-name">${title}</h4>
         </div>
         <p class="post-preview">${content}</p>
-        <div class="tags">
-            @if(tags != null && !tags.isEmpty())
+        @if(tags != null && !tags.isEmpty())
+            <div class="tags">
                 @for(var tag : tags)
                     <div class="tag">${tag}</div>
                 @endfor
-            @endif
-        </div>
+            </div>
+        @endif
     </a>
 
     <div style="min-width: 150px; text-align: right">
         @if(timeText != null)
             <p>${timeText}</p>
         @else
-            <p>2 days ago</p>
+            <p>Unknown</p>
         @endif
         <p style="color: var(--subtext-color)">${amtReplies} ${amtReplies == 1 ? "reply" : "replies"}</p>
     </div>

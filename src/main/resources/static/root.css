@@ -799,3 +799,55 @@ pre {
         }
     }
 }
+
+.tag-selector-popup {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 5px);
+    background-color: var(--bkg-color);
+    border: solid 1px var(--border-color);
+    border-radius: var(--border-radius-2);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 1;
+    box-shadow: 0 0 5px #00000011;
+    min-width: 200px;
+
+    & .tag-selector {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    & .tag-selector-item {
+        all: unset;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--border-radius-2);
+        padding: 2px 8px;
+        font-size: var(--xsmall-text);
+        border: 1px solid var(--border-color);
+        user-select: none;
+
+        &:hover {
+            cursor: pointer;
+        }
+
+        &:has(.tag-button:checked) {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: var(--accent-text-color);
+        }
+
+        & .tag-button {
+            display: none;
+        }
+    }
+}
+
+.filter-button-container {
+    position: relative;
+}

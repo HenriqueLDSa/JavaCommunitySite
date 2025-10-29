@@ -20,5 +20,4 @@ public class SearchPageController {
     public String search() {
         return "pages/search";
     }
-    
 }

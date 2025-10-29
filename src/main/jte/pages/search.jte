@@ -16,7 +16,10 @@
             </div>
             <div class="filters">
                 <button class="filter-button active">Status</button>
-                <button class="filter-button">Tags</button>
+                <div class="filter-button-container">
+                    <button class="filter-button">Tags</button>
+                    @template.components.tagSelectorPopup(hide = false)
+                </div>
                 <button class="filter-button">Sort</button>
             </div>
         </div>
