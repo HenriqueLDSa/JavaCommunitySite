@@ -75,6 +75,5 @@
     if (path in buttons) {
         document.getElementById(buttons[path])?.classList.add('active');
     }
-
 </script>
 </html>

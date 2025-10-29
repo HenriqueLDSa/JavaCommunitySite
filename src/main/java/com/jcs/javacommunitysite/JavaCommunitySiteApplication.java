@@ -57,17 +57,15 @@ class JetstreamStartupComponent {
                     + "?wantedCollections=dev.fudgeu.experimental.atforumv1.forum.identity"
                     + "&wantedCollections=dev.fudgeu.experimental.atforumv1.forum.group"
                     + "&wantedCollections=dev.fudgeu.experimental.atforumv1.forum.category"
-                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.post"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.question"
                     + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.vote"
                     + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.reply"
             ));
 
             jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.identity"), new JetstreamForumIdentityHandler(dsl));
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.group"), new JetstreamForumGroupHandler(dsl));
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.category"), new JetstreamForumCategoryHandler(dsl));
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.post"), new JetstreamPostHandler(dsl));
             jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.vote"), new JetstreamVoteHandler(dsl));
             jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.reply"), new JetstreamReplyHandler(dsl));
+            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.question"), new JetstreamQuestionHandler(dsl));
 
             jetstreamClient.connect();
         } catch (URISyntaxException e) {

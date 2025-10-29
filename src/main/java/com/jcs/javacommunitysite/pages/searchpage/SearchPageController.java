@@ -1,16 +1,18 @@
 package com.jcs.javacommunitysite.pages.searchpage;
 
-import org.jooq.DSLContext;
-import org.jooq.Condition;
+import org.jooq.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import dev.mccue.json.Json;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
@@ -32,15 +34,9 @@ public class SearchPageController {
 
     @GetMapping("/search")
     public String search(
-            @RequestParam(value = "q", required = false) String query,
-            @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "sort", required = false) String sortBy,
             Model model
     ) {
         SearchForm searchForm = new SearchForm();
-        searchForm.setQuery(query != null ? query : "");
-        searchForm.setStatus(status != null ? status : "all");
-        searchForm.setSortBy(sortBy != null ? sortBy : "relevance");
 
         model.addAttribute("searchForm", searchForm);
 
@@ -48,20 +44,35 @@ public class SearchPageController {
             model.addAttribute("currentUserAvatarUrl", avatarUrl)
         );
 
-        List<SearchResult> searchResults = new ArrayList<>();
+        return "pages/search/search";
+    }
 
-        if (query != null && !query.trim().isEmpty()) {
-            searchResults = performSearch(query.trim(), status, sortBy);
+    @PostMapping("/search")
+    public String doSearch(
+            Model model,
+            @ModelAttribute SearchForm searchForm
+    ) {
+        var query = searchForm.getQuery().trim();
+        var status = searchForm.getStatus();
+        var sortBy = searchForm.getSortBy();
+        var sortDir = searchForm.getSortDir();
+
+        List<SearchResult> searchResults = new ArrayList();
+        if (!query.isEmpty() && !status.isEmpty() && !sortBy.isEmpty() && !sortDir.isEmpty()) {
+            System.out.println("PERFORMING SEARCH");
+            searchResults = performSearch(
+                    query,
+                    status,
+                    sortBy,
+                    sortDir
+            );
         }
 
         model.addAttribute("searchResults", searchResults);
-        model.addAttribute("hasResults", !searchResults.isEmpty());
-        model.addAttribute("hasQuery", query != null && !query.trim().isEmpty());
-
-        return "pages/search";
+        return "pages/search/htmx/results";
     }
 
-    private List<SearchResult> performSearch(String query, String status, String sortBy) {
+    private List<SearchResult> performSearch(String query, String status, String sortBy, String sortDir) {
         try {
             final int LIMIT = 50;
             List<SearchResult> accumulated = new ArrayList<>();
@@ -100,7 +111,7 @@ public class SearchPageController {
             ).from(POST)
             .where(statusCondition.and(exact));
 
-            var exactRows = applySorting(exactQuery, sortBy, query).limit(LIMIT).fetch();
+            var exactRows = applySorting(exactQuery, sortBy, sortDir, query).limit(LIMIT).fetch();
 
             for (var r : exactRows) {
                 String aturi = r.get(POST.ATURI);
@@ -134,7 +145,7 @@ public class SearchPageController {
                     ).from(POST)
                     .where(statusCondition.and(allWords));
 
-                    var allRows = applySorting(allWordsQuery, sortBy, query).limit(LIMIT - accumulated.size()).fetch();
+                    var allRows = applySorting(allWordsQuery, sortBy, sortDir, query).limit(LIMIT - accumulated.size()).fetch();
 
                     for (var r : allRows) {
                         String aturi = r.get(POST.ATURI);
@@ -186,7 +197,7 @@ public class SearchPageController {
                         broadQuery = broadQuery.and(POST.ATURI.notIn(seenAturis));
                     }
 
-                    var anyRows = applySorting(broadQuery, sortBy, query).limit(LIMIT - accumulated.size()).fetch();
+                    var anyRows = applySorting(broadQuery, sortBy, sortDir, query).limit(LIMIT - accumulated.size()).fetch();
                     for (var r : anyRows) {
                         String aturi = r.get(POST.ATURI);
                         if (seenAturis.add(aturi)) {
@@ -204,23 +215,35 @@ public class SearchPageController {
         }
     }
 
-    private org.jooq.SelectLimitStep<?> applySorting(org.jooq.SelectConditionStep<?> query, String sortBy, String originalQuery) {
-        return switch (sortBy != null ? sortBy.toLowerCase() : "relevance") {
-            case "newest" -> query.orderBy(POST.CREATED_AT.desc());
-            case "oldest" -> query.orderBy(POST.CREATED_AT.asc());
-            case "most_replies" -> query.orderBy(
-                org.jooq.impl.DSL.field("reply_count").desc(),
-                POST.CREATED_AT.desc()
+    private org.jooq.SelectLimitStep<?> applySorting(org.jooq.SelectConditionStep<?> query, String sortBy, String sortDir, String originalQuery) {
+        List<Field> sortFields = new ArrayList<>();
+
+        switch (sortBy != null ? sortBy.toLowerCase() : "relevance") {
+            case "time-posted" -> sortFields = Arrays.asList(POST.CREATED_AT);
+            case "num-replies" -> sortFields = Arrays.asList(
+                org.jooq.impl.DSL.field("reply_count"),
+                POST.CREATED_AT
             );
-            case "relevance" -> query.orderBy(
+            case "relevance" -> sortFields = Arrays.asList(
                 // Title matches ranked higher than content matches
                 org.jooq.impl.DSL.case_()
                     .when(POST.TITLE.likeIgnoreCase("%" + originalQuery + "%"), 1)
                     .else_(2),
-                POST.CREATED_AT.desc()
+                POST.CREATED_AT
             );
-            default -> query.orderBy(POST.CREATED_AT.desc());
-        };
+            default -> sortFields = Arrays.asList(POST.CREATED_AT);
+        }
+
+        List<SortField> sortedFields = new ArrayList<>();
+        for (Field f : sortFields) {
+            if (sortDir.equals("desc")) {
+                sortedFields.add(f.desc());
+            } else if (sortDir.equals("asc")) {
+                sortedFields.add(f.asc());
+            }
+        }
+
+        return query.orderBy(sortedFields.toArray(new SortField[0]));
     }
 
     private SearchResult mapRecordToSearchResult(org.jooq.Record record) {

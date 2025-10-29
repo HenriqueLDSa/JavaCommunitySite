@@ -1,11 +1,13 @@
-@param boolean hide
+@param String id
 
-<div class="tag-selector-popup" hidden="${hide}">
+<div id="${id}" class="tag-selector-popup hidden preload">
     <p><b>Select Tags</b></p>
+
+    <%-- TODO we must fill these with our pre-defined tags once we have them --%>
 
     <div class="tag-selector">
         <label class="tag-selector-item">
-            <input type="checkbox" class="tag-button" checked>
+            <input type="checkbox" class="tag-button">
             <span>Springboot</span>
         </label>
         <label class="tag-selector-item">

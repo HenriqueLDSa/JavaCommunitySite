@@ -738,7 +738,7 @@ pre {
     gap: 10px;
     width: 100%;
 
-    & .search-form {
+    & .search-form-top {
         display: flex;
         gap: 10px;
         align-items: center;
@@ -768,6 +768,16 @@ pre {
         color: var(--subtext-color);
     }
 
+    &.htmx-indicator {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    &.htmx-request {
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
     & .results-info {
         margin-bottom: 15px;
         color: var(--subtext-color);
@@ -782,11 +792,27 @@ pre {
     }
 }
 
+.search-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    &.htmx-indicator {
+        display: none;
+    }
+
+    &.htmx-request {
+        display: flex;
+    }
+}
+
 .filter-button {
     all: unset;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
     border-radius: var(--border-radius-2);
     padding: 4px 12px;
     font-size: var(--small-text);
@@ -802,6 +828,16 @@ pre {
         background-color: var(--accent);
         color: var(--accent-text-color);
         border-color: var(--accent);
+
+        & img {
+            transform: rotate(180deg);
+            filter: invert(100%);
+        }
+    }
+
+    & img {
+        width: var(--small-text);
+        transition: transform 80ms, filter 80ms;
     }
 }
 
@@ -843,13 +879,21 @@ pre {
     background-color: var(--bkg-color);
     border: solid 1px var(--border-color);
     border-radius: var(--border-radius-2);
-    padding: 10px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     gap: 5px;
     z-index: 1;
     box-shadow: 0 0 5px #00000011;
     min-width: 200px;
+
+    &:not(.hidden) {
+        animation: popup-show 80ms forwards;
+    }
+
+    &.hidden {
+        animation: popup-hide 80ms forwards;
+    }
 
     & .tag-selector {
         display: flex;
@@ -886,4 +930,41 @@ pre {
 
 .filter-button-container {
     position: relative;
+}
+
+.simple-radio-selector {
+    font-size: var(--small-text);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+@keyframes popup-show {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+        display: none;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        display: flex;
+    }
+}
+
+@keyframes popup-hide {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        display: flex;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+        display: none;
+    }
+}
+
+.preload {
+    display: none !important;
 }

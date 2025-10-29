@@ -1,5 +1,4 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
-@import com.jcs.javacommunitysite.atproto.records.PostRecord
 @import java.util.List
 @import java.util.Map
 
@@ -31,8 +30,6 @@
                     <label for="post-input">Post</label>
                     <textarea id="post-input" class="post-textarea" name="content" name="content" value="${postForm.getContent()}" required></textarea>
                 </div>
-
-                Put tags here
 
                 <div class="right-side-buttons-container">
                     <button class="button" type="submit">Create Question</button>

@@ -1,5 +1,5 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
-@import com.jcs.javacommunitysite.atproto.records.PostRecord
+@import com.jcs.javacommunitysite.atproto.records.QuestionRecord
 
 @template.layout.main(
     title = "Answer",
@@ -15,25 +15,25 @@
         </div>
 
         @template.components.post(
-            aturi = new AtUri("123", PostRecord.recordCollection, "abc"),
+            aturi = new AtUri("123", QuestionRecord.recordCollection, "abc"),
             title = "My Post",
             content = "Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet",
             amtReplies = 24
         )
         @template.components.post(
-            aturi = new AtUri("123", PostRecord.recordCollection, "abc"),
+            aturi = new AtUri("123", QuestionRecord.recordCollection, "abc"),
             title = "My Post",
             content = "Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet",
             amtReplies = 24
         )
         @template.components.post(
-            aturi = new AtUri("123", PostRecord.recordCollection, "abc"),
+            aturi = new AtUri("123", QuestionRecord.recordCollection, "abc"),
             title = "My Post",
             content = "Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet",
             amtReplies = 24
         )
         @template.components.post(
-            aturi = new AtUri("123", PostRecord.recordCollection, "abc"),
+            aturi = new AtUri("123", QuestionRecord.recordCollection, "abc"),
             title = "My Post",
             content = "Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet",
             amtReplies = 24
@@ -45,13 +45,13 @@
         </div>
 
         @template.components.post(
-            aturi = new AtUri("123", PostRecord.recordCollection, "abc"),
+            aturi = new AtUri("123", QuestionRecord.recordCollection, "abc"),
             title = "My Post",
             content = "Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet",
             amtReplies = 24
         )
         @template.components.post(
-            aturi = new AtUri("123", PostRecord.recordCollection, "abc"),
+            aturi = new AtUri("123", QuestionRecord.recordCollection, "abc"),
             title = "My Post",
             content = "Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet Lorem Ipsum dolor amet",
             amtReplies = 24

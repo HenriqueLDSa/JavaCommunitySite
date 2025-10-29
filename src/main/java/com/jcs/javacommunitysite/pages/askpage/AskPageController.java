@@ -1,7 +1,8 @@
 package com.jcs.javacommunitysite.pages.askpage;
 
+import com.jcs.javacommunitysite.JavaCommunitySiteApplication;
+import com.jcs.javacommunitysite.atproto.records.QuestionRecord;
 import org.jooq.DSLContext;
-import org.jooq.JSON;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,15 +10,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.atproto.AtprotoClient;
-import com.jcs.javacommunitysite.atproto.AtUri;
 import com.jcs.javacommunitysite.atproto.AtprotoUtil;
-import com.jcs.javacommunitysite.atproto.records.PostRecord;
 import dev.mccue.json.Json;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.UUID;
 
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.User.USER;
@@ -143,33 +141,33 @@ public class AskPageController {
         try {
             AtprotoClient client = clientOpt.get();
             
-            // Get the DID from the authenticated session handle
-            String handle = client.getSession().getHandle();
-            var profile = AtprotoUtil.getBskyProfile(handle);
-            String userDid = profile.get("did").toString().replace("\"", ""); // Remove quotes from JSON string
-            
-            // Generate a unique record key for the post
-            String recordKey = UUID.randomUUID().toString().replace("-", "");
-            
-            // Create AtUri for the post
-            AtUri postAtUri = new AtUri(userDid, PostRecord.recordCollection, recordKey);
-            
             // Prepare tags list
             var tags = postForm.getTags() != null ? postForm.getTags() : new ArrayList<String>();
             
             // Insert post into database table
-            dsl.insertInto(POST)
-                .set(POST.ATURI, postAtUri.toString())
-                .set(POST.TITLE, postForm.getTitle())
-                .set(POST.CONTENT, postForm.getContent())
-                .set(POST.TAGS, JSON.valueOf(Json.of(tags, Json::of).toString()))
-                .set(POST.STATUS, "new")
-                .set(POST.OWNER_DID, userDid)
-                .set(POST.CREATED_AT, OffsetDateTime.now())
-                .set(POST.IS_OPEN, true)
-                .set(POST.IS_DELETED, false)
-                .execute();
-            
+//            dsl.insertInto(POST)
+//                .set(POST.ATURI, postAtUri.toString())
+//                .set(POST.TITLE, postForm.getTitle())
+//                .set(POST.CONTENT, postForm.getContent())
+//                .set(POST.TAGS, JSON.valueOf(Json.of(tags, Json::of).toString()))
+//                .set(POST.STATUS, "new")
+//                .set(POST.OWNER_DID, userDid)
+//                .set(POST.CREATED_AT, OffsetDateTime.now())
+//                .set(POST.IS_OPEN, true)
+//                .set(POST.IS_DELETED, false)
+//                .execute();
+
+            // Create ATproto Question record
+            var questionRecord = new QuestionRecord(
+                    postForm.getTitle(),
+                    postForm.getContent(),
+                    JavaCommunitySiteApplication.JCS_FORUM_DID,
+                    tags
+            );
+
+            // Send to ATproto
+            client.createRecord(questionRecord);
+
             // Redirect to the newly created post
             return "redirect:/ask";
             

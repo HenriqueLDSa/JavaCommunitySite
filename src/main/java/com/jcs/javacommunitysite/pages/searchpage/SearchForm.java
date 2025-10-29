@@ -1,15 +1,12 @@
 package com.jcs.javacommunitysite.pages.searchpage;
 
 public class SearchForm {
-    private String query;
-    private String status;
-    private String sortBy;
+    private String query = "";
+    private String status = "";
+    private String sortBy = "";
+    private String sortDir = "";
 
-    public SearchForm() {
-        this.query = "";
-        this.status = "all";
-        this.sortBy = "relevance";
-    }
+    public SearchForm() { }
 
     public String getQuery() {
         return query;
@@ -33,5 +30,13 @@ public class SearchForm {
 
     public void setSortBy(String sortBy) {
         this.sortBy = sortBy;
+    }
+
+    public String getSortDir() {
+        return sortDir;
+    }
+
+    public void setSortDir(String sortDir) {
+        this.sortDir = sortDir;
     }
 }
