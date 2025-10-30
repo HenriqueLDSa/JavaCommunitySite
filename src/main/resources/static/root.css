@@ -15,6 +15,7 @@
 
     --bkg-color: white;
     --bkg-color-alt: #f8f8f8;
+    --bkg-color-alt-2: #ececec;
     --accent-text-color: white;
     --border-color: lightgray;
 
@@ -68,6 +69,15 @@ p {
     font-size: var(--regular-text);
 }
 
+li {
+    padding: initial;
+}
+
+ul, ol {
+    padding: initial;
+    list-style-position: inside;
+}
+
 .root {
     display: flex;
 }
@@ -118,7 +128,7 @@ p {
         padding: 15px;
         flex-grow: 1;
 
-        p {
+        .make-reply-title {
             margin-left: calc(var(--pfp-post-size) + 15px);
             font-weight: bold;
         }
@@ -281,7 +291,7 @@ p {
             }
         }
 
-        & .post-textarea {
+        & .post-textarea-container {
             height: 300px;
         }
     }
@@ -361,14 +371,60 @@ p {
     flex-grow: 1;
 }
 
-.post-textarea {
-    all: unset;
+.post-textarea-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     height: 200px;
     border: solid 1px var(--border-color);
     border-radius: var(--border-radius-1);
     padding: 10px;
-    resize: none;
     flex-grow: 1;
+
+    & .control-buttons {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        & .control-button {
+            all: unset;
+            display: flex;
+            padding: 2px 8px;
+            font-size: var(--xsmall-text);
+            font-weight: bold;
+            background-color: transparent;
+            border-radius: var(--border-radius-3);
+            border: solid 1px transparent;
+            transition: background-color 80ms, border-color 80ms;
+
+            &.active {
+                background-color: var(--bkg-color-alt-2);
+            }
+
+            &:hover {
+                cursor: pointer;
+                border-color: var(--bkg-color-alt-2)
+            }
+        }
+    }
+
+    & .post-textarea {
+        all: unset;
+        resize: none;
+        height: 100%;
+    }
+
+    & .preview-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        overflow-y: auto;
+    }
+
+    & .hidden {
+        display: none;
+    }
 }
 
 .right-side-buttons-container {

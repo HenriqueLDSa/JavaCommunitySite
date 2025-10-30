@@ -1,5 +1,6 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
 @import com.jcs.javacommunitysite.jooq.tables.records.ReplyRecord
+@import com.jcs.javacommunitysite.util.MarkdownUtil
 @import com.jcs.javacommunitysite.util.TimeUtil
 @import com.jcs.javacommunitysite.util.UserInfo
 
@@ -44,7 +45,7 @@
             </div>
             <div class="body">
                 <p>
-                    $unsafe{reply.getContent().toString()}
+                    $unsafe{MarkdownUtil.render(reply.getContent().toString())}
                 </p>
             </div>
         </div>

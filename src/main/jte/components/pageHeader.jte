@@ -17,9 +17,7 @@
                 <img src="${avatarUrl}" alt="Profile Avatar" style="width: 32px; height: 32px; border-radius: 50%;">
             </a>
         @else
-            <a href="/login" class="">
-                <img src="/user.svg" alt="Default Profile Avatar" style="width: 32px; height: 32px; border-radius: 50%;">
-            </a>
+            <a class="button" href="/login">Log in</a>
         @endif
     </div>
 </div>

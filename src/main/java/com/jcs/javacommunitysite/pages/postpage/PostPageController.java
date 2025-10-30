@@ -73,22 +73,6 @@
              return "";
          }
 
- //        Parser parser = Parser.builder().build();
- //        Node document = parser.parse((String) post.get("content"));
- //
- //        document.accept(new AbstractVisitor() {
- //            @Override
- //            public void visit(Heading heading) {
- //                int newLevel = Math.min(heading.getLevel() + 2, 6);
- //                heading.setLevel(newLevel);
- //                visitChildren(heading);
- //            }
- //        });
-
-
- //        HtmlRenderer renderer = HtmlRenderer.builder().build();
- //        String contentHtml = renderer.render(document);
-
          // Get all users associated with this post
          Set<String> associatedUserDids = new HashSet<>();
          associatedUserDids.add(post.getOwnerDid());
@@ -145,52 +129,6 @@
          return "pages/post/htmx/reply";
      }
 
-     /*
-     @PutMapping("/post/{userDid}/{replyRKey}/htmx/reply")
-     public String updateReply(
-             @ModelAttribute UpdateReplyForm updateReplyForm,
-             Model model,
-             HttpServletResponse response,
-             @PathVariable("userDid") String userDid,
-             @PathVariable("replyRKey") String replyRKey
-     ) {
-         try {
-             var clientOpt = sessionService.getCurrentClient();
-             if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
-                 return "not logged in";
-             }
-
-             AtprotoClient client = clientOpt.get();
-
-             AtUri replyAtUri = new AtUri(userDid, ReplyRecord.recordCollection, replyRKey);
-
-             // Fetch current reply from database using the DSLContext constructor
-             ReplyRecord currentReply = new ReplyRecord(replyAtUri, dsl);
-
-             if (currentReply.getContent() == null) {
-                 return "reply not found";
-             }
-
-             // Build updated reply data
-             Json replyDataUpdated = Json.objectBuilder()
-                     .put("content", updateReplyForm.getContent())
-                     .put("createdAt", currentReply.getCreatedAt().toString())
-                     .put("updatedAt", Instant.now().toString())
-                     .put("root", currentReply.getRoot())
-                     .build();
-
-             ReplyRecord updatedReply = new ReplyRecord(replyDataUpdated);
-             updatedReply.setAtUri(replyAtUri);
-
-             client.updateRecord(updatedReply);
-
-             return "template";
-         } catch (Exception e) {
-             return "error";
-         }
-     }
-     */
-
      @DeleteMapping("/post/{userDid}/{postRKey}/htmx/deleteReply")
      public String deleteReply(Model model,
                                HttpServletResponse response,
@@ -218,48 +156,6 @@
              return "components/errorToast";
          }
      }
-
-     /*
-     @PutMapping("/post/{userDid}/{postRKey}")
-     public String updatePost(@ModelAttribute UpdatePostForm updatePostForm,
-                                         Model model,
-                                         HttpServletResponse response,
-                                         @PathVariable("userDid") String userDid,
-                                         @PathVariable("postRKey") String postRKey) {
-         try {
-             var clientOpt = sessionService.getCurrentClient();
-             if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
-                 return "not logged in";
-             }
-
-             AtprotoClient client = clientOpt.get();
-
-             AtUri postAtUri = new AtUri(userDid, PostRecord.recordCollection, postRKey);
-
-             PostRecord currentPost = new PostRecord(postAtUri, dsl);
-
-             Json postDataJson = Json.objectBuilder()
-                     .put("title", updatePostForm.getTitle())
-                     .put("content", updatePostForm.getContent())
-                     .put("category", updatePostForm.getCategory()) // If this is not present in the form, get from currentPost
-                     .put("createdAt", currentPost.getCreatedAt().toString())
-                     .put("updatedAt", Instant.now().toString())
-                     .put("tags", updatePostForm.getTags()) // If this is not present in the form, get from currentPost
-                     .put("solution", updatePostForm.getTags()) // If this is not present in the form, or it didn't change, get from currentPost
-                     .put("forum", currentPost.getForum())
-                     .build();
-
-             PostRecord updatedPost = new PostRecord(postDataJson);
-             updatedPost.setAtUri(postAtUri);
-
-             client.updateRecord(updatedPost);
-
-             return "";
-         } catch (Exception e) {
-             return "";
-         }
-     }
-     */
 
      @DeleteMapping("/post/{userDid}/{postRKey}/htmx/deletePost")
      public String deletePost(Model model,
@@ -463,6 +359,7 @@
                      .fetchAny();
 
              model.addAttribute("reply", replyRecord);
+             model.addAttribute("user", UserInfo.getFromDb(dsl, new AtUri(reply).getDid()));
              return "pages/post/components/reply";
          } catch (Exception e) {
              // TODO
@@ -547,6 +444,7 @@
                      .fetchAny();
 
              model.addAttribute("post", postRecord);
+             model.addAttribute("user", UserInfo.getFromDb(dsl, userDid));
              return "pages/post/components/opPost";
          } catch (Exception e) {
              // TODO

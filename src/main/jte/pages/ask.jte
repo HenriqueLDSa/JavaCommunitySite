@@ -8,6 +8,7 @@
 @param Map<String, Integer> replyCountsMap = null
 @param Map<String, String> timeTextsMap = null
 @param Map<String, List<String>> tagsMap = null
+@param boolean loggedIn
 
 @template.layout.main(
     title = "Ask",
@@ -19,76 +20,87 @@
             avatarUrl = currentUserAvatarUrl
         )
 
-        <div class="new-question-container">
-            <form
-                hx-post="/ask"
-                hx-target="#my-questions-header"
-                hx-swap="afterend"
-                hx-on::after-request="if (event.detail.successful) this.reset()"
-            >
-                <div class="form-group">
-                    <label for="title-input">Title</label>
-                    <input id="title-input" class="textbox" type="text" name="title" value="${postForm.getTitle()}" placeholder="My Really Good Title" required>
-                </div>
+        @if(loggedIn)
 
-                <div class="form-group">
-                    <label for="post-input">Post</label>
-                    <textarea id="post-input" class="post-textarea" name="content" value="${postForm.getContent()}" required></textarea>
-                </div>
+            <div class="new-question-container">
+                <form
+                    hx-post="/ask"
+                    hx-target="#my-questions-header"
+                    hx-swap="afterend"
+                    hx-on::after-request="if (event.detail.successful && event.target == this) this.reset()"
+                >
+                    <div class="form-group">
+                        <label for="title-input">Title</label>
+                        <input id="title-input" class="textbox" type="text" name="title" value="${postForm.getTitle()}" placeholder="My Really Good Title" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="tags-input">Tags</label>
-                    <div class="tags-input-container">
-                        <div class="selected-tags">
-                            <div class="tag" data-tag="java-21">Java 21</div>
-                            <div class="tag" data-tag="spring-boot">Spring Boot</div>
-                            <div class="tag" data-tag="minecraft">Minecraft</div>
-                            <div class="tag" data-tag="jte">JTE</div>
-                            <div class="tag" data-tag="forge">Forge</div>
-                            <div class="tag" data-tag="thymeleaf">Thymeleaf</div>
-                            <div class="tag" data-tag="linux">Linux</div>
-                            
-                            <!--
-                            <div class="tag dropdown-toggle" onclick="toggleTagDropdown()">
-                                More... ▼
-                                <div class="tag-dropdown" id="tagDropdown" style="display: none;">
-                                    <div class="tag-dropdown-item" data-tag="security">Security</div>
-                                    <div class="tag-dropdown-item" data-tag="testing">Testing</div>
-                                    <div class="tag-dropdown-item" data-tag="deployment">Deployment</div>
+                    <div class="form-group">
+                        <label for="post-input">Post</label>
+                        @template.components.postEditor()
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tags-input">Tags</label>
+                        <div class="tags-input-container">
+                            <div class="selected-tags">
+                                <div class="tag" data-tag="java-21">Java 21</div>
+                                <div class="tag" data-tag="spring-boot">Spring Boot</div>
+                                <div class="tag" data-tag="minecraft">Minecraft</div>
+                                <div class="tag" data-tag="jte">JTE</div>
+                                <div class="tag" data-tag="forge">Forge</div>
+                                <div class="tag" data-tag="thymeleaf">Thymeleaf</div>
+                                <div class="tag" data-tag="linux">Linux</div>
+
+                                <!--
+                                <div class="tag dropdown-toggle" onclick="toggleTagDropdown()">
+                                    More... ▼
+                                    <div class="tag-dropdown" id="tagDropdown" style="display: none;">
+                                        <div class="tag-dropdown-item" data-tag="security">Security</div>
+                                        <div class="tag-dropdown-item" data-tag="testing">Testing</div>
+                                        <div class="tag-dropdown-item" data-tag="deployment">Deployment</div>
+                                    </div>
                                 </div>
+                                -->
+
                             </div>
-                            -->
-                            
-                        </div>
-                        <div id="hiddenTagsContainer">
-                            <!-- Hidden inputs for selected tags will be added here dynamically -->
+                            <div id="hiddenTagsContainer">
+                                <!-- Hidden inputs for selected tags will be added here dynamically -->
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="right-side-buttons-container">
-                    <button class="button" type="submit">Create Question</button>
-                </div>
-            </form>
-        </div>
+                    <div class="right-side-buttons-container">
+                        <button class="button" type="submit">Create Question</button>
+                    </div>
+                </form>
+            </div>
 
-        <div class="divider"></div>
+            <div class="divider"></div>
 
-        <h2 id="my-questions-header">My Questions</h2>
+            <h2 id="my-questions-header">My Questions</h2>
 
-        @if(userPosts != null && !userPosts.isEmpty())
-            @for(var post : userPosts)
-                @template.components.post(
-                    aturi = new AtUri(post.getAturi()),
-                    title = post.getTitle(),
-                    content = post.getContent(),
-                    amtReplies = (replyCountsMap != null && replyCountsMap.containsKey(post.getAturi())) ? replyCountsMap.get(post.getAturi()) : 0,
-                    timeText = (timeTextsMap != null && timeTextsMap.containsKey(post.getAturi())) ? timeTextsMap.get(post.getAturi()) : null,
-                    tags = (tagsMap != null && tagsMap.containsKey(post.getAturi())) ? tagsMap.get(post.getAturi()) : null
-                )
-            @endfor
+            @if(userPosts != null && !userPosts.isEmpty())
+                @for(var post : userPosts)
+                    @template.components.post(
+                        aturi = new AtUri(post.getAturi()),
+                        title = post.getTitle(),
+                        content = post.getContent(),
+                        amtReplies = (replyCountsMap != null && replyCountsMap.containsKey(post.getAturi())) ? replyCountsMap.get(post.getAturi()) : 0,
+                        timeText = (timeTextsMap != null && timeTextsMap.containsKey(post.getAturi())) ? timeTextsMap.get(post.getAturi()) : null,
+                        tags = (tagsMap != null && tagsMap.containsKey(post.getAturi())) ? tagsMap.get(post.getAturi()) : null
+                    )
+                @endfor
+            @else
+                <p>You haven't asked any questions yet. Ask your first question above!</p>
+            @endif
+
         @else
-            <p>You haven't asked any questions yet. Ask your first question above!</p>
+            <p>
+                To ask a question, please
+                <a href="/login?next=/ask&msg=To ask a question, please log in">
+                    log in.
+                </a>
+            </p>
         @endif
 
     </div>

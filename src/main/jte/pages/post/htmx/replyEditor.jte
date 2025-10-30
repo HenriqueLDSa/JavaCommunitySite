@@ -28,7 +28,7 @@
                 hx-target="#reply-${self.getRecordKey()}"
                 hx-swap="outerHTML"
             >
-                <textarea id="reply-edit-textarea" class="post-textarea" name="content" required>${form.getContent()}</textarea>
+                @template.components.postEditor(content = form.getContent())
                 <div class="buttons">
                     <button
                         class="button transparent"

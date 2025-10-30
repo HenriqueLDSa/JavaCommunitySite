@@ -75,5 +75,20 @@
     if (path in buttons) {
         document.getElementById(buttons[path])?.classList.add('active');
     }
+
+    // For text editors with markdown preview capability
+    function setEditMode(id) {
+        document.getElementById('post-input-' + id).classList.remove('hidden');
+        document.getElementById('preview-container-' + id).classList.add('hidden');
+        document.getElementById('edit-button-' + id).classList.add('active');
+        document.getElementById('preview-button-' + id).classList.remove('active');
+    }
+
+    function setPreviewMode(id) {
+        document.getElementById('post-input-' + id).classList.add('hidden');
+        document.getElementById('preview-container-' + id).classList.remove('hidden');
+        document.getElementById('edit-button-' + id).classList.remove('active');
+        document.getElementById('preview-button-' + id).classList.add('active');
+    }
 </script>
 </html>

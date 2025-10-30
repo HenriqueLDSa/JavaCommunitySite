@@ -9,8 +9,8 @@
     <div class="page-content">
 
         @template.components.pageHeader(
-        content = @`<h2>Profile</h2>`,
-        avatarUrl = currentUserAvatarUrl
+            content = @`<h2>Profile</h2>`,
+            avatarUrl = currentUserAvatarUrl
         )
 
         <div class="user-info-container">
@@ -29,8 +29,7 @@
         </div>
         <p>${description}</p>
 
-        <div class="pfp-tabs"
-             >
+        <div class="pfp-tabs">
             <button hx-get="/pfp/tab/questions"
                     hx-target="#tab-content"
                     class="button active"

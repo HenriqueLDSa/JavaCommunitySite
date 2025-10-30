@@ -25,12 +25,7 @@
             hx-target="#post"
             hx-swap="outerHTML"
         >
-            <textarea
-                id="post-edit-textarea"
-                class="post-textarea"
-                name="content"
-                required
-            >${form.getContent()}</textarea>
+            @template.components.postEditor(content=form.getContent())
             <div class="buttons">
                 <button
                         class="button transparent"

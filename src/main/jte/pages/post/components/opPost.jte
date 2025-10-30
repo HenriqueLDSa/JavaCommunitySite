@@ -1,5 +1,6 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
 @import com.jcs.javacommunitysite.jooq.tables.records.PostRecord
+@import com.jcs.javacommunitysite.util.MarkdownUtil
 @import com.jcs.javacommunitysite.util.TimeUtil
 @import com.jcs.javacommunitysite.util.UserInfo
 
@@ -33,7 +34,7 @@
             </div>
         </div>
         <div class="body">
-            $unsafe{post.getContent()}
+            $unsafe{MarkdownUtil.render(post.getContent())}
         </div>
     </div>
 </div>

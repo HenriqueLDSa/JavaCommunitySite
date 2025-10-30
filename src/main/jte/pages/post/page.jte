@@ -38,12 +38,12 @@ content = @`
                 hx-swap="outerHTML"
                 hx-disabled-elt="#reply-textarea, #reply-button"
                 hx-indicator="#reply-indicator"
-                hx-on::after-request="if (event.detail.successful) this.reset()"
+                hx-on::after-request="if (event.detail.successful && event.target == this) this.reset()"
             >
-                <p>Make a Reply</p>
+                <p class="make-reply-title">Make a Reply</p>
                 <div class="reply-bottom">
                     <img src="${users.get("self").avatarUri}">
-                    <textarea id="reply-textarea" class="post-textarea" name="content" required>${newReplyForm.getContent()}</textarea>
+                    @template.components.postEditor(content=newReplyForm.getContent(), id="reply")
                 </div>
                 <div class="reply-buttons" type="submit">
                     <img id="reply-indicator" class="htmx-indicator" src="/throbber.svg" width="24" />
@@ -54,7 +54,7 @@ content = @`
 
                 <script>
                     // Disable reply button when textarea empty
-                    const textarea = document.getElementById("reply-textarea")
+                    const textarea = document.getElementById("post-input-reply")
                     const button = document.getElementById("reply-button")
                     textarea.addEventListener("input", (e) => {
                         button.disabled = e.target.value.length <= 0;
@@ -66,7 +66,7 @@ content = @`
                 <p>
                     To reply to a question, please
                     <a href="/login?next=/post/${aturi.getDid()}/${aturi.getRecordKey()}&msg=To reply, please log in">
-                        login.
+                        log in.
                     </a>
                 </p>
             </div>

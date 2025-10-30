@@ -123,10 +123,13 @@ public class AskPageController {
                     model.addAttribute("replyCountsMap", replyCountsMap);
                     model.addAttribute("timeTextsMap", timeTextsMap);
                     model.addAttribute("tagsMap", tagsMap);
+                    model.addAttribute("loggedIn", true);
                 } catch (IOException e) {
                     System.err.println("Error fetching user posts: " + e.getMessage());
                 }
             }
+        } else {
+            model.addAttribute("loggedIn", false);
         }
         
         return "pages/ask";
