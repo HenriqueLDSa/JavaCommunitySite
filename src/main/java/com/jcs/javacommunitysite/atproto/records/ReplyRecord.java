@@ -37,7 +37,7 @@ public class ReplyRecord extends AtprotoRecord {
             this.content = record.get(REPLY.CONTENT);
             this.createdAt = record.get(REPLY.CREATED_AT).toInstant();
             this.updatedAt = record.get(REPLY.UPDATED_AT) == null ? null : record.get(REPLY.UPDATED_AT).toInstant();
-            // this.root = new AtUri(record.get(REPLY.ROOT));
+            this.root = new AtUri(record.get(REPLY.ROOT_POST_ATURI));
         }
     }
 

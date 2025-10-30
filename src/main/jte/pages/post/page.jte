@@ -2,8 +2,12 @@
 @import com.jcs.javacommunitysite.forms.NewReplyForm
 @import com.jcs.javacommunitysite.jooq.tables.records.PostRecord
 @import com.jcs.javacommunitysite.jooq.tables.records.ReplyRecord
+@import com.jcs.javacommunitysite.util.UserInfo
+@import java.util.Map
 
 @param PostRecord post
+
+@param Map<String, UserInfo> users
 
 @param ReplyRecord[] postReplies
 
@@ -16,46 +20,57 @@ title = post.getTitle(),
 content = @`
     <div class="post-page">
         <h2>${post.getTitle()}</h2>
-        @template.pages.post.components.opPost(post=post)
+        @template.pages.post.components.opPost(post=post, user=users.get(post.getOwnerDid()))
 
         @for(var reply : postReplies)
-            @template.pages.post.components.reply(reply=reply)
+            @template.pages.post.components.reply(reply=reply, user=users.get(reply.getOwnerDid()))
         @endfor
 
         <div id="new-reply-insert-point"></div>
 
         <div class="mid-reply-runner"></div>
-        <form
-            class="reply-container"
-            hx-post="/post/${aturi.getDid()}/${aturi.getRecordKey()}/htmx/reply"
-            hx-target="#new-reply-insert-point"
-            hx-target-error="#reply-error-container"
-            hx-swap="outerHTML"
-            hx-disabled-elt="#reply-textarea, #reply-button"
-            hx-indicator="#reply-indicator"
-            hx-on::after-request="if (event.detail.successful) this.reset()"
-        >
-            <p>Make a Reply</p>
-            <div class="reply-bottom">
-                <img src="/img/user.svg">
-                <textarea id="reply-textarea" class="post-textarea" name="content" required>${newReplyForm.getContent()}</textarea>
-            </div>
-            <div class="reply-buttons" type="submit">
-                <img id="reply-indicator" class="htmx-indicator" src="/throbber.svg" width="24" />
-                <button id="reply-button" class="button" disabled>Reply</button>
-            </div>
-            <div id="reply-error-container"></div>
-            <div class="runner"></div>
+        @if(users.containsKey("self")) <!-- simple logged-in check -->
+            <form
+                class="reply-container"
+                hx-post="/post/${aturi.getDid()}/${aturi.getRecordKey()}/htmx/reply"
+                hx-target="#new-reply-insert-point"
+                hx-target-error="#reply-error-container"
+                hx-swap="outerHTML"
+                hx-disabled-elt="#reply-textarea, #reply-button"
+                hx-indicator="#reply-indicator"
+                hx-on::after-request="if (event.detail.successful) this.reset()"
+            >
+                <p>Make a Reply</p>
+                <div class="reply-bottom">
+                    <img src="${users.get("self").avatarUri}">
+                    <textarea id="reply-textarea" class="post-textarea" name="content" required>${newReplyForm.getContent()}</textarea>
+                </div>
+                <div class="reply-buttons" type="submit">
+                    <img id="reply-indicator" class="htmx-indicator" src="/throbber.svg" width="24" />
+                    <button id="reply-button" class="button" disabled>Reply</button>
+                </div>
+                <div id="reply-error-container"></div>
+                <div class="runner"></div>
 
-            <script>
-                // Disable reply button when textarea empty
-                const textarea = document.getElementById("reply-textarea")
-                const button = document.getElementById("reply-button")
-                textarea.addEventListener("input", (e) => {
-                    button.disabled = e.target.value.length <= 0;
-                })
-            </script>
-        </form>
+                <script>
+                    // Disable reply button when textarea empty
+                    const textarea = document.getElementById("reply-textarea")
+                    const button = document.getElementById("reply-button")
+                    textarea.addEventListener("input", (e) => {
+                        button.disabled = e.target.value.length <= 0;
+                    })
+                </script>
+            </form>
+        @else
+            <div class="login-container">
+                <p>
+                    To reply to a question, please
+                    <a href="/login?next=/post/${aturi.getDid()}/${aturi.getRecordKey()}&msg=To reply, please log in">
+                        login.
+                    </a>
+                </p>
+            </div>
+        @endif
     </div>
 `
 )

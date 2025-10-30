@@ -1,7 +1,9 @@
 package com.jcs.javacommunitysite.pages.askpage;
 
 import com.jcs.javacommunitysite.JavaCommunitySiteApplication;
+import com.jcs.javacommunitysite.atproto.AtUri;
 import com.jcs.javacommunitysite.atproto.records.QuestionRecord;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -131,15 +133,12 @@ public class AskPageController {
     }
 
     @PostMapping("/ask")
-    public String createPost(@ModelAttribute NewPostForm postForm, Model model) {
+    public String createPost(@ModelAttribute NewPostForm postForm, HttpServletResponse response, Model model) {
         // Check if user's session is active and logged in
-        if (!sessionService.isAuthenticated()) {
-            return "redirect:/login?next=/ask&msg=To ask a question, please log in.";
-        }
-
         var clientOpt = sessionService.getCurrentClient();
-        if (clientOpt.isEmpty()) {
-            return "redirect:/login?next=/ask&msg=To ask a question, please log in.";
+        if (!sessionService.isAuthenticated() || clientOpt.isEmpty()) {
+            response.setHeader("HX-Redirect", "/login?next=/ask&msg=To ask a question, please log in.");
+            return "empty";
         }
 
         try {
@@ -157,10 +156,16 @@ public class AskPageController {
             );
 
             // Send to ATproto
-            client.createRecord(questionRecord);
+            var atProtoResp = client.createRecord(questionRecord);
 
-            // Redirect to the newly created post
-            return "redirect:/ask";
+            model.addAttribute("aturi", new AtUri(field(atProtoResp, "uri", string())));
+            model.addAttribute("title", postForm.getTitle());
+            model.addAttribute("content", postForm.getContent());
+            model.addAttribute("amtReplies", 0);
+            model.addAttribute("timeText", "Just now");
+            model.addAttribute("tags", tags);
+
+            return "components/post";
             
         } catch (IOException e) {
             System.out.println("IOException while creating post: " + e.getMessage());

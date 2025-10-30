@@ -20,7 +20,12 @@
         )
 
         <div class="new-question-container">
-            <form method="post">
+            <form
+                hx-post="/ask"
+                hx-target="#my-questions-header"
+                hx-swap="afterend"
+                hx-on::after-request="if (event.detail.successful) this.reset()"
+            >
                 <div class="form-group">
                     <label for="title-input">Title</label>
                     <input id="title-input" class="textbox" type="text" name="title" value="${postForm.getTitle()}" placeholder="My Really Good Title" required>
@@ -69,7 +74,7 @@
 
         <div class="divider"></div>
 
-        <h2>My Questions</h2>
+        <h2 id="my-questions-header">My Questions</h2>
 
         @if(userPosts != null && !userPosts.isEmpty())
             @for(var post : userPosts)

@@ -1,11 +1,13 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
 @import com.jcs.javacommunitysite.forms.NewReplyForm
 @import com.jcs.javacommunitysite.jooq.tables.records.ReplyRecord
+@import com.jcs.javacommunitysite.util.UserInfo
 
 @param ReplyRecord reply
 @param NewReplyForm form
+@param UserInfo user
 
-!{AtUri root = new AtUri(reply.getRoot());}
+!{AtUri root = new AtUri(reply.getRootPostAturi());}
 !{AtUri self = new AtUri(reply.getAturi());}
 
 <div id="reply-${self.getRecordKey()}">
@@ -14,7 +16,7 @@
         <div class="content">
             <div class="header">
                 <div class="profile-pic-container">
-                    <img src="/img/user.svg">
+                    <img src="${user.avatarUri}" alt="Profile Picture" />
                 </div>
                 <div style="display: flex; align-items: center;">
                     <p><b>Edit your Reply</b></p>

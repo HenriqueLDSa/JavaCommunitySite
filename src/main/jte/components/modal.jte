@@ -9,7 +9,7 @@
         <div class="header">
             <h2>${title}</h2>
             <button class="button icon" onclick="closeModal()">
-                <img src="/img/close.svg" alt="Close" />
+                <img src="/close.svg" alt="Close" />
             </button>
         </div>
 

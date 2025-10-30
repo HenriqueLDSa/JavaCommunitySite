@@ -1,5 +1,6 @@
 package com.jcs.javacommunitysite.pages.searchpage;
 
+import com.jcs.javacommunitysite.util.TimeUtil;
 import org.jooq.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -275,29 +276,9 @@ public class SearchPageController {
             searchResult.setTags(new ArrayList<>());
         }
 
-        searchResult.setTimeText(calculateTimeText(record.get(POST.CREATED_AT)));
+        searchResult.setTimeText(TimeUtil.calculateTimeText(record.get(POST.CREATED_AT)));
 
         return searchResult;
-    }
-
-    private String calculateTimeText(OffsetDateTime createdAt) {
-        var now = OffsetDateTime.now();
-        var yearsBetween = ChronoUnit.YEARS.between(createdAt, now);
-        var daysBetween = ChronoUnit.DAYS.between(createdAt, now);
-        var hoursBetween = ChronoUnit.HOURS.between(createdAt, now);
-        var minutesBetween = ChronoUnit.MINUTES.between(createdAt, now);
-
-        if (yearsBetween > 0) {
-            return yearsBetween == 1 ? "1 year ago" : yearsBetween + " years ago";
-        } else if (daysBetween > 0) {
-            return daysBetween == 1 ? "1 day ago" : daysBetween + " days ago";
-        } else if (hoursBetween > 0) {
-            return hoursBetween == 1 ? "1 hour ago" : hoursBetween + " hours ago";
-        } else if (minutesBetween > 0) {
-            return minutesBetween == 1 ? "1 minute ago" : minutesBetween + " minutes ago";
-        } else {
-            return "Just now";
-        }
     }
 
     private Optional<String> getCurrentUserAvatarUrl() {

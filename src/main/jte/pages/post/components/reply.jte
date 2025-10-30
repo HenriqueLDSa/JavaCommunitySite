@@ -1,9 +1,12 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
 @import com.jcs.javacommunitysite.jooq.tables.records.ReplyRecord
+@import com.jcs.javacommunitysite.util.TimeUtil
+@import com.jcs.javacommunitysite.util.UserInfo
 
 @param ReplyRecord reply
+@param UserInfo user
 
-!{AtUri root = new AtUri(reply.getRoot());}
+!{AtUri root = new AtUri(reply.getRootPostAturi());}
 !{
     AtUri self = null;
     if (reply.getAturi() != null) {
@@ -17,14 +20,14 @@
         <div class="content">
             <div class="header">
                 <div class="profile-pic-container">
-                    <img src="/img/user.svg">
+                    <img src="${user.avatarUri}" alt="Profile Picture" />
                 </div>
                 <div class="poster-info">
-                    <p class="username">Test User</p>
-                    <p class="handle">@test.com</p>
+                    <p class="username">${user.displayName}</p>
+                    <p class="handle">@${user.handle}</p>
                 </div>
                 <div class="time-info">
-                    ${reply.getCreatedAt().toString()}
+                    ${TimeUtil.calculateTimeText(reply.getCreatedAt())}
                 </div>
                 @if(self != null)
                     <div id="reply-popup-button-container-${self.getRecordKey()}" class="popup-menu-container">
@@ -34,7 +37,7 @@
                                 hx-target="#reply-popup-button-container-${self.getRecordKey()}"
                                 hx-swap="beforeend"
                         >
-                            <img src="/img/more.svg" alt="More Options" width="20" />
+                            <img src="/more.svg" alt="More Options" width="20" />
                         </button>
                     </div>
                 @endif

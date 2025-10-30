@@ -152,6 +152,16 @@ p {
             z-index: -1;
         }
     }
+
+    & .login-container {
+        display: flex;
+        border: solid 1px var(--border-color);
+        border-radius: var(--border-radius-1);
+        padding: 15px;
+        width: 100%;
+        gap: 15px;
+        align-items: center;
+    }
 }
 
 .post {

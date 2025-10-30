@@ -2,30 +2,27 @@ package com.jcs.javacommunitysite.util;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class TimeUtil {
-    public static String getRelativeTime(String iso8601time) {
-        Instant then = Instant.parse(iso8601time);
-        Instant now = Instant.now();
+    public static String calculateTimeText(OffsetDateTime createdAt) {
+        var now = OffsetDateTime.now();
+        var yearsBetween = ChronoUnit.YEARS.between(createdAt, now);
+        var daysBetween = ChronoUnit.DAYS.between(createdAt, now);
+        var hoursBetween = ChronoUnit.HOURS.between(createdAt, now);
+        var minutesBetween = ChronoUnit.MINUTES.between(createdAt, now);
 
-        Duration duration = Duration.between(then, now);
-        long seconds = duration.getSeconds();
-
-        if (seconds < 60) {
-            return seconds + " seconds ago";
-        } else if (seconds < 3600) {
-            long minutes = duration.toMinutes();
-            return minutes + " minutes ago";
-        } else if (seconds < 86400) {
-            long hours = duration.toHours();
-            return hours + " hours ago";
-        } else if (seconds < 604800) {
-            long days = duration.toDays();
-            return days + " days ago";
+        if (yearsBetween > 0) {
+            return yearsBetween == 1 ? "1 year ago" : yearsBetween + " years ago";
+        } else if (daysBetween > 0) {
+            return daysBetween == 1 ? "1 day ago" : daysBetween + " days ago";
+        } else if (hoursBetween > 0) {
+            return hoursBetween == 1 ? "1 hour ago" : hoursBetween + " hours ago";
+        } else if (minutesBetween > 0) {
+            return minutesBetween == 1 ? "1 minute ago" : minutesBetween + " minutes ago";
         } else {
-            return then.toString(); // TODO make human readable with correct timezone
+            return "Just now";
         }
-
-
     }
 }

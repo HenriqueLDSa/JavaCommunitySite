@@ -22,19 +22,19 @@
     <ul class="nav-buttons">
         <li>
             <a id="ask-nav-button" href="/ask">
-                <img src="question.svg" alt="Ask" />
+                <img src="/question.svg" alt="Ask" />
                 Ask
             </a>
         </li>
         <li>
             <a id="answer-nav-button" href="/answer">
-                <img src="answer.svg" alt="Answer" />
+                <img src="/answer.svg" alt="Answer" />
                 Answer
             </a>
         </li>
         <li>
             <a id="search-nav-button" href="/search">
-                <img src="search.svg" alt="Search" />
+                <img src="/search.svg" alt="Search" />
                 Search
             </a>
         </li>
@@ -44,7 +44,7 @@
 
         <li>
             <a id="chat-nav-button" href="/chat">
-                <img src="chat.svg" alt="Chat" />
+                <img src="/chat.svg" alt="Chat" />
                 Chat
             </a>
         </li>

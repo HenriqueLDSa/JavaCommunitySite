@@ -1,9 +1,11 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
 @import com.jcs.javacommunitysite.forms.UpdatePostForm
 @import com.jcs.javacommunitysite.jooq.tables.records.PostRecord
+@import com.jcs.javacommunitysite.util.UserInfo
 
 @param PostRecord post
 @param UpdatePostForm form
+@param UserInfo user
 
 !{AtUri aturi = new AtUri(post.getAturi());}
 
@@ -11,10 +13,10 @@
     <div class="content">
         <div class="header">
             <div class="profile-pic-container">
-                <img src="/img/user.svg">
+                <img src="${user.avatarUri}" alt="Profile Picture" />
             </div>
             <div style="display: flex; align-items: center;">
-                <p><b>Edit your Post</b></p>
+                <p><b>Edit your Question</b></p>
             </div>
         </div>
         <form

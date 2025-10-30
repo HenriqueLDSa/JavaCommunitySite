@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.JCS_FORUM_DID;
 import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.addLexiconPrefix;
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static dev.mccue.json.JsonDecoder.*;
@@ -59,7 +60,7 @@ public class QuestionRecord extends AtprotoRecord {
             this.createdAt = record.get(POST.CREATED_AT).toInstant();
             this.updatedAt = record.get(POST.UPDATED_AT) == null ? null : record.get(POST.UPDATED_AT).toInstant();
             this.isOpen = record.get(POST.IS_OPEN);
-            // this.forum = record.get(POST.FORUM);
+            this.forum = JCS_FORUM_DID;
 
             var tagsJsonb = record.get(POST.TAGS);
             if (tagsJsonb != null) {
