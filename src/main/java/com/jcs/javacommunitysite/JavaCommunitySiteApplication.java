@@ -3,6 +3,7 @@ package com.jcs.javacommunitysite;
 import com.jcs.javacommunitysite.atproto.jetstream.JetstreamWebsocketClient;
 import com.jcs.javacommunitysite.atproto.jetstream.handlers.*;
 import jakarta.annotation.PostConstruct;
+import org.jooq.DSLContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.addLexiconP
 public class JavaCommunitySiteApplication {
 
     public static final String JCS_FORUM_ATURI = "at://did:plc:bwh2fxasbh3ieuxjyym7bmeh";
+    public static final String JCS_FORUM_DID = "did:plc:bwh2fxasbh3ieuxjyym7bmeh";
 
     public static void main(String[] args) {
         SpringApplication.run(JavaCommunitySiteApplication.class, args);
@@ -39,27 +41,28 @@ public class JavaCommunitySiteApplication {
 class JetstreamStartupComponent {
     private static JetstreamWebsocketClient jetstreamClient;
 
+    private final DSLContext dsl;
+    
+    public JetstreamStartupComponent(DSLContext dsl) {
+        this.dsl = dsl;
+    }
+
     @PostConstruct
     public void init() {
         try {
             if (jetstreamClient != null) {
+                System.out.println("Re-opening jetstream websocket...");
                 jetstreamClient.close();
             }
-            jetstreamClient = new JetstreamWebsocketClient(new URI("wss://jetstream2.us-east.bsky.network/subscribe"
+            jetstreamClient = new JetstreamWebsocketClient(new URI("wss://jetstream1.us-east.bsky.network/subscribe"
                     + "?wantedCollections=dev.fudgeu.experimental.atforumv1.forum.identity"
-                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.forum.group"
-                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.forum.category"
-                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.post"
-                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.vote"
+                    + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.question"
                     + "&wantedCollections=dev.fudgeu.experimental.atforumv1.feed.reply"
             ));
 
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.identity"), new JetstreamForumIdentityHandler());
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.group"), new JetstreamForumGroupHandler());
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.category"), new JetstreamForumCategoryHandler());
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.post"), new JetstreamPostHandler());
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.vote"), new JetstreamVoteHandler());
-            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.reply"), new JetstreamReplyHandler());
+            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("forum.identity"), new JetstreamForumIdentityHandler(dsl));
+            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.reply"), new JetstreamReplyHandler(dsl));
+            jetstreamClient.registerJetstreamHandler(addLexiconPrefix("feed.question"), new JetstreamQuestionHandler(dsl));
 
             jetstreamClient.connect();
         } catch (URISyntaxException e) {

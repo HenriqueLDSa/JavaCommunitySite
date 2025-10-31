@@ -8,13 +8,13 @@ import dev.mccue.json.JsonEncodable;
 import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.addLexiconPrefix;
 import static dev.mccue.json.JsonDecoder.*;
 
-public class ForumCategoryRecord extends AtprotoRecord implements JsonEncodable {
+public class ForumCategoryRecord extends AtprotoRecord {
 
+    public static final String recordCollection = addLexiconPrefix("forum.category");
 
     public enum ForumCategoryType implements JsonEncodable {
         DISCUSSION,
-        QUESTION,
-        ;
+        QUESTION;
 
         @Override
         public Json toJson() {
@@ -75,7 +75,7 @@ public class ForumCategoryRecord extends AtprotoRecord implements JsonEncodable 
 
     @Override
     public String getRecordCollection() {
-        return addLexiconPrefix("forum.category");
+        return addLexiconPrefix(recordCollection);
     }
 
     public String getName() {

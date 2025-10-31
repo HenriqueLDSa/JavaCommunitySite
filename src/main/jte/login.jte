@@ -3,6 +3,7 @@
 
 @param LoginForm loginForm
 @param String errMsg
+@param String customMsg
 
 @template.root(
     title = "Log into JCS",
@@ -11,7 +12,12 @@
     <div class="login-container">
         <h1>jcs.</h1>
         <h2>Login with AtProto</h2>
-        <form id="loginForm" class="login-form" action="/login" method="post">
+
+        @if(customMsg != null)
+            <p>${customMsg}</p>
+        @endif
+
+        <form id="loginForm" class="login-form" method="post">
             <input id="loginHandle" class="textbox" type="text" name="handle" value="${loginForm.getHandle()}" placeholder="Handle" required />
             <input id="loginPassword" class="textbox" type="password" name="password" value="${loginForm.getPassword()}" placeholder="Password" required />
             <button id="loginButton" class="button" type="submit" disabled>Login</button>

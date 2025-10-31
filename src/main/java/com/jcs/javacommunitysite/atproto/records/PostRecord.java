@@ -6,12 +6,15 @@ import dev.mccue.json.Json;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
+import org.jooq.DSLContext;
 import static com.jcs.javacommunitysite.JavaCommunitySiteApplication.addLexiconPrefix;
 import static dev.mccue.json.JsonDecoder.*;
 
+import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
+
 public class PostRecord extends AtprotoRecord {
+
+    public static final String recordCollection = addLexiconPrefix("feed.post");
 
     private String title;
     private String content;
@@ -21,10 +24,6 @@ public class PostRecord extends AtprotoRecord {
     private String forum;  // should be a DID
     private List<String> tags;
     private AtUri solution = null;
-
-    public PostRecord(AtUri atUri) {
-        super(atUri);
-    }
 
     @Override
     public Json toJson() {
@@ -38,6 +37,42 @@ public class PostRecord extends AtprotoRecord {
                 .put("tags", Json.of(tags, Json::of))
                 .put("solution", solution)
                 .build();
+    }
+
+     public PostRecord(AtUri atUri) {
+        super(atUri);
+    }
+
+    public PostRecord(AtUri atUri, DSLContext dsl) {
+        super(atUri);
+        fetchFromDB(atUri, dsl);
+    }
+
+    private void fetchFromDB(AtUri atUri, DSLContext dsl){
+
+        var record = dsl.select()
+                .from(POST)
+                .where(POST.ATURI.eq(atUri.toString()))
+                .fetchOne();
+        
+        if(record != null){
+            this.title = record.get(POST.TITLE);
+            this.content = record.get(POST.CONTENT);
+            this.createdAt = record.get(POST.CREATED_AT).toInstant();
+            this.updatedAt = record.get(POST.UPDATED_AT) == null ? null : record.get(POST.UPDATED_AT).toInstant();
+            // this.category = new AtUri(record.get(POST.CATEGORY_ATURI));
+            // this.forum = record.get(POST.FORUM);
+            
+            var tagsJsonb = record.get(POST.TAGS);
+            if (tagsJsonb != null) {
+                var tagsJson = Json.read(tagsJsonb.data());
+                this.tags = array(string()).decode(tagsJson);
+            } else {
+                this.tags = new ArrayList<>();
+            }
+            
+            // this.solution = record.get(POST.SOLUTION) == null ? null : new AtUri(record.get(POST.SOLUTION));
+        }
     }
 
     public PostRecord(AtUri atUri, Json json) {
@@ -99,7 +134,7 @@ public class PostRecord extends AtprotoRecord {
 
     @Override
     public String getRecordCollection() {
-        return addLexiconPrefix("feed.post");
+        return recordCollection;
     }
 
     public String getTitle() {

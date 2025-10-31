@@ -5,6 +5,7 @@ import com.jcs.javacommunitysite.atproto.exceptions.AtprotoUnauthorized;
 import dev.mccue.json.JsonObject;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class AtprotoJwtSession implements AtprotoAuthSession {
     private final String jwt;
     private final String pdsHost;
     private final String handle;
+    private final String did;
 
     // Factory methods to create sessions
     public static AtprotoJwtSession fromCredentials(String pdsHost, String handle, String password) throws IOException, AtprotoUnauthorized {
@@ -25,7 +27,9 @@ public class AtprotoJwtSession implements AtprotoAuthSession {
         payload.put("password", password);
 
         // Create URL and headers
-        URL url = new URL(new URL(pdsHost), "/xrpc/com.atproto.server.createSession/");
+        URI uri = URI.create(pdsHost).resolve("/xrpc/com.atproto.server.createSession/");
+        URL url = uri.toURL();
+
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/json");
 
@@ -36,14 +40,16 @@ public class AtprotoJwtSession implements AtprotoAuthSession {
 
         String accessJWT = field(response, "accessJwt", string());
         String refreshJWT = field(response, "refreshJwt", string());
+        String did = field(response, "did", string());
 
-        return new AtprotoJwtSession(pdsHost, handle, accessJWT, refreshJWT);
+        return new AtprotoJwtSession(pdsHost, handle, accessJWT, refreshJWT, did);
     }
 
-    public AtprotoJwtSession(String pdsHost, String handle, String jwt, String refreshJwt) {
+    public AtprotoJwtSession(String pdsHost, String handle, String jwt, String refreshJwt, String did) {
         this.jwt = jwt;
         this.pdsHost = pdsHost;
         this.handle = handle;
+        this.did = did;
     }
 
     @Override
@@ -54,6 +60,11 @@ public class AtprotoJwtSession implements AtprotoAuthSession {
     @Override
     public String getPdsHost() {
         return pdsHost;
+    }
+
+    @Override
+    public String getDid() {
+        return did;
     }
 
     @Override

@@ -1,105 +1,41 @@
-@template.layout.main(content = @`
-    <div class="ml-4 mr-4 flex-1 p-6 min-h-svh">
-        <div class="flex flex-row justify-between">
-            <div class="flex flex-col w-90">
-                <h1 class="flex text-3xl mt-2">Browse Categories.</h1>
-                <p class="text-sm text-gray-500 mt-1">Find and create posts in their appropriate categories.</p>
-            </div>
-            <div class="flex flex-row justify-between w-35 items-start">
-                <a href="" class="rounded-md pl-2 pr-2 pt-1 pb-1 text-sm bg-sky-500 hover:bg-sky-600 text-white">
-                    + New Post
-                </a>
-                <a href="" class="rounded-4xl bg-gray-500 p-1">
-                    pfp
-                </a>
-            </div>
-        </div>
-        <div class="flex-col border-1 border-black rounded-sm mt-8">
-            <div class="border-b-1 border-b-black m-2 pb-1">
-                <a href="" class="text-gray-500 hover:underline">Questions</a>
-            </div>
-            <ul class="m-3">
-                <li class="text-sm">
-                    <a class="hover:underline" href="">
-                        <p>Getting Started</p>
-                        <p class="text-xs text-gray-400">If you're brand new, start here!</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Springboot Questions</p>
-                        <p class="text-xs text-gray-400">Questions about Springboot</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Minecraft Modding Questions</p>
-                        <p class="text-xs text-gray-400">Questions about writing mods for Minecraft</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Kotlin Questions</p>
-                        <p class="text-xs text-gray-400">Questions about Kotlin</p>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="flex-col border-1 border-black rounded-sm mt-8">
-            <div class="border-b-1 border-b-black m-2 pb-1">
-                <a href="" class="text-gray-500 hover:underline">Showcase</a>
-            </div>
-            <ul class="m-3">
-                <li class="text-sm">
-                    <a class="hover:underline" href="">
-                        <p>Applications</p>
-                        <p class="text-xs text-gray-400">Show off your cool applications</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Libraries</p>
-                        <p class="text-xs text-gray-400">Show off your cool libraries</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Minecraft Mods</p>
-                        <p class="text-xs text-gray-400">Show off your cool Minecraft mods</p>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="flex-col border-1 border-black rounded-sm mt-8">
-            <div class="border-b-1 border-b-black m-2 pb-1">
-                <a href="" class="text-gray-500 hover:underline">Lorem Ipsum</a>
-            </div>
-            <ul class="m-3">
-                <li class="text-sm">
-                    <a class="hover:underline" href="">
-                        <p>Lorem Ipsum</p>
-                        <p class="text-xs text-gray-400">Lorem Ipsum dolor filler text</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Lorem Ipsum</p>
-                        <p class="text-xs text-gray-400">Lorem Ipsum dolor filler text</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Lorem Ipsum</p>
-                        <p class="text-xs text-gray-400">Lorem Ipsum dolor filler text</p>
-                    </a>
-                </li>
-                <li class="text-sm mt-3">
-                    <a class="hover:underline" href="">
-                        <p>Lorem Ipsum</p>
-                        <p class="text-xs text-gray-400">Lorem Ipsum dolor filler text</p>
-                    </a>
-                </li>
-            </ul>
-        </div>
+@import com.jcs.javacommunitysite.atproto.AtUri
+
+@param java.util.List<java.util.Map<String, Object>> groupsWithCategories
+@template.layout.main(title = "Browse", content = @`
+    <div class="page-content">
+
+        <%-- Header --%>
+        @template.components.pageHeader(content = @`
+            <h2>Browse Categories.</h2>
+            <p>Find and create posts in their appropriate categories.</p>
+        `)
+
+        @if(groupsWithCategories.isEmpty())
+            <br/>
+            <p>No groups!</p>
+        @endif
+
+        <%-- Groups --%>
+        @for(java.util.Map<String, Object> a : groupsWithCategories)
+            !{Object b = a.get("group");}
+            !{java.util.Map<?, ?> c = (java.util.Map<?, ?>) b;}
+            !{String group = c.get("name").toString();}
+            @template.components.labelledSection(
+                title = group,
+                content = @`
+                !{Object d = a.get("categories");}
+                !{java.util.List<?> cats = (java.util.List<?>) d;}
+                @for(Object cat : cats)
+                    !{java.util.Map<?,?> e = (java.util.Map<?, ?>) cat;}
+                    @template.components.category(
+                        rkey = new AtUri(e.get("aturi").toString()).getRecordKey(),
+                        name = e.get("name").toString(),
+                        description = e.get("description").toString(),
+                        recentPostsCount = (int) e.get("posts_24hr"),
+                    )
+                @endfor
+                `
+            )
+        @endfor
     </div>
 `)

@@ -1,0 +1,235 @@
+package com.jcs.javacommunitysite.pages.askpage;
+
+import com.jcs.javacommunitysite.JavaCommunitySiteApplication;
+import com.jcs.javacommunitysite.atproto.AtUri;
+import com.jcs.javacommunitysite.atproto.records.QuestionRecord;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jooq.DSLContext;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
+import com.jcs.javacommunitysite.atproto.AtprotoClient;
+import com.jcs.javacommunitysite.atproto.AtprotoUtil;
+import dev.mccue.json.Json;
+
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+
+import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
+import static com.jcs.javacommunitysite.jooq.tables.User.USER;
+import static com.jcs.javacommunitysite.jooq.tables.Reply.REPLY;
+import static dev.mccue.json.JsonDecoder.field;
+import static dev.mccue.json.JsonDecoder.string;
+import static dev.mccue.json.JsonDecoder.array;
+
+@Controller
+public class AskPageController {
+
+    private final AtprotoSessionService sessionService;
+    private final DSLContext dsl;
+
+    public AskPageController(AtprotoSessionService sessionService, DSLContext dsl) {
+        this.sessionService = sessionService;
+        this.dsl = dsl;
+    }
+
+    @GetMapping("/ask")
+    public String ask(
+            Model model
+    ) {
+        model.addAttribute("postForm", new NewPostForm());
+        
+        // Add current user's avatar URL to model for pageHeader
+        getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
+            model.addAttribute("currentUserAvatarUrl", avatarUrl)
+        );
+        
+        // Fetch user's posts if authenticated
+        if (sessionService.isAuthenticated()) {
+            var clientOpt = sessionService.getCurrentClient();
+            if (clientOpt.isPresent()) {
+                try {
+                    AtprotoClient client = clientOpt.get();
+                    String handle = client.getSession().getHandle();
+                    var profile = AtprotoUtil.getBskyProfile(handle);
+                    String userDid = profile.get("did").toString().replace("\"", "");
+                    
+                    // Query user's posts from database
+                    var userPosts = dsl.selectFrom(POST)
+                            .where(POST.OWNER_DID.eq(userDid))
+                            .and(POST.IS_DELETED.eq(false))
+                            .orderBy(POST.CREATED_AT.desc())
+                            .fetch();
+                    
+                    // Create a map of post ATURI to reply count
+                    var replyCountsMap = new HashMap<String, Integer>();
+                    var timeTextsMap = new HashMap<String, String>();
+                    var tagsMap = new HashMap<String, List<String>>();
+
+                    for (var post : userPosts) {
+                        // Calculate reply count
+                        int replyCount = dsl.selectCount()
+                                .from(REPLY)
+                                .where(REPLY.ROOT_POST_ATURI.eq(post.getAturi()))
+                                .fetchOne(0, int.class);
+                        replyCountsMap.put(post.getAturi(), replyCount);
+                        
+                        // Calculate time text
+                        var now = OffsetDateTime.now();
+                        var createdAt = post.getCreatedAt();
+                        var yearsBetween = ChronoUnit.YEARS.between(createdAt, now);
+                        var daysBetween = ChronoUnit.DAYS.between(createdAt, now);
+                        var hoursBetween = ChronoUnit.HOURS.between(createdAt, now);
+                        var minutesBetween = ChronoUnit.MINUTES.between(createdAt, now);
+                        
+                        String timeText;
+                        if (yearsBetween > 0) {
+                            timeText = yearsBetween + (yearsBetween == 1 ? " year ago" : " years ago");
+                        } else if (daysBetween > 0) {
+                            timeText = daysBetween + (daysBetween == 1 ? " day ago" : " days ago");
+                        } else if (hoursBetween > 0) {
+                            timeText = hoursBetween + (hoursBetween == 1 ? " hour ago" : " hours ago");
+                        } else if (minutesBetween > 0) {
+                            timeText = minutesBetween + (minutesBetween == 1 ? " minute ago" : " minutes ago");
+                        } else {
+                            timeText = "Just now";
+                        }
+                        timeTextsMap.put(post.getAturi(), timeText);
+                        
+                        // Extract tags from JSON
+                        var tagsList = new ArrayList<String>();
+                        if (post.getTags() != null) {
+                            try {
+                                // Parse JSON array using dev.mccue.json
+                                var tagsJson = Json.read(post.getTags().data());
+                                var tagsArray = array(string()).decode(tagsJson);
+                                tagsList.addAll(tagsArray);
+                            } catch (Exception e) {
+                                System.err.println("Error parsing tags JSON for post " + post.getAturi() + ": " + e.getMessage());
+                            }
+                        }
+                        tagsMap.put(post.getAturi(), tagsList);
+                    }
+                    
+                    model.addAttribute("userPosts", userPosts);
+                    model.addAttribute("replyCountsMap", replyCountsMap);
+                    model.addAttribute("timeTextsMap", timeTextsMap);
+                    model.addAttribute("tagsMap", tagsMap);
+                    model.addAttribute("loggedIn", true);
+                } catch (IOException e) {
+                    System.err.println("Error fetching user posts: " + e.getMessage());
+                }
+            }
+        } else {
+            model.addAttribute("loggedIn", false);
+        }
+        
+        return "pages/ask";
+    }
+
+    @PostMapping("/ask")
+    public String createPost(@ModelAttribute NewPostForm postForm, HttpServletResponse response, Model model) {
+        // Check if user's session is active and logged in
+        var clientOpt = sessionService.getCurrentClient();
+        if (!sessionService.isAuthenticated() || clientOpt.isEmpty()) {
+            response.setHeader("HX-Redirect", "/login?next=/ask&msg=To ask a question, please log in.");
+            return "empty";
+        }
+
+        try {
+            AtprotoClient client = clientOpt.get();
+            
+            // Prepare tags list
+            var tags = postForm.getTags() != null ? postForm.getTags() : new ArrayList<String>();
+
+            // Create ATproto Question record
+            var questionRecord = new QuestionRecord(
+                    postForm.getTitle(),
+                    postForm.getContent(),
+                    JavaCommunitySiteApplication.JCS_FORUM_DID,
+                    tags
+            );
+
+            // Send to ATproto
+            var atProtoResp = client.createRecord(questionRecord);
+
+            model.addAttribute("aturi", new AtUri(field(atProtoResp, "uri", string())));
+            model.addAttribute("title", postForm.getTitle());
+            model.addAttribute("content", postForm.getContent());
+            model.addAttribute("amtReplies", 0);
+            model.addAttribute("timeText", "Just now");
+            model.addAttribute("tags", tags);
+
+            return "components/post";
+            
+        } catch (IOException e) {
+            System.out.println("IOException while creating post: " + e.getMessage());
+            model.addAttribute("error", "Failed to create post. Please try again.");
+            model.addAttribute("postForm", postForm);
+            
+            // Add current user's avatar URL to model for pageHeader
+            getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
+                model.addAttribute("currentUserAvatarUrl", avatarUrl)
+            );
+            
+            return "pages/ask";
+        } catch (Exception e) {
+            System.out.println("IOException while creating post: " + e.getMessage());
+            model.addAttribute("error", "An unexpected error occurred. Please try again.");
+            model.addAttribute("postForm", postForm);
+            
+            // Add current user's avatar URL to model for pageHeader
+            getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
+                model.addAttribute("currentUserAvatarUrl", avatarUrl)
+            );
+            
+            return "pages/ask";
+        }
+    }
+    
+    /**
+     * Helper method to get the current authenticated user's avatar URL
+     */
+    private Optional<String> getCurrentUserAvatarUrl() {
+        if (!sessionService.isAuthenticated()) {
+            return Optional.empty();
+        }
+        
+        var clientOpt = sessionService.getCurrentClient();
+        if (clientOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        try {
+            AtprotoClient client = clientOpt.get();
+            String handle = client.getSession().getHandle();
+            
+            // Get the DID from the profile
+            var profile = AtprotoUtil.getBskyProfile(handle);
+            String userDid = field(profile, "did", string());
+            
+            // Query the database for the user's avatar URL
+            var userRecord = dsl.selectFrom(USER)
+                    .where(USER.DID.eq(userDid))
+                    .fetchOne();
+            
+            if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
+                return Optional.of(userRecord.getAvatarBloburl());
+            }
+
+            return Optional.empty();
+
+        } catch (IOException e) {
+            System.err.println("Error getting current user avatar: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+}

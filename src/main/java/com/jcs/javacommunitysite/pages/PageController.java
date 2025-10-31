@@ -1,27 +1,24 @@
 package com.jcs.javacommunitysite.pages;
-
+import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
+import org.jooq.DSLContext;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class PageController {
-    @GetMapping("/browse")
-    public String home() {
-        return "pages/browse";
+    private final AtprotoSessionService sessionService;
+    private final DSLContext dsl;
+
+    public PageController(AtprotoSessionService sessionService, DSLContext dsl) {
+        this.sessionService = sessionService;
+        this.dsl = dsl;
     }
 
-    @GetMapping("/hotPosts")
-    public String hotPosts() {
-        return "pages/hotPosts";
-    }
-
-    @GetMapping("/newPosts")
-    public String newPosts() {
-        return "pages/newPosts";
-    }
-
-    @GetMapping("/newReplies")
-    public String newReplies() {
-        return "pages/newReplies";
+    @GetMapping("/groups/{groupName}")
+    public String groupPage(@PathVariable String groupName, Model model) {
+        model.addAttribute("groupName", groupName);
+        return "pages/groupCategories";
     }
 }
