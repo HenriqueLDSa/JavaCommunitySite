@@ -3,6 +3,7 @@ package com.jcs.javacommunitysite.pages.askpage;
 import com.jcs.javacommunitysite.JavaCommunitySiteApplication;
 import com.jcs.javacommunitysite.atproto.AtUri;
 import com.jcs.javacommunitysite.atproto.records.QuestionRecord;
+import com.jcs.javacommunitysite.util.UserInfo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Controller;
@@ -47,11 +48,6 @@ public class AskPageController {
             Model model
     ) {
         model.addAttribute("postForm", new NewPostForm());
-        
-        // Add current user's avatar URL to model for pageHeader
-        getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
-            model.addAttribute("currentUserAvatarUrl", avatarUrl)
-        );
         
         // Fetch user's posts if authenticated
         if (sessionService.isAuthenticated()) {
@@ -131,6 +127,7 @@ public class AskPageController {
                     model.addAttribute("timeTextsMap", timeTextsMap);
                     model.addAttribute("postTags", tagsMap);
                     model.addAttribute("loggedIn", true);
+                    model.addAttribute("user", UserInfo.getSelfFromDb(dsl, sessionService));
                 } catch (IOException e) {
                     System.err.println("Error fetching user posts: " + e.getMessage());
                 }
@@ -182,61 +179,13 @@ public class AskPageController {
             model.addAttribute("error", "Failed to create post. Please try again.");
             model.addAttribute("postForm", postForm);
             
-            // Add current user's avatar URL to model for pageHeader
-            getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
-                model.addAttribute("currentUserAvatarUrl", avatarUrl)
-            );
-            
             return "pages/ask";
         } catch (Exception e) {
             System.out.println("IOException while creating post: " + e.getMessage());
             model.addAttribute("error", "An unexpected error occurred. Please try again.");
             model.addAttribute("postForm", postForm);
             
-            // Add current user's avatar URL to model for pageHeader
-            getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
-                model.addAttribute("currentUserAvatarUrl", avatarUrl)
-            );
-            
             return "pages/ask";
-        }
-    }
-    
-    /**
-     * Helper method to get the current authenticated user's avatar URL
-     */
-    private Optional<String> getCurrentUserAvatarUrl() {
-        if (!sessionService.isAuthenticated()) {
-            return Optional.empty();
-        }
-        
-        var clientOpt = sessionService.getCurrentClient();
-        if (clientOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        
-        try {
-            AtprotoClient client = clientOpt.get();
-            String handle = client.getSession().getHandle();
-            
-            // Get the DID from the profile
-            var profile = AtprotoUtil.getBskyProfile(handle);
-            String userDid = field(profile, "did", string());
-            
-            // Query the database for the user's avatar URL
-            var userRecord = dsl.selectFrom(USER)
-                    .where(USER.DID.eq(userDid))
-                    .fetchOne();
-            
-            if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return Optional.of(userRecord.getAvatarBloburl());
-            }
-
-            return Optional.empty();
-
-        } catch (IOException e) {
-            System.err.println("Error getting current user avatar: " + e.getMessage());
-            return Optional.empty();
         }
     }
 }

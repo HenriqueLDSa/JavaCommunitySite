@@ -1,9 +1,10 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
+@import com.jcs.javacommunitysite.util.UserInfo
 @import java.util.Map
 
-@param String currentUserAvatarUrl = null
 @param Map<String, String> myTags
 @param Map<String, String> othersTags
+@param UserInfo user = null
 
 @template.layout.main(
     title = "Admin",
@@ -11,7 +12,7 @@
     <div class="page-content">
         @template.components.pageHeader(
             content = @`<h2>Admin Controls</h2>`,
-            avatarUrl = currentUserAvatarUrl
+            user = user,
         )
 
         <div class="admin-tags-container">

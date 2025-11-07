@@ -4,6 +4,7 @@ import com.jcs.javacommunitysite.atproto.AtprotoClient;
 import com.jcs.javacommunitysite.atproto.AtprotoUtil;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.pages.askpage.NewPostForm;
+import com.jcs.javacommunitysite.util.UserInfo;
 import dev.mccue.json.Json;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Controller;
@@ -38,11 +39,6 @@ public class ProfilePageController {
     @GetMapping("/pfp/tab/questions") public String q(Model model){
         // Fetch user's posts if authenticated
         model.addAttribute("postForm", new NewPostForm());
-
-        // Add current user's avatar URL to model for pageHeader
-        getCurrentUserAvatarUrl().ifPresent(avatarUrl ->
-                model.addAttribute("currentUserAvatarUrl", avatarUrl)
-        );
 
         // Fetch user's posts if authenticated
         if (sessionService.isAuthenticated()) {
@@ -208,11 +204,6 @@ public class ProfilePageController {
     public String pfpPage(Model model) {
         model.addAttribute("postForm", new NewPostForm());
 
-        // Add current user's avatar URL to model for pageHeader
-        getCurrentUserAvatarUrl().ifPresent(avatarUrl ->
-                model.addAttribute("currentUserAvatarUrl", avatarUrl)
-        );
-
         // Fetch user's posts if authenticated
         if (sessionService.isAuthenticated()) {
             var clientOpt = sessionService.getCurrentClient();
@@ -225,6 +216,7 @@ public class ProfilePageController {
                     model.addAttribute("currentUserHandle", handle);
                     model.addAttribute("displayName", profile.get("displayName").toString());
                     model.addAttribute("description", profile.get("description").toString());
+                    model.addAttribute("user", UserInfo.getSelfFromDb(dsl, sessionService));
                 } catch (IOException e) {
                     System.err.println("Error fetching user posts: " + e.getMessage());
                 }
@@ -232,41 +224,6 @@ public class ProfilePageController {
         }
 
         return "pages/pfp";
-    }
-
-    private Optional<String> getCurrentUserAvatarUrl() {
-        if (!sessionService.isAuthenticated()) {
-            return Optional.empty();
-        }
-
-        var clientOpt = sessionService.getCurrentClient();
-        if (clientOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        try {
-            AtprotoClient client = clientOpt.get();
-            String handle = client.getSession().getHandle();
-
-            // Get the DID from the profile
-            var profile = AtprotoUtil.getBskyProfile(handle);
-            String userDid = field(profile, "did", string());
-
-            // Query the database for the user's avatar URL
-            var userRecord = dsl.selectFrom(USER)
-                    .where(USER.DID.eq(userDid))
-                    .fetchOne();
-
-            if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return Optional.of(userRecord.getAvatarBloburl());
-            }
-
-            return Optional.empty();
-
-        } catch (IOException e) {
-            System.err.println("Error getting current user avatar: " + e.getMessage());
-            return Optional.empty();
-        }
     }
 
 }

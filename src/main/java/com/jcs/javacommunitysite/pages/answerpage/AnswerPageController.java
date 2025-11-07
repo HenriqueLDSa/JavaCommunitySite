@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jcs.javacommunitysite.util.UserInfo;
 import org.jooq.DSLContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,13 +59,6 @@ public class AnswerPageController {
         // Add loggedIn status
         model.addAttribute("loggedIn", sessionService.isAuthenticated());
 
-        // Only add avatar URL if user is authenticated
-        if (sessionService.isAuthenticated()) {
-            getCurrentUserAvatarUrl().ifPresent(avatarUrl -> 
-            model.addAttribute("currentUserAvatarUrl", avatarUrl)
-            );
-        }
-
         if (sessionService.isAuthenticated()) {
             var clientOpt = sessionService.getCurrentClient();
             if (clientOpt.isPresent()) {
@@ -84,6 +78,7 @@ public class AnswerPageController {
                     
                     model.addAttribute("posts", posts);
                     model.addAttribute("userDid", userDid);
+                    model.addAttribute("user", UserInfo.getSelfFromDb(dsl, sessionService));
                 } catch (Exception e) {
                     System.err.println("Error fetching posts: " + e.getMessage());
                 }
@@ -279,42 +274,5 @@ public class AnswerPageController {
                 return map;
             })
             .toList();
-    }
-
-    /**
-     * Retrieves the avatar URL for the currently authenticated user.
-     * Queries the user table using the DID from the AT Protocol session.
-     * 
-     * @return Optional containing the avatar URL if found, empty otherwise
-     */
-    private java.util.Optional<String> getCurrentUserAvatarUrl() {
-        try {
-            var clientOpt = sessionService.getCurrentClient();
-            if (clientOpt.isEmpty()) {
-                return java.util.Optional.empty();
-            }
-            AtprotoClient client = clientOpt.get();
-            String handle = client.getSession().getHandle();
-            
-            // Get the DID from the user's Bluesky profile
-            var profile = AtprotoUtil.getBskyProfile(handle);
-            String userDid = field(profile, "did", string());
-            
-            // Look up user record in database by DID
-            var userRecord = dsl.selectFrom(USER)
-                    .where(USER.DID.eq(userDid))
-                    .fetchOne();
-            
-            // Return avatar URL if it exists and is not empty
-            if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return java.util.Optional.of(userRecord.getAvatarBloburl());
-            }
-            
-            return java.util.Optional.empty();
-            
-        } catch (IOException e) {
-            System.err.println("Error getting current user avatar: " + e.getMessage());
-            return java.util.Optional.empty();
-        }
     }
 }

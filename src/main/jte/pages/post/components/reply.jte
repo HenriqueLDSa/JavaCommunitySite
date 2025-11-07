@@ -6,6 +6,8 @@
 
 @param ReplyRecord reply
 @param UserInfo user
+@param boolean isHidden = false
+@param boolean selfHighlight = false
 
 !{AtUri root = new AtUri(reply.getRootPostAturi());}
 !{
@@ -33,13 +35,20 @@
                 @if(self != null)
                     <div id="reply-popup-button-container-${self.getRecordKey()}" class="popup-menu-container">
                         <button
-                                class="button icon"
-                                hx-get="/post/${root.getDid()}/${root.getRecordKey()}/htmx/replyMenu?reply=${reply.getAturi()}"
-                                hx-target="#reply-popup-button-container-${self.getRecordKey()}"
-                                hx-swap="beforeend"
+                            id="reply-popup-${self.getRecordKey()}-button"
+                            class="button icon"
+                            onclick="togglePopup('reply-popup-${self.getRecordKey()}')"
                         >
                             <img src="/more.svg" alt="More Options" width="20" />
                         </button>
+                        @template.pages.post.htmx.replyPopupMenu(
+                            id = "reply-popup-" + self.getRecordKey(),
+                            post = root,
+                            reply = self,
+                            ownsThisReply = user.isSelf,
+                            isCurUserAdmin = user.isSelf && user.isAdmin,
+                            isHidden = isHidden
+                        )
                     </div>
                 @endif
             </div>
@@ -52,4 +61,10 @@
 
         <div class="runner"></div>
     </div>
+
+    @if(selfHighlight)
+        <script>
+            Prism.highlightAllUnder(document.getElementById('reply-${self == null ? "new" : self.getRecordKey()}'))
+        </script>
+    @endif
 </div>

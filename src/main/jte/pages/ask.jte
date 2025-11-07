@@ -1,15 +1,16 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
+@import com.jcs.javacommunitysite.util.UserInfo
 @import java.util.List
 @import java.util.Map
 
 @param com.jcs.javacommunitysite.pages.askpage.NewPostForm postForm
-@param String currentUserAvatarUrl = null
 @param List<com.jcs.javacommunitysite.jooq.tables.records.PostRecord> userPosts = null
 @param Map<String, Integer> replyCountsMap = null
 @param Map<String, String> timeTextsMap = null
 @param Map<String, String> tags = null
 @param Map<String, List<String>> postTags = null
 @param boolean loggedIn
+@param UserInfo user = null
 
 @template.layout.main(
     title = "Ask",
@@ -18,7 +19,7 @@
 
         @template.components.pageHeader(
             content = @`<h2>Ask a Question</h2>`,
-            avatarUrl = currentUserAvatarUrl
+            user = user
         )
 
         @if(loggedIn)

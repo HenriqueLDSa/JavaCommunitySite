@@ -10,7 +10,7 @@
 @param Map<String, UserInfo> users
 @param ReplyRecord[] postReplies
 @param NewReplyForm newReplyForm
-@param String currentUserAvatarUrl = null
+@param boolean isPostHidden
 
 
 !{AtUri aturi = new AtUri(post.getAturi());}
@@ -21,17 +21,21 @@ content = @`
     <div class="post-page">
         @template.components.pageHeader(
             content = @`<h3 style="color: var(--subtext-color)">Question</h3>`,
-            avatarUrl = currentUserAvatarUrl,
+            user = users.get("self"),
         )
 
         <h2>${post.getTitle()}</h2>
         @template.pages.post.components.opPost(
             post = post,
-            user = users.get(post.getOwnerDid())
+            user = users.get(post.getOwnerDid()),
+            isHidden = isPostHidden
         )
 
         @for(var reply : postReplies)
-            @template.pages.post.components.reply(reply=reply, user=users.get(reply.getOwnerDid()))
+            @template.pages.post.components.reply(
+                reply=reply,
+                user=users.get(reply.getOwnerDid())
+            )
         @endfor
 
         <div id="new-reply-insert-point"></div>

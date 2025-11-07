@@ -5,6 +5,7 @@ import com.jcs.javacommunitysite.atproto.AtprotoClient;
 import com.jcs.javacommunitysite.atproto.AtprotoUtil;
 import com.jcs.javacommunitysite.atproto.records.TagRecord;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
+import com.jcs.javacommunitysite.util.UserInfo;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,7 +58,7 @@ public class AdminPageController {
 
         model.addAttribute("myTags", myTags);
         model.addAttribute("othersTags", othersTags);
-        model.addAttribute("currentUserAvatarUrl", getCurrentUserAvatarUrl(client).orElse(null));
+        model.addAttribute("user", UserInfo.getSelfFromDb(dsl, sessionService));
         return "pages/admin/admin";
     }
 
@@ -107,38 +108,6 @@ public class AdminPageController {
         } catch (Exception e) {
             // TODO error handling
             return "empty";
-        }
-    }
-
-    /**
-     * Retrieves the avatar URL for the currently authenticated user.
-     * Queries the user table using the DID from the AT Protocol session.
-     *
-     * @return Optional containing the avatar URL if found, empty otherwise
-     */
-    private java.util.Optional<String> getCurrentUserAvatarUrl(AtprotoClient client) {
-        try {
-            String handle = client.getSession().getHandle();
-
-            // Get the DID from the user's Bluesky profile
-            var profile = AtprotoUtil.getBskyProfile(handle);
-            String userDid = field(profile, "did", string());
-
-            // Look up user record in database by DID
-            var userRecord = dsl.selectFrom(USER)
-                    .where(USER.DID.eq(userDid))
-                    .fetchOne();
-
-            // Return avatar URL if it exists and is not empty
-            if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return java.util.Optional.of(userRecord.getAvatarBloburl());
-            }
-
-            return java.util.Optional.empty();
-
-        } catch (IOException e) {
-            System.err.println("Error getting current user avatar: " + e.getMessage());
-            return java.util.Optional.empty();
         }
     }
 }

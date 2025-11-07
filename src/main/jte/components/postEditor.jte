@@ -33,7 +33,11 @@
         </button>
     </div>
     <textarea id="post-input-${id}" class="post-textarea" name="content" required>${content}</textarea>
-    <div id="preview-container-${id}" class="preview-container hidden">
+    <div
+        id="preview-container-${id}"
+        class="preview-container hidden"
+        hx-on::after-swap="Prism.highlightAllUnder(this)"
+    >
 
     </div>
 </div>

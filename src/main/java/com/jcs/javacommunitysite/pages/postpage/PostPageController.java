@@ -88,7 +88,7 @@
          model.addAttribute("post", post);
          model.addAttribute("newReplyForm", new NewReplyForm());
          model.addAttribute("postReplies", postReplies);
-         model.addAttribute("currentUserAvatarUrl", getCurrentUserAvatarUrl().orElse(null));
+         model.addAttribute("isPostHidden", ModUtil.isPostHidden(dsl, aturi));
 
          return "pages/post/page";
      }
@@ -127,7 +127,7 @@
          fakeReply.setContent(reply.getContent());
          fakeReply.setCreatedAt(reply.getCreatedAt().atOffset(ZoneOffset.UTC));
 
-         model.addAttribute("user", UserInfo.getFromDb(dsl, client.getSession().getDid()));
+         model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, client.getSession().getDid()));
          model.addAttribute("reply", fakeReply);
 
          return "pages/post/htmx/reply";
@@ -187,59 +187,7 @@
          }
      }
 
-     @GetMapping("/post/{userDid}/{postRKey}/htmx/postMenu")
-     public String getPostMenu(Model model,
-                               HttpServletResponse response,
-                               @PathVariable("userDid") String userDid,
-                               @PathVariable("postRKey") String postRKey) throws IOException {
-         var clientOpt = sessionService.getCurrentClient();
-         if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
-             response.setHeader("HX-Redirect", "/login?next=/post/" + userDid + "/" + postRKey + "&msg=To edit a post, please log in.");
-             return "";
-         }
-         var client = clientOpt.get();
-
-         boolean ownsThisPost = client.isSameUser(userDid);
-         boolean isAdmin = UserInfo.isAdmin(dsl, clientOpt.get().getSession().getDid());
-         boolean isHidden = ModUtil.isPostHidden(dsl, new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
-
-         model.addAttribute("isAdmin", isAdmin);
-         model.addAttribute("isHidden", isHidden);
-         model.addAttribute("ownsThisPost", ownsThisPost);
-         model.addAttribute("aturi", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
-
-         return "pages/post/htmx/postPopupMenu";
-     }
-
-     @GetMapping("/post/{userDid}/{postRKey}/htmx/replyMenu")
-     public String getReplyMenu(Model model,
-                                HttpServletResponse response,
-                                @PathVariable("userDid") String userDid,
-                                @PathVariable("postRKey") String postRKey,
-                                @RequestParam("reply") String reply) throws IOException {
-         var clientOpt = sessionService.getCurrentClient();
-         if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
-             response.setHeader("HX-Redirect", "/login?next=/post/" + userDid + "/" + postRKey + "&msg=To edit a reply, please log in.");
-             return "";
-         }
-         var client = clientOpt.get();
-
-         var postAtUri = new AtUri(userDid, QuestionRecord.recordCollection, postRKey);
-         var replyAtUri = new AtUri(reply);
-
-         boolean ownsThisReply = client.isSameUser(replyAtUri.getDid());
-         boolean isAdmin = UserInfo.isAdmin(dsl, clientOpt.get().getSession().getDid());
-         boolean isHidden = ModUtil.isReplyHidden(dsl, replyAtUri);
-
-         model.addAttribute("isAdmin", isAdmin);
-         model.addAttribute("isHidden", isHidden);
-         model.addAttribute("ownsThisReply", ownsThisReply);
-         model.addAttribute("post", postAtUri);
-         model.addAttribute("reply", replyAtUri);
-
-         return "pages/post/htmx/replyPopupMenu";
-     }
-
+     // TODO convert into non htmx modal? same w reply
      @GetMapping("/post/{userDid}/{postRKey}/htmx/confirmDeletePost")
      public String getConfirmDeletePost(Model model,
                                         HttpServletResponse response,
@@ -299,7 +247,7 @@
              form.setContent(replyRecord.getContent());
              model.addAttribute("form", form);
              model.addAttribute("reply", replyRecord);
-             model.addAttribute("user", UserInfo.getFromDb(dsl, client.getSession().getDid()));
+             model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, client.getSession().getDid()));
 
              return "pages/post/htmx/replyEditor";
          } catch (Exception e) {
@@ -353,7 +301,8 @@
          newReply.setUpdatedAt(updatedReply.getUpdatedAt().atOffset(ZoneOffset.UTC));
 
          model.addAttribute("reply", newReply);
-         model.addAttribute("user", UserInfo.getFromDb(dsl, updatedReply.getAtUri().getDid()));
+         model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, updatedReply.getAtUri().getDid()));
+         model.addAttribute("isHidden", ModUtil.isReplyHidden(dsl, currentReply.getAtUri())); // TODO
 
          return "pages/post/components/reply";
      }
@@ -371,7 +320,8 @@
                      .fetchAny();
 
              model.addAttribute("reply", replyRecord);
-             model.addAttribute("user", UserInfo.getFromDb(dsl, new AtUri(reply).getDid()));
+             model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, new AtUri(reply).getDid()));
+             model.addAttribute("isHidden", ModUtil.isReplyHidden(dsl, new AtUri(reply))); // TODO
              return "pages/post/components/reply";
          } catch (Exception e) {
              // TODO
@@ -405,7 +355,7 @@
              model.addAttribute("form", form);
              model.addAttribute("allTags", allTags);
              model.addAttribute("post", postRecord);
-             model.addAttribute("user", UserInfo.getFromDb(dsl, client.getSession().getDid()));
+             model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, client.getSession().getDid()));
 
              return "pages/post/htmx/postEditor";
          } catch (Exception e) {
@@ -446,7 +396,9 @@
          newPost.setTags(JSON.valueOf(Json.of(post.getTags(), Json::of).toString()));
 
          model.addAttribute("post", newPost);
-         model.addAttribute("user", UserInfo.getFromDb(dsl, post.getAtUri().getDid()));
+         model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, post.getAtUri().getDid()));
+         model.addAttribute("isHidden", ModUtil.isPostHidden(dsl, new AtUri(userDid, QuestionRecord.recordCollection, postRKey))); // TODO
+         model.addAttribute("selfHighlight", true);
 
          return "pages/post/components/opPost";
      }
@@ -463,7 +415,9 @@
                      .fetchAny();
 
              model.addAttribute("post", postRecord);
-             model.addAttribute("user", UserInfo.getFromDb(dsl, userDid));
+             model.addAttribute("user", UserInfo.getFromDb(dsl, sessionService, userDid));
+             model.addAttribute("isHidden", ModUtil.isPostHidden(dsl, new AtUri(userDid, QuestionRecord.recordCollection, postRKey))); // TODO
+             model.addAttribute("selfHighlight", true);
              return "pages/post/components/opPost";
          } catch (Exception e) {
              // TODO
@@ -489,7 +443,10 @@
          try {
              var hidePostRecord = new HidePostRecord(new AtUri(userDid, QuestionRecord.recordCollection, postRKey), (Instant) null);
              client.createRecord(hidePostRecord);
-             return "empty";
+
+             model.addAttribute("post", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
+             model.addAttribute("isHidden", true);
+             return "pages/post/htmx/hideButton";
          } catch (Exception e) {
              response.setStatus(500);
              model.addAttribute("toastMsg", "An error occurred while trying to hide the post. Please try again later.");
@@ -516,7 +473,11 @@
          try {
              var hideReplyRecord = new HideReplyRecord(new AtUri(reply), (Instant) null);
              client.createRecord(hideReplyRecord);
-             return "empty";
+
+             model.addAttribute("post", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
+             model.addAttribute("reply", new AtUri(reply));
+             model.addAttribute("isHidden", true);
+             return "pages/post/htmx/hideButton";
          } catch (Exception e) {
              response.setStatus(500);
              model.addAttribute("toastMsg", "An error occurred while trying to hide the reply. Please try again later.");
@@ -546,7 +507,10 @@
                      .where(HIDDEN_POST.POST_ATURI.eq(postAtUri.toString()))
                      .fetchOneInto(String.class);
              client.deleteRecord(new AtUri(hiddePostAturi));
-             return "empty";
+
+             model.addAttribute("post", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
+             model.addAttribute("isHidden", false);
+             return "pages/post/htmx/hideButton";
          } catch (Exception e) {
              response.setStatus(500);
              model.addAttribute("toastMsg", "An error occurred while trying to unhide the post. Please try again later.");
@@ -575,46 +539,15 @@
                      .where(HIDDEN_REPLY.REPLY_ATURI.eq(reply))
                      .fetchOneInto(String.class);
              client.deleteRecord(new AtUri(hiddenReplyAturi));
-             return "empty";
+
+             model.addAttribute("post", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
+             model.addAttribute("reply", new AtUri(reply));
+             model.addAttribute("isHidden", false);
+             return "pages/post/htmx/hideButton";
          } catch (Exception e) {
              response.setStatus(500);
              model.addAttribute("toastMsg", "An error occurred while trying to unhide the reply. Please try again later.");
              return "components/errorToast";
          }
      }
-
-     private Optional<String> getCurrentUserAvatarUrl() {
-         if (!sessionService.isAuthenticated()) {
-             return Optional.empty();
-         }
-
-         var clientOpt = sessionService.getCurrentClient();
-         if (clientOpt.isEmpty()) {
-             return Optional.empty();
-         }
-
-         try {
-             var client = clientOpt.get();
-             String handle = client.getSession().getHandle();
-
-             var profile = com.jcs.javacommunitysite.atproto.AtprotoUtil.getBskyProfile(handle);
-             String userDid = dev.mccue.json.JsonDecoder.field(profile, "did", string());
-
-             var userRecord = dsl.selectFrom(USER)
-                     .where(USER.DID.eq(userDid))
-                     .fetchOne();
-
-             if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                 return Optional.of(userRecord.getAvatarBloburl());
-             }
-
-             return Optional.empty();
-
-         } catch (Exception e) {
-             System.err.println("Error getting current user avatar: " + e.getMessage());
-             return Optional.empty();
-         }
-     }
-
-
  }

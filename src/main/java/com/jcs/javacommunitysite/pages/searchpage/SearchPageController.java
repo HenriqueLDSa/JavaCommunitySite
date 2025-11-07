@@ -1,6 +1,7 @@
 package com.jcs.javacommunitysite.pages.searchpage;
 
 import com.jcs.javacommunitysite.util.TimeUtil;
+import com.jcs.javacommunitysite.util.UserInfo;
 import org.jooq.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,10 +53,7 @@ public class SearchPageController {
 
         model.addAttribute("searchForm", searchForm);
         model.addAttribute("tags", tags);
-        getCurrentUserAvatarUrl().ifPresent(avatarUrl ->
-            model.addAttribute("currentUserAvatarUrl", avatarUrl)
-        );
-        
+        model.addAttribute("user", UserInfo.getSelfFromDb(dsl, sessionService));
 
         return "pages/search/search";
     }
@@ -305,38 +303,5 @@ public class SearchPageController {
         searchResult.setTimeText(TimeUtil.calculateTimeText(record.get(POST.CREATED_AT)));
 
         return searchResult;
-    }
-
-    private Optional<String> getCurrentUserAvatarUrl() {
-        if (!sessionService.isAuthenticated()) {
-            return Optional.empty();
-        }
-
-        var clientOpt = sessionService.getCurrentClient();
-        if (clientOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        try {
-            var client = clientOpt.get();
-            String handle = client.getSession().getHandle();
-
-            var profile = com.jcs.javacommunitysite.atproto.AtprotoUtil.getBskyProfile(handle);
-            String userDid = dev.mccue.json.JsonDecoder.field(profile, "did", string());
-
-            var userRecord = dsl.selectFrom(USER)
-                    .where(USER.DID.eq(userDid))
-                    .fetchOne();
-
-            if (userRecord != null && userRecord.getAvatarBloburl() != null && !userRecord.getAvatarBloburl().trim().isEmpty()) {
-                return Optional.of(userRecord.getAvatarBloburl());
-            }
-
-            return Optional.empty();
-
-        } catch (Exception e) {
-            System.err.println("Error getting current user avatar: " + e.getMessage());
-            return Optional.empty();
-        }
     }
 }

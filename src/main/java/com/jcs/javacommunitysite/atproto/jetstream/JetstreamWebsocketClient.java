@@ -52,20 +52,26 @@ public class JetstreamWebsocketClient extends WebSocketClient {
             throw new AtprotoJetstreamException("Unexpected collection found: " + recordCollection);
         }
 
-        switch (commitOperation) {
-            case "create":
-                JsonObject recordJson = field(commit, "record", object());
-                handler.handleCreated(atUri, recordJson);
-                break;
-            case "update":
-                JsonObject updatedFields = field(commit, "record", object());
-                handler.handleUpdated(atUri, updatedFields);
-                break;
-            case "delete":
-                handler.handleDeleted(atUri);
-                break;
-            default:
-                throw new AtprotoJetstreamException("Unknown commit operation: " + commitOperation);
+        try {
+            switch (commitOperation) {
+                case "create":
+                    JsonObject recordJson = field(commit, "record", object());
+                    handler.handleCreated(atUri, recordJson);
+                    break;
+                case "update":
+                    JsonObject updatedFields = field(commit, "record", object());
+                    handler.handleUpdated(atUri, updatedFields);
+                    break;
+                case "delete":
+                    handler.handleDeleted(atUri);
+                    break;
+                default:
+                    throw new AtprotoJetstreamException("Unknown commit operation: " + commitOperation);
+            }
+        } catch (Exception e) {
+            System.out.println("Error handling Jetstream event: " + e.getMessage());
+            e.printStackTrace();
+            System.out.println("Ignoring event and moving on...");
         }
     }
 

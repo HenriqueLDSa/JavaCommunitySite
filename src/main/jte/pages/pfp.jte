@@ -1,7 +1,9 @@
-@param String currentUserAvatarUrl = null
+@import com.jcs.javacommunitysite.util.UserInfo
+
 @param String currentUserHandle = null
 @param String displayName = null
 @param String description = null
+@param UserInfo user
 
 @template.layout.main(
     title = "Profile Page",
@@ -10,13 +12,13 @@
 
         @template.components.pageHeader(
             content = @`<h2>Profile</h2>`,
-            avatarUrl = currentUserAvatarUrl
+            user = user,
         )
 
         <div class="user-info-container">
             <div class="not-the-button">
                 <a href="/pfp" class="">
-                    <img src="${currentUserAvatarUrl}" alt="Profile Avatar" style="width: 70px; height: 70px; border-radius: 50%;">
+                    <img src="${user.avatarUri}" alt="Profile Avatar" style="width: 70px; height: 70px; border-radius: 50%;">
                 </a>
                 <div class="name-handle">
                     <h4>${displayName}</h4>
@@ -28,6 +30,8 @@
             </div>
         </div>
         <p>${description}</p>
+
+        <div class="divider"></div>
 
         <div class="pfp-tabs">
             <button hx-get="/pfp/tab/questions"
@@ -47,7 +51,6 @@
                         this.classList.add('active');"
             >Answers</button>
         </div>
-        <div class="divider"></div>
 
         <div id="tab-content"
              hx-get="/pfp/tab/questions"

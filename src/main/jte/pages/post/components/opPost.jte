@@ -9,6 +9,8 @@
 
 @param PostRecord post
 @param UserInfo user
+@param boolean isHidden
+@param boolean selfHighlight = false
 
 !{AtUri aturi = new AtUri(post.getAturi());}
 !{
@@ -31,13 +33,19 @@
             </div>
             <div id="post-popup-button-container" class="popup-menu-container">
                 <button
+                    id="post-popup-button"
                     class="button icon"
-                    hx-get="/post/${aturi.getDid()}/${aturi.getRecordKey()}/htmx/postMenu"
-                    hx-target="#post-popup-button-container"
-                    hx-swap="beforeend"
+                    onclick="togglePopup('post-popup')"
                 >
                     <img src="/more.svg" alt="More Options" width="20" />
                 </button>
+                @template.pages.post.htmx.postPopupMenu(
+                    id = "post-popup",
+                    aturi = aturi,
+                    ownsThisPost = user.isSelf,
+                    isCurUserAdmin = user.isSelf && user.isAdmin,
+                    isHidden = isHidden
+                )
             </div>
         </div>
         <div class="body">
@@ -52,4 +60,11 @@
             </div>
         @endif
     </div>
+
+    @if(selfHighlight)
+        <script>
+            Prism.highlightAllUnder(document.getElementById("post"))
+        </script>
+    @endif
+
 </div>

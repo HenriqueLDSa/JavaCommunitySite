@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="/root.css" />
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/htmx-ext-response-targets@2.0.2"></script>
+    <link rel="stylesheet" href="/prism.css">
+    <script src="/prism.js"></script>
 </head>
 <body class="root" hx-ext="response-targets">
 <div class="sidebar">
@@ -59,9 +61,13 @@
 </div>
 </body>
 <script>
-    document.addEventListener("click", () => {
-        document.getElementById("popup-menu")?.remove()
-    })
+    // document.addEventListener("click", () => {
+    //     const popup = document.getElementById("popup-menu")
+    //     popup?.classList.add("popup-menu-fade-out")
+    //     popup?.addEventListener("animationend", () => {
+    //         popup?.remove()
+    //     })
+    // })
 
     // Nav button highlighting
     const path = window.location.pathname.split('/')[1];
@@ -89,6 +95,28 @@
         document.getElementById('preview-container-' + id).classList.remove('hidden');
         document.getElementById('edit-button-' + id).classList.remove('active');
         document.getElementById('preview-button-' + id).classList.add('active');
+    }
+
+    // For popups
+    function togglePopup(id) {
+        const element = document.getElementById(id)
+        const allPopups = Array.from(document.getElementsByClassName("popup-menu"))
+        const others = allPopups.filter(x => x.id !== id)
+        others.forEach(x => x.classList.add("hidden"))
+        const nowHidden = element.classList.toggle("hidden")
+        element.classList.remove("preload")
+
+        if (!nowHidden) {
+            const elementButton = document.getElementById(id + "-button")
+            const abortController = new AbortController()
+            document.addEventListener("click", (e) => {
+                if (elementButton.contains(e.target)) return
+                if (!element.contains(e.target)) {
+                    element.classList.add("hidden")
+                    abortController.abort()
+                }
+            }, { signal: abortController.signal })
+        }
     }
 </script>
 </html>

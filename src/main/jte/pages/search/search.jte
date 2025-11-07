@@ -1,9 +1,10 @@
 @import com.jcs.javacommunitysite.pages.searchpage.SearchForm
+@import com.jcs.javacommunitysite.util.UserInfo
 @import java.util.Map
 
 @param SearchForm searchForm = null
 @param Map<String, String> tags = null
-@param String currentUserAvatarUrl = null
+@param UserInfo user = null
 
 @template.layout.main(
     title = "Search",
@@ -11,7 +12,7 @@
     <div class="page-content">
         @template.components.pageHeader(
             content = @`<h2>Search</h2>`,
-            avatarUrl = currentUserAvatarUrl
+            user = user,
         )
 
         <form
@@ -30,7 +31,7 @@
 
             <div class="filters">
                 <div class="filter-button-container">
-                    <button id="statusSelectorButton" type="button" class="filter-button" onclick="togglePopup('statusSelector')">
+                    <button id="statusSelectorButton" type="button" class="filter-button" onclick="toggleSearchPopup('statusSelector')">
                         Status
                         <img src="/arrow-down.svg" alt="" />
                     </button>
@@ -38,7 +39,7 @@
                 </div>
 
                 <div class="filter-button-container">
-                    <button id="tagSelectorButton" type="button" class="filter-button" onclick="togglePopup('tagSelector')">
+                    <button id="tagSelectorButton" type="button" class="filter-button" onclick="toggleSearchPopup('tagSelector')">
                         Tags
                         <img src="/arrow-down.svg" alt="" />
                     </button>
@@ -46,7 +47,7 @@
                 </div>
 
                 <div class="filter-button-container">
-                    <button id="sortSelectorButton" type="button" class="filter-button" onclick="togglePopup('sortSelector')">
+                    <button id="sortSelectorButton" type="button" class="filter-button" onclick="toggleSearchPopup('sortSelector')">
                         Sort
                         <img src="/arrow-down.svg" alt="" />
                     </button>
@@ -69,7 +70,7 @@
     <script>
         const popups = ["tagSelector", "sortSelector", "statusSelector"]
 
-        function togglePopup(id) {
+        function toggleSearchPopup(id) {
             const element = document.getElementById(id)
             const elementButton = document.getElementById(id + "Button")
             const others = popups.filter(x => x !== id)

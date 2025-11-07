@@ -1,13 +1,13 @@
 @import com.jcs.javacommunitysite.atproto.AtUri
-@import com.jcs.javacommunitysite.atproto.records.PostRecord
+@import com.jcs.javacommunitysite.util.UserInfo
 @import java.util.List
 @import java.util.Map
 
 @param com.jcs.javacommunitysite.pages.answerpage.NewReplyForm replyForm
-@param String currentUserAvatarUrl = null
 @param List<Map<String, Object>> posts = null
 @param boolean filterMyPosts = false
 @param boolean loggedIn = false
+@param UserInfo user = null
 
 @template.layout.main(
     title = "Answer",
@@ -15,7 +15,7 @@
     <div class="page-content">
         @template.components.pageHeader(
             content = @`<h2>Open Questions</h2>`,
-            avatarUrl = loggedIn ? currentUserAvatarUrl : null
+            user = user,
         )
 
         <!-- Filter Checkbox -->
