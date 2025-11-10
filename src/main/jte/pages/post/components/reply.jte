@@ -16,6 +16,7 @@
         self = new AtUri(reply.getAturi());
     }
 }
+!{String displayName = !user.displayName.isBlank() ? user.displayName : user.handle;}
 
 <div id="reply-${self == null ? "new" : self.getRecordKey()}">
     <div class="mid-reply-runner"></div>
@@ -26,7 +27,15 @@
                     <img src="${user.avatarUri}" alt="Profile Picture" />
                 </div>
                 <div class="poster-info">
-                    <p class="username">${user.displayName}</p>
+                    <div class="top-bar">
+                        <p class="username">${displayName}</p>
+                        @if(user.did.equals(root.getDid()))
+                            <div class="tag">OP</div>
+                        @endif
+                        @if(user.isAdmin)
+                            <div class="tag">Admin</div>
+                        @endif
+                    </div>
                     <p class="handle">@${user.handle}</p>
                 </div>
                 <div class="time-info">

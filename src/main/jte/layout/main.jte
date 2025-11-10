@@ -118,5 +118,9 @@
             }, { signal: abortController.signal })
         }
     }
+
+    function isError(xhr) {
+        return xhr.status >= 400 && xhr.status < 600;
+    }
 </script>
 </html>

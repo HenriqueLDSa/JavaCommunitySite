@@ -18,6 +18,9 @@
     var tagsArray = array(string()).decode(tagsJson);
 }
 
+!{String displayName = !user.displayName.isBlank() ? user.displayName : user.handle;}
+
+
 <div id="post" class="post op-post">
     <div class="content">
         <div class="header">
@@ -25,7 +28,15 @@
                 <img src="${user.avatarUri}" alt="Profile Picture" />
             </div>
             <div class="poster-info">
-                <p class="username">${user.displayName}</p>
+                <div class="top-bar">
+                    <p class="username">${displayName}</p>
+                    @if(user.did.equals(post.getOwnerDid()))
+                        <div class="tag">OP</div>
+                    @endif
+                    @if(user.isAdmin)
+                        <div class="tag">Admin</div>
+                    @endif
+                </div>
                 <p class="handle">@${user.handle}</p>
             </div>
             <div class="time-info">

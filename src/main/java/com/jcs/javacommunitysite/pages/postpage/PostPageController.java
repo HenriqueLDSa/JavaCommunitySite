@@ -10,6 +10,7 @@
  import com.jcs.javacommunitysite.atproto.records.ReplyRecord;
  import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
  import com.jcs.javacommunitysite.forms.NewReplyForm;
+ import com.jcs.javacommunitysite.util.ErrorUtil;
  import com.jcs.javacommunitysite.util.ModUtil;
  import com.jcs.javacommunitysite.util.UserInfo;
  import dev.mccue.json.Json;
@@ -24,7 +25,6 @@
  import java.time.Instant;
  import java.time.ZoneOffset;
  import java.util.HashSet;
- import java.util.Optional;
  import java.util.Set;
 
  import static com.jcs.javacommunitysite.jooq.tables.HiddenPost.HIDDEN_POST;
@@ -32,8 +32,6 @@
  import static com.jcs.javacommunitysite.jooq.tables.Reply.REPLY;
  import static com.jcs.javacommunitysite.jooq.tables.HiddenReply.HIDDEN_REPLY;
  import static com.jcs.javacommunitysite.jooq.tables.Tags.TAGS;
- import static com.jcs.javacommunitysite.jooq.tables.User.USER;
- import static dev.mccue.json.JsonDecoder.string;
 
  @Controller
  public class PostPageController {
@@ -47,7 +45,12 @@
      }
 
      @GetMapping("/post/{userDid}/{postRKey}")
-     public String getPost(Model model, @PathVariable("userDid") String userDid, @PathVariable("postRKey") String postRKey) {
+     public String getPost(
+             Model model,
+             HttpServletResponse response,
+             @PathVariable("userDid") String userDid,
+             @PathVariable("postRKey") String postRKey
+     ) {
          AtUri aturi = new AtUri(userDid, QuestionRecord.recordCollection, postRKey);
 
          // Get post
@@ -58,10 +61,10 @@
                      .fetchAny();
 
              if (post == null) {
-                 return ""; // TODO return 404
+                 return ""; // TODO redirect 404
              }
          } catch (Exception e) {
-             return ""; // TODO
+             return ""; // TODO redirect to 500
          }
 
          // Get replies
@@ -72,8 +75,7 @@
                      .orderBy(REPLY.CREATED_AT.asc())
                      .fetchArray();
          } catch (Exception e) {
-             // TODO
-             return "";
+             return ErrorUtil.createErrorToast(response, model, "Failed to get replies. Please try again later.");
          }
 
          // Get all users associated with this post
@@ -104,7 +106,7 @@
          var clientOpt = sessionService.getCurrentClient();
          if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
              response.setHeader("HX-Redirect", "/login?next=/post/" + userDid + "/" + postRKey + "&msg=To reply to a question, please log in.");
-             return "";
+             return "empty";
          }
 
          AtprotoClient client = clientOpt.get();
@@ -116,9 +118,7 @@
              reply = new ReplyRecord(newReplyForm.getContent(), rootAturi);
              client.createRecord(reply);
          } catch (Exception e) {
-             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-             return "pages/post/htmx/replyError";
-             // TODO make the errors better
+             return ErrorUtil.createErrorToast(response, model, "An error occurred while trying to reply to the question. Please try again later.");
          }
 
          // Create a fake reply record to insert into the browser
@@ -155,9 +155,7 @@
              return "empty";
 
          } catch (Exception e) {
-             response.setStatus(500);
-             model.addAttribute("toastMsg", "An error occurred while trying to delete the reply. Please try again later.");
-             return "components/errorToast";
+             return ErrorUtil.createErrorToast(response, model, "An error occurred while trying to delete the reply. Please try again later.");
          }
      }
 
@@ -178,12 +176,10 @@
              client.deleteRecord(post);
 
              response.setHeader("HX-Redirect", "/browse");
-             return "";
+             return "empty";
 
          } catch (Exception e) {
-             response.setStatus(500);
-             model.addAttribute("toastMsg", "An error occurred while trying to delete the post. Please try again later.");
-             return "components/errorToast";
+             return ErrorUtil.createErrorToast(response, model, "Failed to delete the post. Please try again later.");
          }
      }
 
@@ -196,7 +192,7 @@
          var clientOpt = sessionService.getCurrentClient();
          if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
              response.setHeader("HX-Redirect", "/login?next=/post/" + userDid + "/" + postRKey + "&msg=To delete a post, please log in.");
-             return "";
+             return "empty";
          }
 
          model.addAttribute("aturi", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
@@ -251,8 +247,7 @@
 
              return "pages/post/htmx/replyEditor";
          } catch (Exception e) {
-             // TODO
-             return "";
+             return ErrorUtil.createErrorToast(response, model, "Failed to open reply editor. Please try again later.");
          }
      }
 
@@ -276,10 +271,6 @@
          // Fetch current reply from database using the DSLContext constructor
          ReplyRecord currentReply = new ReplyRecord(replyAtUri, dsl);
 
-         if (currentReply.getContent() == null) {
-             return "empty"; // TODO error
-         }
-
          // Build updated reply data
          Json replyDataUpdated = Json.objectBuilder()
                  .put("content", newReplyForm.getContent())
@@ -291,7 +282,11 @@
          ReplyRecord updatedReply = new ReplyRecord(replyDataUpdated);
          updatedReply.setAtUri(replyAtUri);
 
-         client.updateRecord(updatedReply);
+         try {
+             client.updateRecord(updatedReply);
+         } catch (Exception e) {
+             return ErrorUtil.createErrorToast(response, model, "Failed to edit reply. Please try again later.");
+         }
 
          var newReply = new com.jcs.javacommunitysite.jooq.tables.records.ReplyRecord();
          newReply.setAturi(updatedReply.getAtUri().toString());
@@ -324,8 +319,7 @@
              model.addAttribute("isHidden", ModUtil.isReplyHidden(dsl, new AtUri(reply))); // TODO
              return "pages/post/components/reply";
          } catch (Exception e) {
-             // TODO
-             return "";
+             return ErrorUtil.createErrorToast(response, model, "Failed to retrieve reply. Please try again later.");
          }
      }
 
@@ -359,8 +353,7 @@
 
              return "pages/post/htmx/postEditor";
          } catch (Exception e) {
-             // TODO
-             return "";
+             return ErrorUtil.createErrorToast(response, model, "Failed to open post editor. Please try again later.");
          }
      }
 
@@ -385,7 +378,11 @@
          post.setUpdatedAt(Instant.now());
          post.setTags(updatePostForm.getTags());
 
-         client.updateRecord(post);
+         try {
+             client.updateRecord(post);
+         } catch (Exception e) {
+             return ErrorUtil.createErrorToast(response, model, "Failed to edit post. Please try again later.");
+         }
 
          var newPost = new com.jcs.javacommunitysite.jooq.tables.records.PostRecord();
          newPost.setAturi(post.getAtUri().toString());
@@ -420,8 +417,7 @@
              model.addAttribute("selfHighlight", true);
              return "pages/post/components/opPost";
          } catch (Exception e) {
-             // TODO
-             return "";
+             return ErrorUtil.createErrorToast(response, model, "Failed to retrieve post. Please try again later.");
          }
      }
 
@@ -438,7 +434,7 @@
          }
          AtprotoClient client = clientOpt.get();
 
-         // Check if they are an admin
+         // TODO Check if they are an admin
 
          try {
              var hidePostRecord = new HidePostRecord(new AtUri(userDid, QuestionRecord.recordCollection, postRKey), (Instant) null);
@@ -448,9 +444,7 @@
              model.addAttribute("isHidden", true);
              return "pages/post/htmx/hideButton";
          } catch (Exception e) {
-             response.setStatus(500);
-             model.addAttribute("toastMsg", "An error occurred while trying to hide the post. Please try again later.");
-             return "components/errorToast";
+             return ErrorUtil.createErrorToast(response, model, "Failed to hide post. Please try again later.");
          }
      }
 
@@ -468,7 +462,7 @@
          }
          AtprotoClient client = clientOpt.get();
 
-         // Check if they are an admin
+         // TODO Check if they are an admin
 
          try {
              var hideReplyRecord = new HideReplyRecord(new AtUri(reply), (Instant) null);
@@ -479,9 +473,7 @@
              model.addAttribute("isHidden", true);
              return "pages/post/htmx/hideButton";
          } catch (Exception e) {
-             response.setStatus(500);
-             model.addAttribute("toastMsg", "An error occurred while trying to hide the reply. Please try again later.");
-             return "components/errorToast";
+             return ErrorUtil.createErrorToast(response, model, "Failed to hide reply. Please try again later.");
          }
      }
 
@@ -498,7 +490,7 @@
          }
          AtprotoClient client = clientOpt.get();
 
-         // Check if they are an admin
+         // TODO Check if they are an admin
 
          var postAtUri = new AtUri(userDid, QuestionRecord.recordCollection, postRKey);
          try {
@@ -512,9 +504,7 @@
              model.addAttribute("isHidden", false);
              return "pages/post/htmx/hideButton";
          } catch (Exception e) {
-             response.setStatus(500);
-             model.addAttribute("toastMsg", "An error occurred while trying to unhide the post. Please try again later.");
-             return "components/errorToast";
+             return ErrorUtil.createErrorToast(response, model, "Failed to unhide post. Please try again later.");
          }
      }
 
@@ -531,7 +521,7 @@
          }
          AtprotoClient client = clientOpt.get();
 
-         // Check if they are an admin
+         // TODO Check if they are an admin
 
          try {
              var hiddenReplyAturi = dsl.select(HIDDEN_REPLY.ATURI)
@@ -545,9 +535,52 @@
              model.addAttribute("isHidden", false);
              return "pages/post/htmx/hideButton";
          } catch (Exception e) {
-             response.setStatus(500);
-             model.addAttribute("toastMsg", "An error occurred while trying to unhide the reply. Please try again later.");
-             return "components/errorToast";
+             return ErrorUtil.createErrorToast(response, model, "Failed to unhide reply. Please try again later.");
          }
      }
+
+     @GetMapping("/post/{userDid}/{postRKey}/htmx/confirmClosePost")
+     public String getConfirmClosePost(Model model,
+                                       HttpServletResponse response,
+                                       @PathVariable("userDid") String userDid,
+                                       @PathVariable("postRKey") String postRKey) {
+         var clientOpt = sessionService.getCurrentClient();
+         if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
+             response.setHeader("HX-Redirect", "/login?next=/post/" + userDid + "/" + postRKey + "&msg=To close a post, please log in.");
+             return "empty";
+         }
+
+         model.addAttribute("aturi", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
+         return "pages/post/htmx/confirmClosePostModal";
+     }
+
+     @PostMapping("/post/{userDid}/{postRKey}/htmx/closePost")
+     public String closePost(Model model,
+                             HttpServletResponse response,
+                             @PathVariable("userDid") String userDid,
+                             @PathVariable("postRKey") String postRKey) throws AtprotoUnauthorized, IOException {
+         var clientOpt = sessionService.getCurrentClient();
+         if (clientOpt.isEmpty() || !sessionService.isAuthenticated()) {
+             response.setHeader("HX-Redirect", "/login?next=/post/" + userDid + "/" + postRKey + "&msg=To close a post, please log in.");
+             return "empty";
+         }
+
+         AtprotoClient client = clientOpt.get();
+         AtUri postAtUri = new AtUri(userDid, QuestionRecord.recordCollection, postRKey);
+
+         QuestionRecord post = new QuestionRecord(postAtUri, dsl);
+         post.setOpen(false);
+         post.setUpdatedAt(Instant.now());
+
+         try {
+             client.updateRecord(post);
+         } catch (Exception e) {
+             return ErrorUtil.createErrorToast(response, model, "Failed to close post. Please try again later.");
+         }
+
+         // replace reply box with closed post notif
+         return "pages/post/components/closedPostNotif";
+     }
+
+
  }

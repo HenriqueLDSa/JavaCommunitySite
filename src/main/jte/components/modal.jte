@@ -7,7 +7,7 @@
 <div id="modal-bkg" class="modal-bkg">
     <div class="modal">
         <div class="header">
-            <h2>${title}</h2>
+            <h3>${title}</h3>
             <button class="button icon" onclick="closeModal()">
                 <img src="/close.svg" alt="Close" />
             </button>
