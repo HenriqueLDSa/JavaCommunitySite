@@ -1,31 +1,32 @@
 package com.jcs.javacommunitysite.pages.searchpage;
 
-import com.jcs.javacommunitysite.util.TimeUtil;
-import com.jcs.javacommunitysite.util.UserInfo;
-import org.jooq.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.jooq.Condition;
+import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.SelectConditionStep;
+import org.jooq.SelectLimitStep;
+import org.jooq.SortField;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
-import dev.mccue.json.Json;
-
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.Set;
-import org.jooq.SelectLimitStep;
-import org.jooq.SelectConditionStep;
-
+import static com.jcs.javacommunitysite.jooq.tables.HiddenPost.HIDDEN_POST;
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.Reply.REPLY;
-import static com.jcs.javacommunitysite.jooq.tables.User.USER;
 import static com.jcs.javacommunitysite.jooq.tables.Tags.TAGS;
+import com.jcs.javacommunitysite.util.TimeUtil;
+import com.jcs.javacommunitysite.util.UserInfo;
+
+import dev.mccue.json.Json;
 import static dev.mccue.json.JsonDecoder.array;
 import static dev.mccue.json.JsonDecoder.string;
 
@@ -90,7 +91,12 @@ public class SearchPageController {
             List<SearchResult> accumulated = new ArrayList<>();
             Set<String> seenAturis = new HashSet<>();
 
-            Condition statusCondition = POST.IS_DELETED.eq(false);
+            Condition statusCondition = POST.IS_DELETED.eq(false)
+                    .andNotExists(
+                        dsl.selectOne()
+                            .from(HIDDEN_POST)
+                            .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
+                        );
             if (status != null && !status.equals("all")) {
                 switch (status.toLowerCase()) {
                     case "open":
