@@ -76,6 +76,32 @@
 
         <div>
             <h3>Admin Users</h3>
+            <br/>
+            <div class="contained-section">
+                <form
+                    class="admin-user-form"
+                    hx-get="/admin/user-search"
+                    hx-target="#user-search-result"
+                    hx-swap="innerHTML"
+                >
+                    <h4>Manage Admins</h4>
+                    <div class="admin-search">
+                        <input
+                            class="textbox"
+                            type="text"
+                            name="handle"
+                            placeholder="Search user by handle…"
+                            autocomplete="off"
+                            hx-trigger="keyup changed delay:300ms, submit"
+                        />
+                        <button class="button btn-primary" type="submit">Search</button>
+                    </div>
+                    <!-- optional spinner -->
+                    <span class="spinner htmx-indicator"></span>
+                </form>
+
+                <div id="user-search-result" class="mt"></div>
+            </div>
         </div>
 
         <div>

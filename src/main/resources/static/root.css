@@ -1420,3 +1420,23 @@ code[class*="language-"] {
 .audit-entry {
 
 }
+
+.admin-search {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    padding-top: 5px;
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: solid 1px var(--border-color);
+    border-radius: var(--border-radius-1);
+    padding: 15px 20px;
+
+    & .handle {
+        color: var(--subtext-color);
+    }
+}

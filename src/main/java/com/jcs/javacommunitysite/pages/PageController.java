@@ -38,4 +38,9 @@ public class PageController {
 
         return "components/profileMenu";
     }
+
+    @GetMapping("/settings")
+    public String getSettings(Model model, HttpServletResponse response) {
+        return "layout/settings";
+    }
 }

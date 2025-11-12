@@ -12,6 +12,10 @@
         <img src="/user.svg" alt="" />
         Profile
     </a></li>
+<%--    <li><a class="popup-option" href="/appearance">--%>
+<%--            <img src="/settings.svg" alt="" />--%>
+<%--            Settings--%>
+<%--        </a></li>--%>
     <li><a class="popup-option" href="/logout">
         <img src="/logout.svg" alt="" />
         Logout
