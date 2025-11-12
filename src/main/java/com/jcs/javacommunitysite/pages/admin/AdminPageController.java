@@ -7,6 +7,7 @@ import com.jcs.javacommunitysite.atproto.records.TagRecord;
 import com.jcs.javacommunitysite.atproto.service.AtprotoSessionService;
 import com.jcs.javacommunitysite.util.UserInfo;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jooq.Record3;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
@@ -15,10 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
+import static com.jcs.javacommunitysite.jooq.tables.Role.ROLE;
 import static com.jcs.javacommunitysite.jooq.tables.Tags.TAGS;
 import static com.jcs.javacommunitysite.jooq.tables.User.USER;
+import static com.jcs.javacommunitysite.jooq.tables.UserRole.USER_ROLE;
 import static dev.mccue.json.JsonDecoder.field;
 import static dev.mccue.json.JsonDecoder.string;
 
@@ -109,5 +113,130 @@ public class AdminPageController {
             // TODO error handling
             return "empty";
         }
+    }
+
+
+    @GetMapping("/admin/user-search")
+    public String searchUser(@RequestParam String handle, Model model) {
+        var user = dsl.selectFrom(USER)
+                .where(USER.HANDLE.eq(handle))
+                .fetchOne();
+
+        boolean alreadyAdmin = false;
+        boolean targetIsSuperadmin = false;
+
+        if (user != null) {
+            Integer adminRoleId = dsl.select(ROLE.ID).from(ROLE)
+                    .where(ROLE.NAME.eq("admin")).fetchOne(ROLE.ID);
+            Integer superadminRoleId = dsl.select(ROLE.ID).from(ROLE)
+                    .where(ROLE.NAME.eq("superadmin")).fetchOne(ROLE.ID);
+
+            alreadyAdmin = dsl.fetchExists(
+                    dsl.selectOne().from(USER_ROLE)
+                            .where(USER_ROLE.USER_DID.eq(user.getDid()))
+                            .and(USER_ROLE.ROLE_ID.eq(adminRoleId))
+            );
+
+            targetIsSuperadmin = dsl.fetchExists(
+                    dsl.selectOne().from(USER_ROLE)
+                            .where(USER_ROLE.USER_DID.eq(user.getDid()))
+                            .and(USER_ROLE.ROLE_ID.eq(superadminRoleId))
+            );
+        }
+
+        model.addAttribute("searchedUser", user);
+        model.addAttribute("alreadyAdmin", alreadyAdmin);
+        model.addAttribute("isSuperAdmin", targetIsSuperadmin);
+        return "pages/admin/fragments/user_card";
+    }
+
+
+    @PostMapping("/admin/grant")
+    public String grantAdmin(@RequestParam String targetDid, Model model) {
+        var client = sessionService.getCurrentClient().orElseThrow();
+
+        boolean isAdmin = dsl.fetchExists(
+                dsl.selectOne().from(USER_ROLE)
+                        .join(ROLE).on(USER_ROLE.ROLE_ID.eq(ROLE.ID))
+                        .where(USER_ROLE.USER_DID.eq(client.getSession().getDid()))
+                        .and(ROLE.NAME.eq("superadmin"))
+        );
+        if (!isAdmin) {
+            model.addAttribute("message", "You are not authorized to grant roles.");
+            return "pages/admin/fragments/message";
+        }
+
+        Integer adminRoleId = dsl.select(ROLE.ID).from(ROLE)
+                .where(ROLE.NAME.eq("admin")).fetchOne(ROLE.ID);
+
+        boolean alreadyAdmin = dsl.fetchExists(
+                dsl.selectOne().from(USER_ROLE)
+                        .where(USER_ROLE.USER_DID.eq(targetDid))
+                        .and(USER_ROLE.ROLE_ID.eq(adminRoleId))
+        );
+
+        if (!alreadyAdmin) {
+            dsl.insertInto(USER_ROLE)
+                    .set(USER_ROLE.USER_DID, targetDid)
+                    .set(USER_ROLE.ROLE_ID, adminRoleId)
+                    .execute();
+            model.addAttribute("message", "Admin role granted successfully!");
+        } else {
+            model.addAttribute("message", "User is already an admin.");
+        }
+
+        return "pages/admin/fragments/message";
+    }
+
+    @PostMapping("/admin/revoke")
+    public String revokeAdmin(@RequestParam String targetDid, Model model) {
+        var client = sessionService.getCurrentClient().orElseThrow();
+
+        // Only SUPERADMINs can grant/revoke admin
+        boolean requesterIsSuperadmin = dsl.fetchExists(
+                dsl.selectOne().from(USER_ROLE)
+                        .join(ROLE).on(USER_ROLE.ROLE_ID.eq(ROLE.ID))
+                        .where(USER_ROLE.USER_DID.eq(client.getSession().getDid()))
+                        .and(ROLE.NAME.eq("superadmin"))
+        );
+        if (!requesterIsSuperadmin) {
+            model.addAttribute("message", "You are not authorized to revoke roles.");
+            return "pages/admin/fragments/message";
+        }
+
+        Integer adminRoleId = dsl.select(ROLE.ID).from(ROLE)
+                .where(ROLE.NAME.eq("admin")).fetchOne(ROLE.ID);
+        Integer superadminRoleId = dsl.select(ROLE.ID).from(ROLE)
+                .where(ROLE.NAME.eq("superadmin")).fetchOne(ROLE.ID);
+
+        // Do not allow revoking from superadmins
+        boolean targetIsSuperadmin = dsl.fetchExists(
+                dsl.selectOne().from(USER_ROLE)
+                        .where(USER_ROLE.USER_DID.eq(targetDid))
+                        .and(USER_ROLE.ROLE_ID.eq(superadminRoleId))
+        );
+        if (targetIsSuperadmin) {
+            model.addAttribute("message", "Cannot modify a superadmin.");
+            return "pages/admin/fragments/message";
+        }
+
+        boolean targetIsAdmin = dsl.fetchExists(
+                dsl.selectOne().from(USER_ROLE)
+                        .where(USER_ROLE.USER_DID.eq(targetDid))
+                        .and(USER_ROLE.ROLE_ID.eq(adminRoleId))
+        );
+        if (!targetIsAdmin) {
+            model.addAttribute("message", "User is not an admin.");
+            return "pages/admin/fragments/message";
+        }
+
+        int rows = dsl.deleteFrom(USER_ROLE)
+                .where(USER_ROLE.USER_DID.eq(targetDid))
+                .and(USER_ROLE.ROLE_ID.eq(adminRoleId))
+                .execute();
+
+        model.addAttribute("message",
+                rows > 0 ? "Admin role removed successfully!" : "Nothing changed.");
+        return "pages/admin/fragments/message";
     }
 }
