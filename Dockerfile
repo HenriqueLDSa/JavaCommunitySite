@@ -11,7 +11,7 @@ RUN mvn generate-sources
 RUN mvn clean package -DskipTests
 
 # ---- Runtime Stage ----
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
