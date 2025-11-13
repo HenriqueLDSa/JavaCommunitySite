@@ -14,7 +14,7 @@
 
         <div class="userAnswer">
             <div class="otherPost">
-                <h5 class="postTitle">${post != null ? post.get("title") : "(deleted post)"}</h5>
+                <h6 class="postTitle">${post != null ? post.get("title") : "(deleted post)"}</h6>
                 <p class="postContent">${post != null ? post.get("content") : ""}</p>
             </div>
             <div class="userReply">
