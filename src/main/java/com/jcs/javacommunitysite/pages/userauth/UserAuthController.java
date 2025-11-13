@@ -61,6 +61,9 @@ public class UserAuthController {
             String password = loginForm.getPassword();
 
             String pdsHost = getPdsHostFromHandle(handle);
+            if (pdsHost == null) {
+                throw new AtprotoUnauthorized("Invalid handle");
+            }
 
             sessionService.createSession(pdsHost, handle, password);
 
