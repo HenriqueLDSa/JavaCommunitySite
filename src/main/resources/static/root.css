@@ -136,7 +136,8 @@ ul, ol {
         & .reply-bottom {
             display: flex;
             gap: 15px;
-            & img {
+
+            & .pfp {
                 width: var(--pfp-post-size);
                 height: var(--pfp-post-size);
                 border-radius: 50%;
@@ -252,6 +253,10 @@ ul, ol {
             flex-direction: column;
             gap: 10px;
             margin-left: calc(var(--pfp-post-size) / 2 + 36px);
+
+            & img {
+                max-width: 100%;
+            }
         }
     }
 
@@ -449,6 +454,10 @@ ul, ol {
         gap: 10px;
         height: 100%;
         overflow-y: auto;
+
+        & img {
+            max-width: 100%;
+        }
     }
 
     & .hidden {

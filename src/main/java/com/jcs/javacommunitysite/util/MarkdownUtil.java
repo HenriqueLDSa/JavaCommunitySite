@@ -5,6 +5,7 @@ import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.commonmark.renderer.text.TextContentRenderer;
 
 public class MarkdownUtil {
     public static String render(String markdown) {
@@ -25,5 +26,12 @@ public class MarkdownUtil {
         String contentHtml = renderer.render(document);
 
         return contentHtml;
+    }
+
+    public static String renderPreview(String markdown) {
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(markdown);
+        var renderer = TextContentRenderer.builder().build();
+        return renderer.render(document);
     }
 }

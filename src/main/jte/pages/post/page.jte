@@ -61,7 +61,7 @@ content = @`
                 >
                     <p class="make-reply-title">Make a Reply</p>
                     <div class="reply-bottom">
-                        <img src="${users.get("self").avatarUri}">
+                        <img class="pfp" src="${users.get("self").avatarUri}">
                         @template.components.postEditor(content=newReplyForm.getContent(), id="reply")
                     </div>
                     <div class="reply-buttons" type="submit">

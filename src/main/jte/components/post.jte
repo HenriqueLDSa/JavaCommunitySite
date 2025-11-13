@@ -1,3 +1,4 @@
+@import com.jcs.javacommunitysite.util.MarkdownUtil
 @import java.util.List
 
 @param com.jcs.javacommunitysite.atproto.AtUri aturi
@@ -16,7 +17,7 @@
                 <div class="tag">Closed</div>
             @endif
         </div>
-        <p class="post-preview">${content}</p>
+        <p class="post-preview">${MarkdownUtil.renderPreview(content)}</p>
         @if(tags != null && !tags.isEmpty())
             <div class="tags">
                 @for(var tag : tags)
