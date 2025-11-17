@@ -1,18 +1,27 @@
 # ---- Build Stage ----
 FROM maven:3.9.9 AS build
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-COPY target/generated-sources ./target/generated-sources
 
-# Package application (skip jOOQ generation - using pre-generated sources)
+# Copy only pom.xml first to leverage caching
+COPY pom.xml .
+
+# Copy pre-generated jOOQ sources (so Maven doesn't try to connect to DB)
+COPY target/generated-sources/jooq ./target/generated-sources/jooq
+
+# Copy the main sources
+COPY src ./src
+
+# Package the application, skipping tests and jOOQ codegen, using prod profile (precompile JTE)
 RUN mvn package -DskipTests -Djooq.codegen.skip=true -Pprod
 
 # ---- Runtime Stage ----
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+# Copy the JAR built in the previous stage
 COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 8080
 
-# Only change here: activate prod profile
+# Activate the prod profile at runtime
 ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
