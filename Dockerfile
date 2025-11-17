@@ -12,7 +12,7 @@ COPY target/generated-sources/jooq ./target/generated-sources/jooq
 COPY src ./src
 
 # Package the application, skipping tests and jOOQ codegen, using prod profile (precompile JTE)
-RUN mvn package -DskipTests -Djooq.codegen.skip=true -Pprod
+RUN mvn package -DskipTests -Djooq.codegen.skip=true
 
 # ---- Runtime Stage ----
 FROM eclipse-temurin:21-jre-alpine

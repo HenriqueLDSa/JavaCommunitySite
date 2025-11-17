@@ -149,25 +149,25 @@
             </plugin>
 
             <plugin>
-                <groupId>gg.jte</groupId>
-                <artifactId>jte-maven-plugin</artifactId>
-                <version>${jte.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-templates</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-                    <outputDirectory>${project.build.directory}/generated-sources/jte</outputDirectory>
-                    <packageName>gg.jte.generated</packageName>
-                    <generateBytecode>true</generateBytecode>
-                </configuration>
-            </plugin>
+				<groupId>gg.jte</groupId>
+				<artifactId>jte-maven-plugin</artifactId>
+				<version>${jte.version}</version>
+				<executions>
+					<execution>
+						<id>jte-generate</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
+							<contentType>Html</contentType>
+							<binaryStaticContent>true</binaryStaticContent>
+							<targetResourceDirectory>${project.build.outputDirectory}</targetResourceDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -188,45 +188,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-                <configuration>
-                    <release>21</release>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>prod</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>gg.jte</groupId>
-                        <artifactId>jte-maven-plugin</artifactId>
-                        <version>${jte.version}</version>
-                        <executions>
-                            <execution>
-                                <id>precompile-templates</id>
-                                <phase>process-classes</phase>
-                                <goals>
-                                    <goal>precompile</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
-                            <targetDirectory>${project.build.directory}/jte-classes</targetDirectory>
-                            <packageName>gg.jte.generated</packageName>
-                            <contentType>Html</contentType>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

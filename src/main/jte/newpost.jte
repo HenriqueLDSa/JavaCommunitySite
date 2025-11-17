@@ -1,4 +1,4 @@
-@import com.jcs.javacommunitysite.forms.NewPostForm
+@import com.jcs.javacommunitysite.pages.askpage.NewPostForm
 @import java.util.List
 @import java.util.Map
 
