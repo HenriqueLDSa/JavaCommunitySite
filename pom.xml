@@ -200,10 +200,17 @@
                         <groupId>gg.jte</groupId>
                         <artifactId>jte-maven-plugin</artifactId>
                         <version>${jte.version}</version>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/jte</sourceDirectory>
+                            <targetDirectory>${project.build.directory}/jte-classes</targetDirectory>
+                            <contentType>Html</contentType>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>generate-templates</id>
-                                <phase>none</phase>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>precompile</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
