@@ -23,13 +23,11 @@ import dev.mccue.json.Json;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 import java.time.temporal.ChronoUnit;
 
 import static com.jcs.javacommunitysite.jooq.tables.HiddenPost.HIDDEN_POST;
+import static com.jcs.javacommunitysite.jooq.tables.HiddenReply.HIDDEN_REPLY;
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.Tags.TAGS;
 import static com.jcs.javacommunitysite.jooq.tables.User.USER;
@@ -62,38 +60,66 @@ public class AskPageController {
         // Fetch user's posts if authenticated
         if (sessionService.isAuthenticated()) {
             var clientOpt = sessionService.getCurrentClient();
+            var client = clientOpt.get();
+            var isCurUserAdmin = UserInfo.isAdmin(dsl, client.getSession().getDid());
+
             if (clientOpt.isPresent()) {
                 try {
-                    AtprotoClient client = clientOpt.get();
                     String handle = client.getSession().getHandle();
                     var profile = AtprotoUtil.getBskyProfile(handle);
                     String userDid = profile.get("did").toString().replace("\"", "");
                     
                     // Total count
-                    int totalPosts = dsl.selectCount()
+                    var countQuery = dsl.selectCount()
                             .from(POST)
                             .where(POST.OWNER_DID.eq(userDid))
-                            .and(POST.IS_DELETED.eq(false))
-                            .andNotExists(
-                                dsl.selectOne()
+                            .and(POST.IS_DELETED.eq(false));
+
+                    // Only include hidden posts if user is admin
+                    if (!isCurUserAdmin) {
+                        countQuery = countQuery.andNotExists(
+                            dsl.selectOne()
                                     .from(HIDDEN_POST)
                                     .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
-                            )
-                            .fetchOne(0, int.class);
+                        );
+                    }
+
+                    int totalPosts = countQuery.fetchOne(0, int.class);
 
                     // Query first page of user's posts from database
-                    var userPosts = dsl.selectFrom(POST)
+                    var userPostsQuery = dsl.selectFrom(POST)
                             .where(POST.OWNER_DID.eq(userDid))
-                            .and(POST.IS_DELETED.eq(false))
-                            .andNotExists(
-                                dsl.selectOne()
+                            .and(POST.IS_DELETED.eq(false));
+
+                    // Only include hidden posts if user is admin
+                    if (!isCurUserAdmin) {
+                        userPostsQuery = userPostsQuery.andNotExists(
+                            dsl.selectOne()
                                     .from(HIDDEN_POST)
                                     .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
-                            )
+                        );
+                    }
+
+                    var userPosts = userPostsQuery
                             .orderBy(POST.CREATED_AT.desc())
                             .limit(pageSize)
                             .offset((page - 1) * pageSize)
                             .fetch();
+
+                    // Get list of hidden posts if admin
+                    if (isCurUserAdmin) {
+                        var postAtUris = new ArrayList<String>();
+                        for (var post : userPosts) {
+                            postAtUris.add(post.getAturi());
+                        }
+
+                        var hiddenPosts = dsl.select(HIDDEN_POST.POST_ATURI)
+                                .from(HIDDEN_POST)
+                                .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                                .fetch(HIDDEN_POST.POST_ATURI);
+
+                        model.addAttribute("hiddenPosts", hiddenPosts);
+                    }
                     
                     // Create a map of post ATURI to reply count
                     var replyCountsMap = new HashMap<String, Integer>();
@@ -184,35 +210,59 @@ public class AskPageController {
             return "";
         }
         try {
+            var isCurUserAdmin = UserInfo.isAdmin(dsl, clientOpt.get().getSession().getDid());
             int pageSize = 20;
             AtprotoClient client = clientOpt.get();
             String handle = client.getSession().getHandle();
             var profile = AtprotoUtil.getBskyProfile(handle);
             String userDid = profile.get("did").toString().replace("\"", "");
 
-            var totalPosts = dsl.selectCount()
+            var totalPostsQuery = dsl.selectCount()
                     .from(POST)
                     .where(POST.OWNER_DID.eq(userDid))
-                    .and(POST.IS_DELETED.eq(false))
-                    .andNotExists(
-                            dsl.selectOne()
-                                    .from(HIDDEN_POST)
-                                    .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
-                    )
-                    .fetchOne(0, int.class);
+                    .and(POST.IS_DELETED.eq(false));
 
-            var userPosts = dsl.selectFrom(POST)
+            if (!isCurUserAdmin) {
+                totalPostsQuery = totalPostsQuery.andNotExists(
+                    dsl.selectOne()
+                            .from(HIDDEN_POST)
+                            .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
+                );
+            }
+
+            var totalPosts = totalPostsQuery.fetchOne(0, int.class);
+
+            var userPostsQuery = dsl.selectFrom(POST)
                     .where(POST.OWNER_DID.eq(userDid))
-                    .and(POST.IS_DELETED.eq(false))
-                    .andNotExists(
-                            dsl.selectOne()
-                                    .from(HIDDEN_POST)
-                                    .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
-                    )
-                    .orderBy(POST.CREATED_AT.desc())
+                    .and(POST.IS_DELETED.eq(false));
+
+            if (!isCurUserAdmin) {
+                userPostsQuery = userPostsQuery.andNotExists(
+                    dsl.selectOne()
+                            .from(HIDDEN_POST)
+                            .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
+                );
+            }
+
+            var userPosts = userPostsQuery.orderBy(POST.CREATED_AT.desc())
                     .limit(pageSize)
                     .offset((page - 1) * pageSize)
                     .fetch();
+
+            // Grab hidden posts
+            if (isCurUserAdmin) {
+                var postAtUris = new ArrayList<String>();
+                for (var post : userPosts) {
+                    postAtUris.add(post.getAturi());
+                }
+
+                var hiddenPosts = dsl.select(HIDDEN_POST.POST_ATURI)
+                        .from(HIDDEN_POST)
+                        .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                        .fetch(HIDDEN_POST.POST_ATURI);
+
+                model.addAttribute("hiddenPosts", hiddenPosts);
+            }
 
             var replyCountsMap = new HashMap<String, Integer>();
             var timeTextsMap = new HashMap<String, String>();

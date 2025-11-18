@@ -2,6 +2,7 @@
 @import com.jcs.javacommunitysite.util.UserInfo
 @import java.util.List
 @import java.util.Map
+@import java.util.ArrayList
 
 @param com.jcs.javacommunitysite.pages.askpage.NewPostForm postForm
 @param List<com.jcs.javacommunitysite.jooq.tables.records.PostRecord> userPosts = null
@@ -13,6 +14,7 @@
 @param int nextPageUserPosts = 2
 @param boolean loggedIn
 @param UserInfo user = null
+@param List<String> hiddenPosts = new ArrayList<>()
 
 @template.layout.main(
     title = "Ask",
@@ -75,6 +77,7 @@
                         timeText = (timeTextsMap != null && timeTextsMap.containsKey(post.getAturi())) ? timeTextsMap.get(post.getAturi()) : null,
                         tags = (tags != null && postTags.containsKey(post.getAturi())) ? postTags.get(post.getAturi()) : null,
                         closed = !post.getIsOpen(),
+                        hidden = hiddenPosts.contains(post.getAturi()),
                     )
                 @endfor
                 @if(hasMoreUserPosts)

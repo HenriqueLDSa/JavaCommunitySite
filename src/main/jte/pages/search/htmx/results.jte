@@ -1,8 +1,10 @@
 @import com.jcs.javacommunitysite.pages.searchpage.SearchResult
 @import java.util.List
+@import java.util.List
+@import java.util.ArrayList
 
 @param List<SearchResult> searchResults = null
-
+@param List<String> hiddenPosts = new ArrayList<>()
 
 @if(searchResults.isEmpty())
     <div class="no-results">
@@ -23,6 +25,7 @@
                 timeText = result.getTimeText(),
                 tags = result.getTags(),
                 closed = !result.isOpen(),
+                hidden = hiddenPosts.contains(result.getAturi())
             )
         @endfor
     </ul>

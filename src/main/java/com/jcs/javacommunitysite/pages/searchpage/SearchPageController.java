@@ -70,6 +70,11 @@ public class SearchPageController {
         var sortDir = searchForm.getSortDir();
         var tags = searchForm.getTags();
 
+        // Check if user is admin to include hidden posts
+        boolean isAdmin = sessionService.isAuthenticated() &&
+                sessionService.getCurrentClient().isPresent() &&
+                UserInfo.isAdmin(dsl, sessionService.getCurrentClient().get().getSession().getDid());
+
         List<SearchResult> searchResults = new ArrayList<>();
         if (!query.isEmpty() && !status.isEmpty() && !sortBy.isEmpty() && !sortDir.isEmpty()) {
             searchResults = performSearch(
@@ -77,26 +82,53 @@ public class SearchPageController {
                     status,
                     sortBy,
                     sortDir,
-                    tags
+                    tags,
+                    isAdmin
             );
+        }
+
+        // Get list of hidden posts if admin
+        if (isAdmin && !searchResults.isEmpty()) {
+            var postAtUris = searchResults.stream()
+                    .map(SearchResult::getAturi)
+                    .toList();
+
+            var hiddenPosts = dsl.select(HIDDEN_POST.POST_ATURI)
+                    .from(HIDDEN_POST)
+                    .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                    .fetch(HIDDEN_POST.POST_ATURI);
+
+            model.addAttribute("hiddenPosts", hiddenPosts);
         }
 
         model.addAttribute("searchResults", searchResults);
         return "pages/search/htmx/results";
     }
 
-    private List<SearchResult> performSearch(String query, String status, String sortBy, String sortDir, List<String> tags) {
+    private List<SearchResult> performSearch(
+            String query,
+            String status,
+            String sortBy,
+            String sortDir,
+            List<String> tags,
+            boolean isAdmin
+    ) {
         try {
             final int LIMIT = 50;
             List<SearchResult> accumulated = new ArrayList<>();
             Set<String> seenAturis = new HashSet<>();
 
-            Condition statusCondition = POST.IS_DELETED.eq(false)
-                    .andNotExists(
+            Condition statusCondition = POST.IS_DELETED.eq(false);
+
+            // Only exclude hidden posts if user is not admin
+            if (!isAdmin) {
+                statusCondition = statusCondition.andNotExists(
                         dsl.selectOne()
                             .from(HIDDEN_POST)
                             .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
                         );
+            }
+
             if (status != null && !status.equals("all")) {
                 switch (status.toLowerCase()) {
                     case "open":

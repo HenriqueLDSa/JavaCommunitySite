@@ -154,6 +154,10 @@ public class AnswerPageController {
                 posts = getAllPostsPaged(pageSize, (page - 1) * pageSize, includeHidden);
             }
 
+            if (includeHidden) {
+
+            }
+
             boolean hasMore = totalCount > (page * pageSize);
             model.addAttribute("posts", posts);
             model.addAttribute("hasMoreAnswerPosts", hasMore);
@@ -366,6 +370,21 @@ public class AnswerPageController {
             .limit(limit)
             .offset(offset)
             .fetch();
+
+        // Get list of hidden posts if admin
+        List<String> hiddenPostsList = new ArrayList<>();
+        if (includeHidden) {
+            var postAtUris = new ArrayList<String>();
+            for (var record : records) {
+                postAtUris.add(record.getAturi());
+            }
+            hiddenPostsList = dsl.select(HIDDEN_POST.POST_ATURI)
+                    .from(HIDDEN_POST)
+                    .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                    .fetch(HIDDEN_POST.POST_ATURI);
+        }
+
+        final List<String> hiddenPosts = hiddenPostsList;
         return records.stream()
             .map(record -> {
                 Map<String, Object> map = new HashMap<>();
@@ -379,6 +398,7 @@ public class AnswerPageController {
                 map.put("createdAt", record.getCreatedAt() != null ? record.getCreatedAt().toString() : null);
                 map.put("updatedAt", record.getUpdatedAt() != null ? record.getUpdatedAt().toString() : null);
                 map.put("ownerDid", record.getOwnerDid());
+                map.put("isHidden", hiddenPosts.contains(record.getAturi()));
                 // Count replies, excluding hidden replies for non-admins
                 var replyCountQ = dsl.selectCount()
                     .from(REPLY)
@@ -416,6 +436,20 @@ public class AnswerPageController {
             .orderBy(POST.CREATED_AT.desc())
             .fetch();
 
+        // Get list of hidden posts if admin
+        List<String> hiddenPostsList = new ArrayList<>();
+        if (includeHidden) {
+            var postAtUris = new ArrayList<String>();
+            for (var record : records) {
+                postAtUris.add(record.getAturi());
+            }
+            hiddenPostsList = dsl.select(HIDDEN_POST.POST_ATURI)
+                    .from(HIDDEN_POST)
+                    .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                    .fetch(HIDDEN_POST.POST_ATURI);
+        }
+
+        final List<String> hiddenPosts = hiddenPostsList;
         return records.stream()
             .map(record -> {
                 Map<String, Object> map = new HashMap<>();
@@ -429,7 +463,8 @@ public class AnswerPageController {
                 map.put("createdAt", record.getCreatedAt() != null ? record.getCreatedAt().toString() : null);
                 map.put("updatedAt", record.getUpdatedAt() != null ? record.getUpdatedAt().toString() : null);
                 map.put("ownerDid", record.getOwnerDid());
-                
+                map.put("isHidden", hiddenPosts.contains(record.getAturi()));
+
                 // Add reply count
                 var replyCountQ = dsl.selectCount()
                     .from(REPLY)
@@ -443,7 +478,7 @@ public class AnswerPageController {
                 }
                 Integer replyCount = replyCountQ.fetchOne(0, Integer.class);
                 map.put("countReplies", replyCount != null ? replyCount : 0);
-                
+
                 return map;
             })
             .toList();
@@ -498,6 +533,21 @@ public class AnswerPageController {
             .limit(limit)
             .offset(offset)
             .fetch();
+
+        // Get list of hidden posts if admin
+        List<String> hiddenPostsList = new ArrayList<>();
+        if (includeHidden) {
+            var postAtUris = new ArrayList<String>();
+            for (var record : records) {
+                postAtUris.add(record.getAturi());
+            }
+            hiddenPostsList = dsl.select(HIDDEN_POST.POST_ATURI)
+                    .from(HIDDEN_POST)
+                    .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                    .fetch(HIDDEN_POST.POST_ATURI);
+        }
+
+        final List<String> hiddenPosts = hiddenPostsList;
         return records.stream()
             .map(record -> {
                 Map<String, Object> map = new HashMap<>();
@@ -511,6 +561,7 @@ public class AnswerPageController {
                 map.put("createdAt", record.getCreatedAt() != null ? record.getCreatedAt().toString() : null);
                 map.put("updatedAt", record.getUpdatedAt() != null ? record.getUpdatedAt().toString() : null);
                 map.put("ownerDid", record.getOwnerDid());
+                map.put("isHidden", hiddenPosts.contains(record.getAturi()));
                 var replyCountQ = dsl.selectCount()
                     .from(REPLY)
                         .where(REPLY.ROOT_POST_ATURI.eq(record.getAturi()));
@@ -548,11 +599,25 @@ public class AnswerPageController {
         var records = recordsSelect
             .orderBy(POST.CREATED_AT.desc())
             .fetch();
-        
+
         // Debug logging to help troubleshoot filtering issues
         System.out.println("User DID: " + userDid);
         System.out.println("Filtered posts count: " + records.size());
-        
+
+        // Get list of hidden posts if admin
+        List<String> hiddenPostsList = new ArrayList<>();
+        if (includeHidden) {
+            var postAtUris = new ArrayList<String>();
+            for (var record : records) {
+                postAtUris.add(record.getAturi());
+            }
+            hiddenPostsList = dsl.select(HIDDEN_POST.POST_ATURI)
+                    .from(HIDDEN_POST)
+                    .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                    .fetch(HIDDEN_POST.POST_ATURI);
+        }
+
+        final List<String> hiddenPosts = hiddenPostsList;
         return records.stream()
             .map(record -> {
                 Map<String, Object> map = new HashMap<>();
@@ -566,7 +631,8 @@ public class AnswerPageController {
                 map.put("createdAt", record.getCreatedAt() != null ? record.getCreatedAt().toString() : null);
                 map.put("updatedAt", record.getUpdatedAt() != null ? record.getUpdatedAt().toString() : null);
                 map.put("ownerDid", record.getOwnerDid());
-                
+                map.put("isHidden", hiddenPosts.contains(record.getAturi()));
+
                 // Add reply count
                 var replyCountQ = dsl.selectCount()
                     .from(REPLY)
@@ -580,7 +646,7 @@ public class AnswerPageController {
                 }
                 Integer replyCount = replyCountQ.fetchOne(0, Integer.class);
                 map.put("countReplies", replyCount != null ? replyCount : 0);
-                
+
                 return map;
             })
             .toList();

@@ -20,6 +20,7 @@
         amtReplies = (post.get("countReplies") instanceof Number n ? n.intValue() : 0),
         timeText = TimeUtil.calculateTimeText(OffsetDateTime.parse(post.get("createdAt").toString())),
         closed = !((Boolean) post.get("isOpen")),
+        hidden = (Boolean) post.get("isHidden")
     )
     !{i++;}
 @endfor

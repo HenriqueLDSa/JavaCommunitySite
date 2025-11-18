@@ -2,6 +2,7 @@
 @import com.jcs.javacommunitysite.util.TimeUtil
 @import java.util.List
 @import java.util.Map
+@import java.util.ArrayList
 
 @param List<com.jcs.javacommunitysite.jooq.tables.records.PostRecord> userPosts
 @param Map<String, Integer> replyCountsMap
@@ -10,6 +11,7 @@
 @param boolean hasMoreUserPosts = false
 @param int nextPageUserPosts = 2
 @param String did
+@param List<String> hiddenPosts = new ArrayList<>()
 
 <div class="userPosts">
     @if(userPosts != null && !userPosts.isEmpty())
@@ -22,6 +24,7 @@
                 timeText = TimeUtil.calculateTimeText(post.getCreatedAt()),
                 tags = null,
                 closed = !post.getIsOpen(),
+                hidden = hiddenPosts.contains(post.getAturi())
             )
         @endfor
         @if(hasMoreUserPosts)

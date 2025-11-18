@@ -8,8 +8,9 @@
 @param String timeText = null
 @param List<String> tags = null
 @param boolean closed = false
+@param boolean hidden = false
 
-<li class="post-item">
+<li class="post-item ${hidden ? "hidden" : ""}">
     <a href="/post/${aturi.getDid()}/${aturi.getRecordKey()}">
         <div class="post-name-container">
             <h4 class="post-name">${title}</h4>
@@ -24,6 +25,12 @@
                     <div class="tag">${tag}</div>
                 @endfor
             </div>
+        @endif
+
+        @if(hidden)
+            <p style="color: var(--subtext-color); margin-top: 5px">
+                <i>This post is hidden</i>
+            </p>
         @endif
     </a>
 

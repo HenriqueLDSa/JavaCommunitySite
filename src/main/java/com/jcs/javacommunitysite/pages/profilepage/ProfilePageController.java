@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.jcs.javacommunitysite.jooq.tables.HiddenPost.HIDDEN_POST;
 import static com.jcs.javacommunitysite.jooq.tables.Post.POST;
 import static com.jcs.javacommunitysite.jooq.tables.Reply.REPLY;
 import static dev.mccue.json.JsonDecoder.*;
@@ -37,21 +38,62 @@ public class ProfilePageController {
         model.addAttribute("postForm", new NewPostForm());
         int pageSize = 20;
         try {
+            // Check if current user is admin
+            boolean isCurUserAdmin = sessionService.isAuthenticated() &&
+                                    sessionService.getCurrentClient().isPresent() &&
+                                    UserInfo.isAdmin(dsl, sessionService.getCurrentClient().get().getSession().getDid());
+
             // Total count
-            int totalPosts = dsl.selectCount()
+            var countQuery = dsl.selectCount()
                     .from(POST)
                     .where(POST.OWNER_DID.eq(did))
-                    .and(POST.IS_DELETED.eq(false))
-                    .fetchOne(0, int.class);
+                    .and(POST.IS_DELETED.eq(false));
+
+            // Only include hidden posts if user is admin
+            if (!isCurUserAdmin) {
+                countQuery = countQuery.andNotExists(
+                    dsl.selectOne()
+                            .from(HIDDEN_POST)
+                            .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
+                );
+            }
+
+            int totalPosts = countQuery.fetchOne(0, int.class);
 
             // Query paged user's posts from database
-            var userPosts = dsl.selectFrom(POST)
+            var userPostsQuery = dsl.selectFrom(POST)
                     .where(POST.OWNER_DID.eq(did))
-                    .and(POST.IS_DELETED.eq(false))
+                    .and(POST.IS_DELETED.eq(false));
+
+            // Only include hidden posts if user is admin
+            if (!isCurUserAdmin) {
+                userPostsQuery = userPostsQuery.andNotExists(
+                    dsl.selectOne()
+                            .from(HIDDEN_POST)
+                            .where(HIDDEN_POST.POST_ATURI.eq(POST.ATURI))
+                );
+            }
+
+            var userPosts = userPostsQuery
                     .orderBy(POST.CREATED_AT.desc())
                     .limit(pageSize)
                     .offset((page - 1) * pageSize)
                     .fetch();
+
+            // Get list of hidden posts if admin
+            if (isCurUserAdmin) {
+                var postAtUris = new ArrayList<String>();
+                for (var post : userPosts) {
+                    postAtUris.add(post.getAturi());
+                }
+
+                var hiddenPosts = dsl.select(HIDDEN_POST.POST_ATURI)
+                        .from(HIDDEN_POST)
+                        .where(HIDDEN_POST.POST_ATURI.in(postAtUris))
+                        .fetch(HIDDEN_POST.POST_ATURI);
+
+                model.addAttribute("hiddenPosts", hiddenPosts);
+            }
 
             // Create a map of post ATURI to reply count
             var replyCountsMap = new HashMap<String, Integer>();

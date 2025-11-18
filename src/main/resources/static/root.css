@@ -1491,6 +1491,10 @@ code[class*="language-"] {
     & .poster-info, .body {
         opacity: 40%;
     }
+
+    &.post-item {
+        opacity: 40%;
+    }
 }
 
 .home-page {
