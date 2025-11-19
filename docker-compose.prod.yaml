@@ -2,7 +2,7 @@ services:
   jcs-backend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: jcs-backend
     ports:
       - '8080:8080'
@@ -12,6 +12,7 @@ services:
       - DB_URL=${DB_URL}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=prod
     restart: unless-stopped
     networks:
       - jcs-network
