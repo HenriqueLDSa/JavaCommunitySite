@@ -470,7 +470,11 @@ This project is currently unlicensed. All rights reserved.
 
 ## 👥 Authors
 
-- Snuddles - [GitHub](https://github.com/Snuddles)
+- Raulph - [GitHub](https://github.com/Snuddles)
+- Henrique - [GitHub](https://github.com/HenriqueLDSa)
+- Patrick - [GitHub](https://github.com/fudgeu)
+- Leo - [GitHub](https://github.com/leosalazar7)
+- Gabriel - [GitHub](https://github.com/Gabrielhs20)
 
 ## 🙏 Acknowledgments
 
@@ -479,26 +483,6 @@ This project is currently unlicensed. All rights reserved.
 - Spring Boot community
 - jOOQ team for excellent SQL library
 - JTE team for type-safe templating
-
-## 📞 Support
-
-For issues, questions, or contributions:
-- Open an issue on [GitHub](https://github.com/Snuddles/JavaCommunitySite/issues)
-- Contact the project maintainers
-
-## 🗺️ Roadmap
-
-Future enhancements planned:
-- [ ] Enhanced search with filters
-- [ ] User reputation system
-- [ ] Question voting system
-- [ ] Code syntax highlighting in answers
-- [ ] Email notifications
-- [ ] Mobile-responsive design improvements
-- [ ] API rate limiting
-- [ ] GraphQL API
-- [ ] Internationalization (i18n)
-- [ ] Dark mode support
 
 ---
 
