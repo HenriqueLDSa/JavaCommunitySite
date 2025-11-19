@@ -282,7 +282,7 @@
              QuestionRecord post = new QuestionRecord(postAtUri);
              client.deleteRecord(post);
 
-             response.setHeader("HX-Redirect", "/browse");
+             response.setHeader("HX-Redirect", "/ask");
              return "empty";
 
          } catch (Exception e) {
