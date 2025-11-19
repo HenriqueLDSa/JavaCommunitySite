@@ -8,6 +8,9 @@
 @param String did
 
 <div class="userAnswers">
+    @if(replies.isEmpty())
+        <p>This user hasn't answered any questions yet.</p>
+    @endif
     @for (String reply : replies)
         !{Map<String, String> post = postData.get(reply);}
         !{Map<String, String> r = replyData.get(reply);}
