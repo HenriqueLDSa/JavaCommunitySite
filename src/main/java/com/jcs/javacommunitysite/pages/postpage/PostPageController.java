@@ -611,17 +611,30 @@
         }
          var postAtUri = new AtUri(userDid, QuestionRecord.recordCollection, postRKey);
          try {
-             var hiddePostAturi = dsl.select(HIDDEN_POST.ATURI)
+             var hiddenPostAturi = dsl.select(HIDDEN_POST.ATURI)
                      .from(HIDDEN_POST)
                      .where(HIDDEN_POST.POST_ATURI.eq(postAtUri.toString()))
                      .fetchOneInto(String.class);
-             client.deleteRecord(new AtUri(hiddePostAturi));
+             
+             if (hiddenPostAturi == null) {
+                 return ErrorUtil.createErrorToast(response, model, "Post is not currently hidden.");
+             }
+             
+             // Check if the current admin owns this hide record
+             AtUri hideRecordUri = new AtUri(hiddenPostAturi);
+             String clientDid = client.getSession().getDid();
+             if (!hideRecordUri.getDid().equals(clientDid)) {
+                 return ErrorUtil.createErrorToast(response, model, "Only the admin who hid this post can unhide it.");
+             }
+             
+             client.deleteRecord(hideRecordUri);
 
              model.addAttribute("post", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
              model.addAttribute("isHidden", false);
              return "pages/post/htmx/hideButton";
          } catch (Exception e) {
-             return ErrorUtil.createErrorToast(response, model, "Failed to unhide post. Please try again later.");
+             e.printStackTrace();
+             return ErrorUtil.createErrorToast(response, model, "Failed to unhide post: " + e.getMessage());
          }
      }
 
@@ -647,14 +660,27 @@
                      .from(HIDDEN_REPLY)
                      .where(HIDDEN_REPLY.REPLY_ATURI.eq(reply))
                      .fetchOneInto(String.class);
-             client.deleteRecord(new AtUri(hiddenReplyAturi));
+             
+             if (hiddenReplyAturi == null) {
+                 return ErrorUtil.createErrorToast(response, model, "Reply is not currently hidden.");
+             }
+             
+             // Check if the current admin owns this hide record
+             AtUri hideRecordUri = new AtUri(hiddenReplyAturi);
+             String clientDid = client.getSession().getDid();
+             if (!hideRecordUri.getDid().equals(clientDid)) {
+                 return ErrorUtil.createErrorToast(response, model, "Only the admin who hid this reply can unhide it.");
+             }
+             
+             client.deleteRecord(hideRecordUri);
 
              model.addAttribute("post", new AtUri(userDid, QuestionRecord.recordCollection, postRKey));
              model.addAttribute("reply", new AtUri(reply));
              model.addAttribute("isHidden", false);
              return "pages/post/htmx/hideButton";
          } catch (Exception e) {
-             return ErrorUtil.createErrorToast(response, model, "Failed to unhide reply. Please try again later.");
+             e.printStackTrace();
+             return ErrorUtil.createErrorToast(response, model, "Failed to unhide reply: " + e.getMessage());
          }
      }
 
