@@ -43,13 +43,6 @@
 
         <%-- Spacer --%>
         <div style="flex: 1"></div>
-
-<%--        <li>--%>
-<%--            <a id="chat-nav-button" href="/chat">--%>
-<%--                <img src="/chat.svg" alt="Chat" />--%>
-<%--                Chat--%>
-<%--            </a>--%>
-<%--        </li>--%>
     </ul>
 </div>
 
