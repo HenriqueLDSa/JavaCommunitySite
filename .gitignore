@@ -57,4 +57,4 @@ Thumbs.db
 * 2.*
 
 # SSH Keys
-.pem
+*.pem
